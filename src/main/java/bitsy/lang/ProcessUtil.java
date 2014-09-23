@@ -1,0 +1,44 @@
+package bitsy.lang;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+public class ProcessUtil {
+	static class StreamGobbler extends Thread {
+		InputStream is;
+		String type;
+
+		StreamGobbler(InputStream is, String type) {
+			this.is = is;
+			this.type = type;
+		}
+
+		public void run() {
+			try {
+				InputStreamReader isr = new InputStreamReader(is);
+				BufferedReader br = new BufferedReader(isr);
+				String line = null;
+				while ((line = br.readLine()) != null) {
+					System.out.println(type + ">" + line);
+				}
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+		}
+	}
+	
+	public static int run(String cmd) throws IOException, InterruptedException {
+    	System.out.println(cmd);
+    	Runtime rt = Runtime.getRuntime();
+        Process proc = rt.exec(cmd);
+		StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
+		StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
+		errorGobbler.start();
+		outputGobbler.start();
+        int result = proc.waitFor();
+        System.out.println("Returned: "+result);
+        return result;
+    }
+}

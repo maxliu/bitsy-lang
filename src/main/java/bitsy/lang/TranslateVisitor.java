@@ -27,7 +27,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         ST st = group.getInstanceOf("file");
         st.add("symbols", scope.getVariables());
         StringBuilder body = new StringBuilder();
-        for(PrintFunctionCallContext pctx: ctx.printFunctionCall()) {
+        for (PrintFunctionCallContext pctx: ctx.printFunctionCall()) {
             body.append(this.visit(pctx));
         }
         st.add("body", body.toString());
@@ -41,8 +41,9 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         TerminalNode string;
         if ( (string = ctx.STRING()) != null) {
             String text = string.getText();
-            st.add("symbol", scope.getSymbols().get(ctx));
-            st.add("length", text.length() + 1);
+            String symbolKey = scope.getSymbols().get(ctx);
+            st.add("symbol", symbolKey);
+            st.add("length", scope.getVariables().get(symbolKey).getCString().getLengthInBytes());
         }
         String out = st.render();
         return out;

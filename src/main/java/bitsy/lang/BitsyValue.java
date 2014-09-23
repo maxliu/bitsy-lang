@@ -4,7 +4,7 @@ public class BitsyValue {
     Object value;
     
     public BitsyValue(String value) {
-        this.value = new CString(value);
+        this.value = new String(value);
     }
     
     public boolean isString() {
@@ -12,10 +12,10 @@ public class BitsyValue {
     }
     
     public String asString() {
-        return (String) value;
+        return (String)value;
     }
     
-    public CString asCString() {
+    public CString getCString() {
         return new CString(asString());
     }
     
