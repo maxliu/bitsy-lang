@@ -1,0 +1,16 @@
+file(symbols, body) ::= <<
+<symbols.keys:{k | @<k> = internal constant [<(symbols.(k)).lengthInBytes> x i8] c"<(symbols.(k)).asString>"}; separator="\n">
+
+declare i32 @printf(i8 *, ...)
+
+define i32 @main() {
+    <body>
+    ret i32 0;
+}
+>>
+
+println(symbol, length) ::= <<
+; println(<symbol>)
+%ps = getelementptr [<length> x i8]* @<symbol>, i64 0, i64 0
+call i32 (i8 *, ...)* @printf(i8* %ps) 
+>>
