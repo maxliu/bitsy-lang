@@ -29,21 +29,22 @@ public class Bitsy {
         Scope scope = new Scope();
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(new SymbolListener(scope), tree);
-        
-        STGroupFile stg = new STGroupFile("src/main/resources/stg/llvm.stg");
-        
-        String irString = new TranslateVisitor(stg, scope).visit(tree);
-        File irFile = new File(source.getSourceName()+".ll");
-        Files.write(irFile.toPath(), irString.getBytes());
-        
-        File sourceFile = new File(source.getSourceName());
-        File bcFile = new File(source.getSourceName()+".bc");
-        File sFile = new File(source.getSourceName()+".s");
-        if (run("llvm-as -f "+irFile) != 0) return;
-        irFile.delete();
-        if (run("llc  "+bcFile) != 0) return;
-        bcFile.delete();
-        if (run("clang -o "+sourceFile+".out "+sFile) != 0) return;
-        sFile.delete();
+        if (args.length == 0 || args[0].startsWith("-native")) { 
+            STGroupFile stg = new STGroupFile("src/main/resources/stg/llvm.stg");
+            
+            String irString = new TranslateVisitor(stg, scope).visit(tree);
+            File irFile = new File(source.getSourceName()+".ll");
+            Files.write(irFile.toPath(), irString.getBytes());
+            
+            File sourceFile = new File(source.getSourceName());
+            File bcFile = new File(source.getSourceName()+".bc");
+            File sFile = new File(source.getSourceName()+".s");
+            if (run("llvm-as -f "+irFile) != 0) return;
+            irFile.delete();
+            if (run("llc  "+bcFile) != 0) return;
+            bcFile.delete();
+            if (run("clang -o "+sourceFile+".out "+sFile) != 0) return;
+            sFile.delete();
+        }
     }
 }
