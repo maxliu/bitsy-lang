@@ -43,7 +43,9 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
             String text = string.getText();
             String symbolKey = scope.getSymbols().get(ctx);
             st.add("symbol", symbolKey);
-            st.add("length", scope.getVariables().get(symbolKey).getCString().getLengthInBytes());
+            BitsyValue val = scope.getVariables().get(symbolKey);
+            st.add("value", text);
+            st.add("length", val.getCString().getLengthInBytes());
         }
         String out = st.render();
         return out;

@@ -12,7 +12,7 @@ define i32 @main() {
 cStringLength(str) ::= "<str.lengthInBytes>"
 cString(symbol) ::= <<[<cStringLength(symbol.cString)> x i8] c"<symbol.cString>">>
 
-println(symbol, length) ::= <<
+println(symbol, value, length) ::= <<
 ; println(<symbol>)
 %l<symbol> = getelementptr [<length> x i8]* @<symbol>, i64 0, i64 0
 call i32 (i8 *, ...)* @printf(i8* %l<symbol>) 

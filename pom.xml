@@ -12,7 +12,15 @@
     <properties>
         <antlr4.version>4.1</antlr4.version>
     </properties>
-
+    
+    <repositories>
+        <repository>
+		    <id>git-sjhorn</id>
+		    <name>sjhorn's Git based repo</name>
+		    <url>https://github.com/sjhorn/jasmin-assembler-maven/raw/master/</url>
+		</repository>
+    </repositories>
+    
     <dependencies>
 
         <dependency>
@@ -26,6 +34,13 @@
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-maven-plugin</artifactId>
             <version>${antlr4.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>net.sourceforge.jasmin</groupId>
+            <artifactId>jasmin-assembler</artifactId>
+            <version>2.4</version>
             <scope>compile</scope>
         </dependency>
 

@@ -29,16 +29,22 @@ public class ProcessUtil {
 		}
 	}
 	
-	public static int run(String cmd) throws IOException, InterruptedException {
+	public static int run(String cmd) {
     	System.out.println(cmd);
-    	Runtime rt = Runtime.getRuntime();
-        Process proc = rt.exec(cmd);
-		StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
-		StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
-		errorGobbler.start();
-		outputGobbler.start();
-        int result = proc.waitFor();
-        System.out.println("Returned: "+result);
+    	int result;
+    	try {
+        	Runtime rt = Runtime.getRuntime();
+            Process proc = rt.exec(cmd);
+    		StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
+    		StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
+    		errorGobbler.start();
+    		outputGobbler.start();
+            result = proc.waitFor();
+            System.out.println("Returned: "+result);
+    	} catch (IOException | InterruptedException e) {
+    	    e.printStackTrace();
+    	    result = -1;
+    	}
         return result;
     }
 }

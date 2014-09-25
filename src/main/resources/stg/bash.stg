@@ -1,0 +1,9 @@
+file(symbols, body) ::= <<
+#!/bin/bash
+<body>
+>>
+
+println(symbol, value, length) ::= <<
+printf <value>
+
+>>
