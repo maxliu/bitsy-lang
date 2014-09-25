@@ -1,5 +1,8 @@
 package bitsy.lang;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -11,10 +14,12 @@ import bitsy.antlr4.BitsyParser.PrintFunctionCallContext;
 public class TranslateVisitor extends BitsyBaseVisitor<String> {
     STGroup group;
     Scope scope;
+    String fileName;
     
-    public TranslateVisitor(STGroup group, Scope scope) {
+    public TranslateVisitor(STGroup group, Scope scope, String fileName) {
         this.group = group;
         this.scope = scope;
+        this.fileName = FilenameUtil.getFilenameAndExtenion(fileName)[0];
     }
     
     @Override
@@ -25,12 +30,13 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     @Override
     public String visitParse(ParseContext ctx) {
         ST st = group.getInstanceOf("file");
+        st.add("fileName", fileName);
         st.add("symbols", scope.getVariables());
-        StringBuilder body = new StringBuilder();
+        List<String> statements = new ArrayList<String>();
         for (PrintFunctionCallContext pctx: ctx.printFunctionCall()) {
-            body.append(this.visit(pctx));
+            statements.add(this.visit(pctx));
         }
-        st.add("body", body.toString());
+        st.add("statements", statements);
         return st.render();
     }
     

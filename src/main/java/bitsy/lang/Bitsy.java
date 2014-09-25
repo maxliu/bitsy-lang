@@ -29,37 +29,39 @@ public class Bitsy {
 	static void jvm(Scope scope, ParseTree tree, ANTLRFileStream source) throws IOException, Exception {
 	    STGroupFile stg = new STGroupFile("src/main/resources/stg/jvm.stg");
         ClassFile classFile = new ClassFile();
-        String jasminString = new TranslateVisitor(stg, scope).visit(tree);
+        String jasminString = new TranslateVisitor(stg, scope, source.getSourceName()).visit(tree);
         //System.out.println(jasminString);
         InputStream is = new ByteArrayInputStream(jasminString.getBytes("UTF-8"));
         InputStreamReader ir = new InputStreamReader(is);
         try (BufferedReader inp = new BufferedReader(ir)) {
             classFile.readJasmin(inp, source.getSourceName(), false);
         }
+        System.out.println("Writing "+classFile.getClassName()+".class");
         FileOutputStream outp = new FileOutputStream(new File(classFile.getClassName()+".class"));
         classFile.write(outp);
 	}
     static void llvm(Scope scope, ParseTree tree, ANTLRFileStream source) throws IOException {
 	    STGroupFile stg = new STGroupFile("src/main/resources/stg/llvm.stg");
         
-        String irString = new TranslateVisitor(stg, scope).visit(tree);
+	    String sourceName = source.getSourceName();
+        String irString = new TranslateVisitor(stg, scope, sourceName).visit(tree);
         File irFile = new File(source.getSourceName()+".ll");
         Files.write(irFile.toPath(), irString.getBytes());
-        
-        File sourceFile = new File(source.getSourceName());
-        File bcFile = new File(source.getSourceName()+".bc");
-        File sFile = new File(source.getSourceName()+".s");
+        File bcFile = new File(sourceName+".bc");
+        File sFile = new File(sourceName+".s");
         if (run("llvm-as -f "+irFile) != 0) return;
         irFile.delete();
         if (run("llc  "+bcFile) != 0) return;
         bcFile.delete();
-        if (run("clang -o "+sourceFile+".out "+sFile) != 0) return;
+        String exeFile = FilenameUtil.getFilenameAndExtenion(sourceName)[0];
+        if (run("clang -o "+exeFile+" "+sFile) != 0) return;
         sFile.delete();
+        System.out.println("Created "+exeFile+" native file");
 	}
 	
 	static void bash(Scope scope, ParseTree tree, ANTLRFileStream source) throws IOException {
 	    STGroupFile stg = new STGroupFile("src/main/resources/stg/bash.stg");
-        String bashString = new TranslateVisitor(stg, scope).visit(tree);
+        String bashString = new TranslateVisitor(stg, scope, source.getSourceName()).visit(tree);
         String fileName = FilenameUtil.getFilenameAndExtenion(source.getSourceName())[0];
         Path bashFile = new File(fileName+".sh").toPath();
         Files.write(bashFile, bashString.getBytes());
@@ -69,6 +71,8 @@ public class Bitsy {
         perms.add(PosixFilePermission.GROUP_EXECUTE);
         perms.add(PosixFilePermission.OTHERS_EXECUTE);
         Files.setPosixFilePermissions(bashFile, perms);
+        
+        System.out.println("Created bash script "+bashFile);
 	}
 	
     public static void main(String[] args) throws Exception {
@@ -83,14 +87,21 @@ public class Bitsy {
         Scope scope = new Scope();
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(new SymbolListener(scope), tree);
-        if (args.length != 1) {
+        if (args.length == 0) {
             System.out.println("Parsed successfully. Please specify -native, -bash or -jvm to create output files");
-        } else if (args[0].startsWith("-native")) { 
-            llvm(scope, tree, source);
-        } else if (args[0].equals("-jvm")) {
-            jvm(scope, tree, source);
-        } else if (args[0].equals("-bash")) {
-            bash(scope, tree, source);
+            return;
+        } 
+        for (String arg: args) {
+        	if (arg.equals("-llvm")) { 
+                llvm(scope, tree, source);
+            } else if (arg.equals("-jvm")) {
+                jvm(scope, tree, source);
+            } else if (arg.equals("-bash")) {
+                bash(scope, tree, source);
+            } else {
+            	System.err.println("Invalid argument "+arg+" exiting.");
+            	return;
+            }
         }
     }
 }

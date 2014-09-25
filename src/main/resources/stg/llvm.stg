@@ -1,10 +1,10 @@
-file(symbols, body) ::= <<
+file(fileName, symbols, statements) ::= <<
 <symbols.keys:{k | @<k> = internal constant <cString(symbols.(k))>}; separator="\n">
 
 declare i32 @printf(i8 *, ...)
 
 define i32 @main() {
-    <body>
+    <statements;separator="\n">
     ret i32 0;
 }
 >>

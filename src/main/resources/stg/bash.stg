@@ -1,6 +1,6 @@
-file(symbols, body) ::= <<
+file(fileName, symbols, statements) ::= <<
 #!/bin/bash
-<body>
+<statements;separator="\n">
 >>
 
 println(symbol, value, length) ::= <<
