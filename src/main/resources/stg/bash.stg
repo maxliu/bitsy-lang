@@ -4,6 +4,6 @@ file(fileName, symbols, statements) ::= <<
 >>
 
 println(symbol, value, length) ::= <<
-printf <value>
+printf "<value>\n"
 
 >>

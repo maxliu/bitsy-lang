@@ -36,7 +36,7 @@ public class Bitsy {
         try (BufferedReader inp = new BufferedReader(ir)) {
             classFile.readJasmin(inp, source.getSourceName(), false);
         }
-        System.out.println("Writing "+classFile.getClassName()+".class");
+        System.out.println(">>> Created java class "+classFile.getClassName()+".class");
         FileOutputStream outp = new FileOutputStream(new File(classFile.getClassName()+".class"));
         classFile.write(outp);
 	}
@@ -56,7 +56,7 @@ public class Bitsy {
         String exeFile = FilenameUtil.getFilenameAndExtenion(sourceName)[0];
         if (run("clang -o "+exeFile+" "+sFile) != 0) return;
         sFile.delete();
-        System.out.println("Created "+exeFile+" native file");
+        System.out.println(">>> Created native file "+exeFile);
 	}
 	
 	static void bash(Scope scope, ParseTree tree, ANTLRFileStream source) throws IOException {
@@ -72,7 +72,7 @@ public class Bitsy {
         perms.add(PosixFilePermission.OTHERS_EXECUTE);
         Files.setPosixFilePermissions(bashFile, perms);
         
-        System.out.println("Created bash script "+bashFile);
+        System.out.println(">>> Created bash script "+bashFile);
 	}
 	
     public static void main(String[] args) throws Exception {

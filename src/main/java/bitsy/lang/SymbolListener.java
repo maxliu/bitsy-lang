@@ -1,9 +1,10 @@
 package bitsy.lang;
 
-import org.antlr.v4.runtime.tree.TerminalNode;
+import org.antlr.v4.runtime.misc.NotNull;
 
 import bitsy.antlr4.BitsyBaseListener;
-import bitsy.antlr4.BitsyParser.PrintFunctionCallContext;
+import bitsy.antlr4.BitsyParser.NumberExpressionContext;
+import bitsy.antlr4.BitsyParser.StringExpressionContext;
 
 public class SymbolListener extends BitsyBaseListener {
     Scope scope;
@@ -14,12 +15,16 @@ public class SymbolListener extends BitsyBaseListener {
     }
     
     @Override
-    public void enterPrintFunctionCall(PrintFunctionCallContext ctx) {
-        TerminalNode string;
-        if ( (string = ctx.STRING()) != null) {
-            String text = string.getText();
-            scope.put(ctx, "s"+symbolNumber, new BitsyValue(text.substring(1, text.length() - 1)));
-            symbolNumber++;
-        }
+    public void enterStringExpression(@NotNull StringExpressionContext ctx) {
+    	String text = ctx.STRING().getText();
+    	scope.put(ctx, "s"+symbolNumber, new BitsyValue(text.substring(1, text.length() - 1)));
+    	symbolNumber++;
+    }
+    
+    @Override
+    public void enterNumberExpression(@NotNull NumberExpressionContext ctx) {
+    	String text = ctx.NUMBER().getText();
+    	scope.put(ctx, "s"+symbolNumber, new BitsyValue(Double.parseDouble(text)));
+    	symbolNumber++;
     }
 }

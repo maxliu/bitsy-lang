@@ -1,26 +1,57 @@
 package bitsy.lang;
 
+
 public class BitsyValue {
-    Object value;
+	public static final BitsyValue NULL = new BitsyValue();
+	public static final BitsyValue VOID = new BitsyValue();
+
+	Object value;
     
-    public BitsyValue(String value) {
-        this.value = new String(value);
+    private BitsyValue() {
+        value = new Object();
+    }
+    
+    public BitsyValue(Object value) {
+        this.value = value;
     }
     
     public boolean isString() {
         return value instanceof String;
     }
     
+    public boolean isNumber() {
+        return value instanceof Number;
+    } 
+    
     public String asString() {
-        return (String)value;
+    	if (isString()) {
+    		return (String) value;
+    	} 
+    	return value.toString();
     }
     
-    public CString getCString() {
-        return new CString(asString());
+    public Boolean asBoolean() {
+        return (Boolean)value;
+    }
+
+    public Double asDouble() {
+        return ((Number)value).doubleValue();
+    }
+
+    public Long asLong() {
+        return ((Number)value).longValue();
     }
     
     @Override
     public int hashCode() {
         return value.hashCode();
+    }
+    
+    public String getLLVMString() {
+        return LLVMStringUtil.encode(asString());
+    }
+    
+    public int getLLVMLength() {
+    	return LLVMStringUtil.getLength(asString());
     }
 }

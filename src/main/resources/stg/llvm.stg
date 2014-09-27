@@ -1,19 +1,21 @@
 file(fileName, symbols, statements) ::= <<
-<symbols.keys:{k | @<k> = internal constant <cString(symbols.(k))>}; separator="\n">
+@_NL = internal constant [1 x i8] c"\0A"
+<symbols.keys:{k | @<k> = internal constant <llvmConstant(symbols.(k))>}; separator="\n">
 
 declare i32 @printf(i8 *, ...)
 
 define i32 @main() {
+	%_NL = getelementptr [1 x i8]* @_NL, i64 0, i64 0
     <statements;separator="\n">
     ret i32 0;
 }
 >>
 
-cStringLength(str) ::= "<str.lengthInBytes>"
-cString(symbol) ::= <<[<cStringLength(symbol.cString)> x i8] c"<symbol.cString>">>
+llvmConstant(symbol) ::= <<[<(symbol.LLVMLength)> x i8] c"<symbol.LLVMString>">>
 
 println(symbol, value, length) ::= <<
 ; println(<symbol>)
 %l<symbol> = getelementptr [<length> x i8]* @<symbol>, i64 0, i64 0
 call i32 (i8 *, ...)* @printf(i8* %l<symbol>) 
+call i32 (i8 *, ...)* @printf(i8* %_NL)
 >>
