@@ -13,7 +13,6 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.antlr.v4.runtime.ANTLRFileStream;
@@ -24,8 +23,11 @@ import org.stringtemplate.v4.STGroupFile;
 
 import bitsy.antlr4.BitsyLexer;
 import bitsy.antlr4.BitsyParser;
+import bitsy.lang.symbols.Scope;
+import bitsy.lang.symbols.SymbolTable;
 
 public class Bitsy {
+	/*
 	static void jvm(Scope scope, ParseTree tree, ANTLRFileStream source) throws IOException, Exception {
 	    STGroupFile stg = new STGroupFile("src/main/resources/stg/jvm.stg");
         ClassFile classFile = new ClassFile();
@@ -39,24 +41,6 @@ public class Bitsy {
         System.out.println(">>> Created java class "+classFile.getClassName()+".class");
         FileOutputStream outp = new FileOutputStream(new File(classFile.getClassName()+".class"));
         classFile.write(outp);
-	}
-    static void llvm(Scope scope, ParseTree tree, ANTLRFileStream source) throws IOException {
-	    STGroupFile stg = new STGroupFile("src/main/resources/stg/llvm.stg");
-        
-	    String sourceName = source.getSourceName();
-        String irString = new TranslateVisitor(stg, scope, sourceName).visit(tree);
-        File irFile = new File(source.getSourceName()+".ll");
-        Files.write(irFile.toPath(), irString.getBytes());
-        File bcFile = new File(sourceName+".bc");
-        File sFile = new File(sourceName+".s");
-        if (run("llvm-as -f "+irFile) != 0) return;
-        irFile.delete();
-        if (run("llc  "+bcFile) != 0) return;
-        bcFile.delete();
-        String exeFile = FilenameUtil.getFilenameAndExtenion(sourceName)[0];
-        if (run("clang -o "+exeFile+" "+sFile) != 0) return;
-        sFile.delete();
-        System.out.println(">>> Created native file "+exeFile);
 	}
 	
 	static void bash(Scope scope, ParseTree tree, ANTLRFileStream source) throws IOException {
@@ -74,6 +58,26 @@ public class Bitsy {
         
         System.out.println(">>> Created bash script "+bashFile);
 	}
+	*/
+	
+	static void llvm(Scope scope, ParseTree tree, ANTLRFileStream source) throws IOException {
+	    STGroupFile stg = new STGroupFile("src/main/resources/stg/llvm.stg");
+        
+	    String sourceName = source.getSourceName();
+        String irString = new TranslateVisitor(stg, scope, sourceName).visit(tree);
+        File irFile = new File(source.getSourceName()+".ll");
+        Files.write(irFile.toPath(), irString.getBytes());
+        File bcFile = new File(sourceName+".bc");
+        File sFile = new File(sourceName+".s");
+        if (run("llvm-as -f "+irFile) != 0) return;
+        //irFile.delete();
+        if (run("llc  "+bcFile) != 0) return;
+        bcFile.delete();
+        String exeFile = FilenameUtil.getFilenameAndExtenion(sourceName)[0];
+        if (run("clang -o "+exeFile+" "+sFile) != 0) return;
+        sFile.delete();
+        System.out.println(">>> Created native file "+exeFile);
+	}
 	
     public static void main(String[] args) throws Exception {
         ANTLRFileStream source = new ANTLRFileStream("src/main/resources/bitsy/test.bit");
@@ -84,9 +88,12 @@ public class Bitsy {
         ParseTree tree = parser.parse();
         //System.out.println(tree.toStringTree(parser));
         
-        Scope scope = new Scope();
+        SymbolTable symbolTable = new SymbolTable();
         ParseTreeWalker walker = new ParseTreeWalker();
-        walker.walk(new SymbolListener(scope), tree);
+        walker.walk(new SymbolListener(symbolTable), tree);
+        
+        llvm(symbolTable.globals, tree, source);
+        /*
         if (args.length == 0) {
             System.out.println("Parsed successfully. Please specify -native, -bash or -jvm to create output files");
             return;
@@ -103,5 +110,6 @@ public class Bitsy {
             	return;
             }
         }
+        */
     }
 }

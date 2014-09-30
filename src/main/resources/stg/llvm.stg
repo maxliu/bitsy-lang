@@ -1,21 +1,40 @@
-file(fileName, symbols, statements) ::= <<
-@_NL = internal constant [1 x i8] c"\0A"
-<symbols.keys:{k | @<k> = internal constant <llvmConstant(symbols.(k))>}; separator="\n">
+file(fileName, strings, block) ::= <<
+@.newline = internal constant [1 x i8] c"\0A"
+<strings:{s | @.str<i> = internal constant <llvmConstant(s)>}; separator="\n">
 
 declare i32 @printf(i8 *, ...)
 
 define i32 @main() {
-	%_NL = getelementptr [1 x i8]* @_NL, i64 0, i64 0
-    <statements;separator="\n">
-    ret i32 0;
+    <block>
 }
 >>
 
-llvmConstant(symbol) ::= <<[<(symbol.LLVMLength)> x i8] c"<symbol.LLVMString>">>
-
-println(symbol, value, length) ::= <<
-; println(<symbol>)
-%l<symbol> = getelementptr [<length> x i8]* @<symbol>, i64 0, i64 0
-call i32 (i8 *, ...)* @printf(i8* %l<symbol>) 
-call i32 (i8 *, ...)* @printf(i8* %_NL)
+block(symbols, statements) ::= <<
+<symbols:{ s | %<s.name> = alloca <symbolType(s.type)>}; separator="\n">
+<statements;separator="\n">
+ret i32 0;
 >>
+
+println(s) ::= <<
+<if(s)>call i32 (i8 *, ...)* @printf(i8* <getString(s)>)
+<endif>call i32 (i8 *, ...)* @printf(i8* getelementptr ([1 x i8]* @.newline, i32 0, i32 0))
+>>
+
+assignment(name, value, reg) ::= <<
+<if(value.reference)>
+%r<reg> = load <llvmType(value)>* %<value>
+store <llvmType(value)> %r<reg>, <llvmType(value)>* %<name><else>
+store <llvmType(value)> <llvmValue(value)>, <llvmType(value)>* %<name><endif>
+>>
+
+typeMap ::= [
+	"string": "i8*",
+	"number": "double",
+	"boolean": "i32"
+]
+
+symbolType(type) ::= "<typeMap.(type.name)>"
+llvmConstant(s) ::= <<[<(s.LLVMLength)> x i8] c"<s.LLVMString>">>
+llvmType(v) ::= "<if(v.number)>double<elseif(v.boolean)>i32<else>i8*<endif>"
+llvmValue(v) ::= "<if(v.reference)>%<v><elseif(v.string)><getString(v)><else><v><endif>"
+getString(s) ::= "getelementptr ([<s.LLVMLength> x i8]* @.str<s.symbol>, i32 0, i32 0)"

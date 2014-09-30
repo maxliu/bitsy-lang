@@ -2,3 +2,12 @@
  println "Some more lines down\n\n"
  println "\nWoohoo!\n"
  println 1234
+
+ a = "test"
+ c = 123
+ b = c
+ 
+ println a
+ println b
+ println c
+ 
