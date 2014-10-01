@@ -1,5 +1,8 @@
 file(fileName, strings, block) ::= <<
-@.newline = internal constant [1 x i8] c"\0A"
+@.newline = internal constant [2 x i8] c"\0A\00"
+@.double = internal constant [3 x i8] c"%f\00"
+@.true = internal constant [5 x i8] c"true\00"
+@.false = internal constant [6 x i8] c"false\00"
 <strings:{s | @.str<i> = internal constant <llvmConstant(s)>}; separator="\n">
 
 declare i32 @printf(i8 *, ...)
@@ -15,9 +18,28 @@ block(symbols, statements) ::= <<
 ret i32 0;
 >>
 
-println(s) ::= <<
-<if(s)>call i32 (i8 *, ...)* @printf(i8* <getString(s)>)
-<endif>call i32 (i8 *, ...)* @printf(i8* getelementptr ([1 x i8]* @.newline, i32 0, i32 0))
+println(s, reg) ::= <<
+<if(s&&s.reference)>
+<if(s.string)>
+%r<reg> = load i8** %<s> 
+call i32 (i8 *, ...)* @printf(i8* %r<reg>)
+<elseif(s.number)>
+%r<reg> = load double* %<s> 
+call i32 (i8 *, ...)* @printf(i8* getelementptr ([3 x i8]* @.double, i32 0, i32 0), double %r<reg>)
+<elseif(s.boolean)>
+%r<reg> = load i32* %<s>
+%c<reg> = icmp ne i32 %r<reg>, 0
+br i1 %c<reg>, label %true<reg>, label %false<reg>
+true<reg>: 
+	call i32 (i8 *, ...)* @printf(i8* getelementptr ([5 x i8]* @.true, i32 0, i32 0))
+	br label %endif<reg>
+false<reg>:
+	call i32 (i8 *, ...)* @printf(i8* getelementptr ([6 x i8]* @.false, i32 0, i32 0))
+	br label %endif<reg>
+endif<reg>:
+<endif>
+<elseif(s)>call i32 (i8 *, ...)* @printf(i8* <getString(s)>)
+<endif>call i32 (i8 *, ...)* @printf(i8* getelementptr ([2 x i8]* @.newline, i32 0, i32 0))
 >>
 
 assignment(name, value, reg) ::= <<

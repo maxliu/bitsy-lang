@@ -29,12 +29,6 @@ expression
  | IDENTIFIER   #identifierExpression
  ;
 
-
-
-IDENTIFIER
- : [a-zA-Z_] [a-zA-Z_0-9]*
- ; 
-
 STRING
  : ["] (~["\r\n] | '\\\\' | '\\"')* ["]
  | ['] (~['\r\n] | '\\\\' | '\\\'')* [']
@@ -52,6 +46,10 @@ BOOL
 NUMBER
  : INT ('.' DIGIT*)?
  ;
+
+IDENTIFIER
+ : [a-zA-Z_] [a-zA-Z_0-9]*
+ ; 
   
 NEWLINE
  : ( '\r'? '\n' | '\r' ) SPACES?

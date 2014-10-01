@@ -1,7 +1,5 @@
 package bitsy.lang;
 
-import bitsy.lang.StringUtil;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,15 +19,16 @@ import bitsy.antlr4.BitsyParser.ParseContext;
 import bitsy.antlr4.BitsyParser.PrintFunctionCallContext;
 import bitsy.antlr4.BitsyParser.StatementContext;
 import bitsy.antlr4.BitsyParser.StringExpressionContext;
+import bitsy.lang.symbols.Value;
 import bitsy.lang.symbols.Scope;
 
 public class TranslateVisitor extends BitsyBaseVisitor<String> {
-	public ParseTreeProperty<BitsyValue> values = new ParseTreeProperty<BitsyValue>();
+	public ParseTreeProperty<Value> values = new ParseTreeProperty<Value>();
     STGroup group;
     Scope scope;
     String fileName;
     int reg = 1;
-    List<BitsyValue> strings = new ArrayList<BitsyValue>();
+    List<Value> strings = new ArrayList<Value>();
     
     public TranslateVisitor(STGroup group, Scope scope, String fileName) {
         this.group = group;
@@ -41,7 +40,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	return reg++;
     }
     
-    public void constantString(BitsyValue s) {
+    public void constantString(Value s) {
     	if (s.symbol == 0) {
     		strings.add(s);
     		s.symbol = strings.size();
@@ -89,7 +88,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	String id = ctx.IDENTIFIER().getText();
     	st.add("name", id);
     	visit(ctx.expression());
-    	BitsyValue val = values.get(ctx.expression());
+    	Value val = values.get(ctx.expression());
     	st.add("value", val);
     	st.add("reg", val.isReference() ? getReg() : 0);
     	return st.render();
@@ -101,9 +100,13 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         ExpressionContext ectx = ctx.expression();
         if ( ectx != null) {
         	visit(ectx);
-        	BitsyValue val = values.get(ectx);
-        	constantString(val);
+        	Value val = values.get(ectx);
             st.add("s", val);
+            if (val.isReference()) {
+            	st.add("reg", getReg());
+            } else {
+            	constantString(val);
+            }
         }
         String out = st.render();
         return out;
@@ -111,7 +114,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     
     @Override
     public String visitStringExpression(StringExpressionContext ctx) {
-    	BitsyValue str = new BitsyValue(getString(ctx.STRING()));
+    	Value str = new Value(getString(ctx.STRING()));
     	values.put(ctx, str);
     	constantString(str);
     	return "";
@@ -121,7 +124,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     public String visitNumberExpression(NumberExpressionContext ctx) {
     	try {
     		Double d = Double.parseDouble(ctx.NUMBER().getText());
-    		values.put(ctx, new BitsyValue(d));
+    		values.put(ctx, new Value(d));
     	} catch (Exception e) {
     	}
     	return "";
@@ -129,14 +132,14 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     
     @Override
     public String visitBoolExpression(BoolExpressionContext ctx) {
-    	values.put(ctx, new BitsyValue(Boolean.valueOf(ctx.BOOL().getText())));
+    	values.put(ctx, new Value(Boolean.valueOf(ctx.BOOL().getText())));
     	return "";
     }
     
     @Override
     public String visitIdentifierExpression(IdentifierExpressionContext ctx) {
     	String id = ctx.IDENTIFIER().getText();
-    	values.put(ctx, new BitsyValue(scope.resolve(id)));
+    	values.put(ctx, new Value(scope.resolve(id)));
     	return "";
     }
     

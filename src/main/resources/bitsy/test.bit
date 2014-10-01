@@ -5,7 +5,7 @@
 
  a = "test"
  c = 123
- b = c
+ b = true
  
  println a
  println b

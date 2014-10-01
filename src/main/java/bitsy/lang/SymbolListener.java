@@ -37,7 +37,7 @@ public class SymbolListener extends BitsyBaseListener {
 		} else if (ex instanceof NumberExpressionContext) {
 			define(id, BuiltinType.NUMBER);
 		} else if (ex instanceof BoolExpressionContext) {
-			define(id, BuiltinType.BOOL);
+			define(id, BuiltinType.BOOLEAN);
 		} else if (ex instanceof NullExpressionContext) {
 			define(id, BuiltinType.NULL);
 		} else {

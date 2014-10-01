@@ -1,21 +1,19 @@
-package bitsy.lang;
-
-import bitsy.lang.symbols.BuiltinType;
-import bitsy.lang.symbols.Symbol;
+package bitsy.lang.symbols;
 
 
-public class BitsyValue {
-	public static final BitsyValue NULL = new BitsyValue();
-	public static final BitsyValue VOID = new BitsyValue();
+
+public class Value {
+	public static final Value NULL = new Value();
+	public static final Value VOID = new Value();
 	
 	public int symbol;
 	Object value;
     
-    private BitsyValue() {
+    private Value() {
         value = new Object();
     }
     
-    public BitsyValue(Object value) {
+    public Value(Object value) {
         this.value = value;
     }
     
@@ -36,8 +34,17 @@ public class BitsyValue {
     }
     
     public boolean isBoolean() {
-    	return value instanceof Boolean || (isReference() && asSymbol().type == BuiltinType.BOOL);
-    } 
+    	return value instanceof Boolean || (isReference() && asSymbol().type == BuiltinType.BOOLEAN);
+    }
+    
+    public boolean isOnTrue() {
+    	System.err.println("is on true "+asBoolean());
+    	return asBoolean();
+    }
+    
+    public boolean isOnFalse() {
+    	return !asBoolean();
+    }
     
     public String asString() {
     	if (isReference()) {
