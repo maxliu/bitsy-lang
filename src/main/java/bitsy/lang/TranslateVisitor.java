@@ -102,9 +102,8 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         	visit(ectx);
         	Value val = values.get(ectx);
             st.add("s", val);
-            if (val.isReference()) {
-            	st.add("reg", getReg());
-            } else {
+            st.add("reg", getReg());
+            if (!val.isReference()) {
             	constantString(val);
             }
         }

@@ -1,15 +1,9 @@
 package bitsy.lang;
 
 import static bitsy.lang.ProcessUtil.run;
-import jasmin.ClassFile;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
@@ -42,7 +36,8 @@ public class Bitsy {
         FileOutputStream outp = new FileOutputStream(new File(classFile.getClassName()+".class"));
         classFile.write(outp);
 	}
-	
+	*/
+    
 	static void bash(Scope scope, ParseTree tree, ANTLRFileStream source) throws IOException {
 	    STGroupFile stg = new STGroupFile("src/main/resources/stg/bash.stg");
         String bashString = new TranslateVisitor(stg, scope, source.getSourceName()).visit(tree);
@@ -58,7 +53,6 @@ public class Bitsy {
         
         System.out.println(">>> Created bash script "+bashFile);
 	}
-	*/
 	
 	static void llvm(Scope scope, ParseTree tree, ANTLRFileStream source) throws IOException {
 	    STGroupFile stg = new STGroupFile("src/main/resources/stg/llvm.stg");
@@ -93,6 +87,7 @@ public class Bitsy {
         walker.walk(new SymbolListener(symbolTable), tree);
         
         llvm(symbolTable.globals, tree, source);
+        bash(symbolTable.globals, tree, source);
         /*
         if (args.length == 0) {
             System.out.println("Parsed successfully. Please specify -native, -bash or -jvm to create output files");

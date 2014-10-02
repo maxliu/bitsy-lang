@@ -1,9 +1,39 @@
-file(fileName, symbols, statements) ::= <<
+file(fileName, strings, block) ::= <<
 #!/bin/bash
+<block>
+>>
+
+block(symbols, statements) ::= <<
 <statements;separator="\n">
 >>
 
-println(symbol, value, length) ::= <<
-printf "<value>\n"
-
+println(s, reg) ::= <<
+<if(s.reference)>
+<if(s.boolean)>
+if [ "$<s>" == "1" ]; then
+    printf "true\n"
+else
+    printf "false\n"
+fi
+<else>
+printf "$<s>\n"
+<endif>
+<else>
+printf "<bashValue(s)>\n"
+<endif>
 >>
+
+assignment(name, value, reg) ::= <<
+<if(value.reference)>
+<name>=${<value>}
+<else>
+<name>=<value>
+<endif>
+>>
+
+bashValue(s) ::= <<
+<if(s.number)>"<s>"
+<elseif(s.boolean)><if(s.onTrue)>"true"<else>"false"<endif>
+<else><s>
+<endif>
+>> 

@@ -1,12 +1,13 @@
  println "hello lets get itsy-bitsy\n\n"
  println "Some more lines down\n\n"
  println "\nWoohoo!\n"
- println 1234
+ println 1234.123
 
  a = "test"
  c = 123
  b = true
  
+ println true
  println a
  println b
  println c

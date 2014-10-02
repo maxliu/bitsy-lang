@@ -38,7 +38,6 @@ public class Value {
     }
     
     public boolean isOnTrue() {
-    	System.err.println("is on true "+asBoolean());
     	return asBoolean();
     }
     

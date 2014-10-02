@@ -1,6 +1,6 @@
 file(fileName, strings, block) ::= <<
 @.newline = internal constant [2 x i8] c"\0A\00"
-@.double = internal constant [3 x i8] c"%f\00"
+@.double = internal constant [3 x i8] c"%g\00"
 @.true = internal constant [5 x i8] c"true\00"
 @.false = internal constant [6 x i8] c"false\00"
 <strings:{s | @.str<i> = internal constant <llvmConstant(s)>}; separator="\n">
@@ -38,7 +38,12 @@ false<reg>:
 	br label %endif<reg>
 endif<reg>:
 <endif>
-<elseif(s)>call i32 (i8 *, ...)* @printf(i8* <getString(s)>)
+<elseif(s)>
+<if(s.string)>
+call i32 (i8 *, ...)* @printf(i8* <getString(s)>)
+<elseif(s.number)>
+call i32 (i8 *, ...)* @printf(i8* getelementptr ([3 x i8]* @.double, i32 0, i32 0), double <s>)
+<endif>
 <endif>call i32 (i8 *, ...)* @printf(i8* getelementptr ([2 x i8]* @.newline, i32 0, i32 0))
 >>
 
