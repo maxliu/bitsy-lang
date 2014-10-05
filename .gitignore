@@ -1,0 +1,4 @@
+*.ll
+*.j
+*.class
+test.sh
