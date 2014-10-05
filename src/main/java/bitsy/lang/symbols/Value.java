@@ -5,8 +5,7 @@ package bitsy.lang.symbols;
 public class Value {
 	public static final Value NULL = new Value();
 	public static final Value VOID = new Value();
-	
-	public int symbol;
+	private int register;
 	Object value;
     
     private Value() {
@@ -87,5 +86,16 @@ public class Value {
     public int getLLVMLength() {
     	String simple = asString().replaceAll("\\\\(.)", "$1");
     	return simple.length() + 1; 
+    }
+    
+    public int getRegister() {
+    	if (isReference()) {
+    		return ((Symbol) value).getRegister();
+    	} 
+    	return register;
+    }
+    
+    public void setRegister(int register) {
+    	this.register = register;
     }
 }

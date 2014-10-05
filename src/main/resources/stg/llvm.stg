@@ -1,4 +1,4 @@
-file(fileName, strings, block) ::= <<
+file(fileName, strings, locals, block) ::= <<
 @.newline = internal constant [2 x i8] c"\0A\00"
 @.double = internal constant [3 x i8] c"%g\00"
 @.true = internal constant [5 x i8] c"true\00"
@@ -18,39 +18,45 @@ block(symbols, statements) ::= <<
 ret i32 0;
 >>
 
-println(s, reg) ::= <<
-<if(s&&s.reference)>
-<if(s.string)>
-%r<reg> = load i8** %<s> 
-call i32 (i8 *, ...)* @printf(i8* %r<reg>)
-<elseif(s.number)>
-%r<reg> = load double* %<s> 
-call i32 (i8 *, ...)* @printf(i8* getelementptr ([3 x i8]* @.double, i32 0, i32 0), double %r<reg>)
-<elseif(s.boolean)>
-%r<reg> = load i32* %<s>
-%c<reg> = icmp ne i32 %r<reg>, 0
-br i1 %c<reg>, label %true<reg>, label %false<reg>
-true<reg>: 
+println(value, scope) ::= <<
+<if(value&&value.reference)>
+<if(value.string)>
+%r<scope.nextRegister> = load i8** %<value> 
+call i32 (i8 *, ...)* @printf(i8* %r<scope.register>)
+<elseif(value.number)>
+%r<scope.nextRegister> = load double* %<value> 
+call i32 (i8 *, ...)* @printf(i8* getelementptr ([3 x i8]* @.double, i32 0, i32 0), double %r<scope.register>)
+<elseif(value.boolean)>
+%r<scope.nextRegister> = load i32* %<value>
+%c<scope.register> = icmp ne i32 %r<scope.register>, 0
+br i1 %c<scope.register>, label %true<scope.register>, label %false<scope.register>
+true<scope.register>: 
 	call i32 (i8 *, ...)* @printf(i8* getelementptr ([5 x i8]* @.true, i32 0, i32 0))
-	br label %endif<reg>
-false<reg>:
+	br label %endif<scope.register>
+false<scope.register>:
 	call i32 (i8 *, ...)* @printf(i8* getelementptr ([6 x i8]* @.false, i32 0, i32 0))
-	br label %endif<reg>
-endif<reg>:
+	br label %endif<scope.register>
+endif<scope.register>:
 <endif>
-<elseif(s)>
-<if(s.string)>
-call i32 (i8 *, ...)* @printf(i8* <getString(s)>)
-<elseif(s.number)>
-call i32 (i8 *, ...)* @printf(i8* getelementptr ([3 x i8]* @.double, i32 0, i32 0), double <s>)
+<elseif(value)>
+<if(value.string)>
+call i32 (i8 *, ...)* @printf(i8* <getString(value)>)
+<elseif(value.number)>
+call i32 (i8 *, ...)* @printf(i8* getelementptr ([3 x i8]* @.double, i32 0, i32 0), double <value>)
+<elseif(value.boolean)>
+<if(value.onTrue)>
+call i32 (i8 *, ...)* @printf(i8* getelementptr ([5 x i8]* @.true, i32 0, i32 0))
+<else>
+call i32 (i8 *, ...)* @printf(i8* getelementptr ([6 x i8]* @.false, i32 0, i32 0))
+<endif>
 <endif>
 <endif>call i32 (i8 *, ...)* @printf(i8* getelementptr ([2 x i8]* @.newline, i32 0, i32 0))
 >>
 
-assignment(name, value, reg) ::= <<
+assignment(name, value, scope) ::= <<
 <if(value.reference)>
-%r<reg> = load <llvmType(value)>* %<value>
-store <llvmType(value)> %r<reg>, <llvmType(value)>* %<name><else>
+%r<scope.nextRegister> = load <llvmType(value)>* %<value>
+store <llvmType(value)> %r<scope.register>, <llvmType(value)>* %<name><else>
 store <llvmType(value)> <llvmValue(value)>, <llvmType(value)>* %<name><endif>
 >>
 
@@ -64,4 +70,4 @@ symbolType(type) ::= "<typeMap.(type.name)>"
 llvmConstant(s) ::= <<[<(s.LLVMLength)> x i8] c"<s.LLVMString>">>
 llvmType(v) ::= "<if(v.number)>double<elseif(v.boolean)>i32<else>i8*<endif>"
 llvmValue(v) ::= "<if(v.reference)>%<v><elseif(v.string)><getString(v)><else><v><endif>"
-getString(s) ::= "getelementptr ([<s.LLVMLength> x i8]* @.str<s.symbol>, i32 0, i32 0)"
+getString(s) ::= "getelementptr ([<s.LLVMLength> x i8]* @.str<s.register>, i32 0, i32 0)"

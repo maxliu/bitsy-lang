@@ -1,9 +1,15 @@
 package bitsy.lang;
 
 import static bitsy.lang.ProcessUtil.run;
+import jasmin.ClassFile;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
@@ -21,12 +27,15 @@ import bitsy.lang.symbols.Scope;
 import bitsy.lang.symbols.SymbolTable;
 
 public class Bitsy {
-	/*
+	
 	static void jvm(Scope scope, ParseTree tree, ANTLRFileStream source) throws IOException, Exception {
-	    STGroupFile stg = new STGroupFile("src/main/resources/stg/jvm.stg");
+		scope.resetRegisters();
+		STGroupFile stg = new STGroupFile("src/main/resources/stg/jvm.stg");
         ClassFile classFile = new ClassFile();
         String jasminString = new TranslateVisitor(stg, scope, source.getSourceName()).visit(tree);
-        //System.out.println(jasminString);
+        Path jFile = new File(source.getSourceName()+".j").toPath();
+        Files.write(jFile, jasminString.getBytes());
+        System.out.println("Wrote j file "+jFile);
         InputStream is = new ByteArrayInputStream(jasminString.getBytes("UTF-8"));
         InputStreamReader ir = new InputStreamReader(is);
         try (BufferedReader inp = new BufferedReader(ir)) {
@@ -36,9 +45,9 @@ public class Bitsy {
         FileOutputStream outp = new FileOutputStream(new File(classFile.getClassName()+".class"));
         classFile.write(outp);
 	}
-	*/
     
 	static void bash(Scope scope, ParseTree tree, ANTLRFileStream source) throws IOException {
+		scope.resetRegisters();
 	    STGroupFile stg = new STGroupFile("src/main/resources/stg/bash.stg");
         String bashString = new TranslateVisitor(stg, scope, source.getSourceName()).visit(tree);
         String fileName = FilenameUtil.getFilenameAndExtenion(source.getSourceName())[0];
@@ -55,8 +64,8 @@ public class Bitsy {
 	}
 	
 	static void llvm(Scope scope, ParseTree tree, ANTLRFileStream source) throws IOException {
+		scope.resetRegisters();
 	    STGroupFile stg = new STGroupFile("src/main/resources/stg/llvm.stg");
-        
 	    String sourceName = source.getSourceName();
         String irString = new TranslateVisitor(stg, scope, sourceName).visit(tree);
         File irFile = new File(source.getSourceName()+".ll");
@@ -88,6 +97,7 @@ public class Bitsy {
         
         llvm(symbolTable.globals, tree, source);
         bash(symbolTable.globals, tree, source);
+        jvm(symbolTable.globals, tree, source);
         /*
         if (args.length == 0) {
             System.out.println("Parsed successfully. Please specify -native, -bash or -jvm to create output files");

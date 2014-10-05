@@ -4,7 +4,8 @@ public class Symbol {
 	public String name;      // All symbols at least have a name
     public Type type;
     public Scope scope;      // All symbols know what scope contains them.
-
+    private int register;
+    
     public Symbol(String name) { 
     	this.name = name; 
     }
@@ -27,5 +28,13 @@ public class Symbol {
 			return '<' + getName() + ":" + type + '>';
 		}
 		return getName();
+	}
+	
+	public void setRegister(int register) {
+		this.register = register;
+	}
+	
+	public int getRegister() {
+		return register;
 	}
 }

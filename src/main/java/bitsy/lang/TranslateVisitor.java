@@ -19,15 +19,16 @@ import bitsy.antlr4.BitsyParser.ParseContext;
 import bitsy.antlr4.BitsyParser.PrintFunctionCallContext;
 import bitsy.antlr4.BitsyParser.StatementContext;
 import bitsy.antlr4.BitsyParser.StringExpressionContext;
-import bitsy.lang.symbols.Value;
+import bitsy.lang.symbols.BuiltinType;
 import bitsy.lang.symbols.Scope;
+import bitsy.lang.symbols.Symbol;
+import bitsy.lang.symbols.Value;
 
 public class TranslateVisitor extends BitsyBaseVisitor<String> {
 	public ParseTreeProperty<Value> values = new ParseTreeProperty<Value>();
     STGroup group;
     Scope scope;
     String fileName;
-    int reg = 1;
     List<Value> strings = new ArrayList<Value>();
     
     public TranslateVisitor(STGroup group, Scope scope, String fileName) {
@@ -36,14 +37,10 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         this.fileName = FilenameUtil.getFilenameAndExtenion(fileName)[0];
     }
     
-    int getReg() {
-    	return reg++;
-    }
-    
     public void constantString(Value s) {
-    	if (s.symbol == 0) {
+    	if (s.getRegister() == 0) {
     		strings.add(s);
-    		s.symbol = strings.size();
+    		s.setRegister(strings.size());
     	}
     }
     
@@ -57,6 +54,12 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	ST st = group.getInstanceOf("file");
         st.add("fileName", fileName);
         st.add("strings", strings);
+        int locals = 1;
+        for(Symbol s: scope.getSymbols()) {
+        	if (s.type == BuiltinType.NUMBER) locals++;
+        	locals++;
+        }
+        st.add("locals", locals);
         st.add("block", visit(ctx.block()));
     	return st.render();
     }
@@ -89,9 +92,11 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	st.add("name", id);
     	visit(ctx.expression());
     	Value val = values.get(ctx.expression());
+    	scope.assign(id, scope.getRegister());
     	st.add("value", val);
-    	st.add("reg", val.isReference() ? getReg() : 0);
-    	return st.render();
+    	st.add("scope", scope);
+    	String result = st.render();
+    	return result;
     }
     
     @Override
@@ -101,8 +106,8 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         if ( ectx != null) {
         	visit(ectx);
         	Value val = values.get(ectx);
-            st.add("s", val);
-            st.add("reg", getReg());
+            st.add("value", val);
+            st.add("scope", scope);
             if (!val.isReference()) {
             	constantString(val);
             }
