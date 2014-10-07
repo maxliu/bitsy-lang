@@ -72,7 +72,7 @@ parse
  ;
  
 block
- : (statement | NEWLINE)* EOF
+ : (statement | NEWLINE)*
  ;
 
 statement
@@ -113,11 +113,6 @@ expression
  | IDENTIFIER   #identifierExpression
  ;
 
-STRING
- : ["] (~["\r\n] | '\\\\' | '\\"')* ["]
- | ['] (~['\r\n] | '\\\\' | '\\\'')* [']
- ;
-
 IF       : 'if';
 ELSE     : 'else'; 
 NULL 	 : 'null';
@@ -134,6 +129,11 @@ NUMBER
 IDENTIFIER
  : [a-zA-Z_] [a-zA-Z_0-9]*
  ; 
+
+STRING
+ : ["] (~["\r\n] | '\\\\' | '\\"')* ["]
+ | ['] (~['\r\n] | '\\\\' | '\\\'')* [']
+ ;
   
 NEWLINE
  : ( '\r'? '\n' | '\r' ) SPACES?
@@ -172,11 +172,19 @@ NEWLINE
  ;
  
 SKIP
- : SPACES -> skip
+ : ( SPACES | COMMENT | LINE_JOINING ) -> skip
  ;
   
 fragment SPACES
  : [ \t]+
+ ;
+ 
+fragment COMMENT
+ : ('//' ~[\r\n]* | '/*' .*? '*/')
+ ;
+
+fragment LINE_JOINING
+ : '\\' SPACES? ( '\r'? '\n' | '\r' )
  ;
 
 fragment INT

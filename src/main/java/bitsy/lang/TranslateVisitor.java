@@ -14,6 +14,8 @@ import bitsy.antlr4.BitsyParser.BlockContext;
 import bitsy.antlr4.BitsyParser.BoolExpressionContext;
 import bitsy.antlr4.BitsyParser.ExpressionContext;
 import bitsy.antlr4.BitsyParser.IdentifierExpressionContext;
+import bitsy.antlr4.BitsyParser.IfStatContext;
+import bitsy.antlr4.BitsyParser.IfStatementContext;
 import bitsy.antlr4.BitsyParser.NumberExpressionContext;
 import bitsy.antlr4.BitsyParser.ParseContext;
 import bitsy.antlr4.BitsyParser.PrintFunctionCallContext;
@@ -22,18 +24,21 @@ import bitsy.antlr4.BitsyParser.StringExpressionContext;
 import bitsy.lang.symbols.BuiltinType;
 import bitsy.lang.symbols.Scope;
 import bitsy.lang.symbols.Symbol;
+import bitsy.lang.symbols.SymbolTable;
 import bitsy.lang.symbols.Value;
 
 public class TranslateVisitor extends BitsyBaseVisitor<String> {
 	public ParseTreeProperty<Value> values = new ParseTreeProperty<Value>();
     STGroup group;
-    Scope scope;
+    SymbolTable symbolTable;
+    Scope currentScope;
     String fileName;
     List<Value> strings = new ArrayList<Value>();
     
-    public TranslateVisitor(STGroup group, Scope scope, String fileName) {
+    public TranslateVisitor(STGroup group, SymbolTable symbolTable, String fileName) {
         this.group = group;
-        this.scope = scope;
+        this.symbolTable = symbolTable;
+        this.currentScope = symbolTable.globals;
         this.fileName = FilenameUtil.getFilenameAndExtenion(fileName)[0];
     }
     
@@ -55,7 +60,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         st.add("fileName", fileName);
         st.add("strings", strings);
         int locals = 1;
-        for(Symbol s: scope.getSymbols()) {
+        for(Symbol s: currentScope.getSymbols()) {
         	if (s.type == BuiltinType.NUMBER) locals++;
         	locals++;
         }
@@ -66,6 +71,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     
     @Override
     public String visitBlock(BlockContext ctx) {
+    	currentScope = symbolTable.scopes.get(ctx);
         ST st = group.getInstanceOf("block");
         List<String> statements = new ArrayList<String>();
         for (StatementContext pctx: ctx.statement()) {
@@ -74,9 +80,11 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         		statements.add(stmt);
         	}
         }
-        st.add("symbols", scope.getSymbols());
+        st.add("symbols", currentScope.getSymbols());
         st.add("statements", statements);
-        return st.render();
+        String result = st.render();
+        currentScope = currentScope.getEnclosingScope();
+        return result;
     }
     
     
@@ -92,9 +100,9 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	st.add("name", id);
     	visit(ctx.expression());
     	Value val = values.get(ctx.expression());
-    	scope.assign(id, scope.getRegister());
+    	currentScope.assign(id, currentScope.getRegister());
     	st.add("value", val);
-    	st.add("scope", scope);
+    	st.add("scope", currentScope);
     	String result = st.render();
     	return result;
     }
@@ -107,7 +115,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         	visit(ectx);
         	Value val = values.get(ectx);
             st.add("value", val);
-            st.add("scope", scope);
+            st.add("scope", currentScope);
             if (!val.isReference()) {
             	constantString(val);
             }
@@ -143,7 +151,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     @Override
     public String visitIdentifierExpression(IdentifierExpressionContext ctx) {
     	String id = ctx.IDENTIFIER().getText();
-    	values.put(ctx, new Value(scope.resolve(id)));
+    	values.put(ctx, new Value(currentScope.resolve(id)));
     	return "";
     }
     
@@ -151,5 +159,21 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 		String text = inputString.getText();
 		text = text.substring(1, text.length() - 1);
 		return text;
+	}
+	
+	@Override
+	public String visitIfStatement(IfStatementContext ctx) {
+		return visit(ctx.ifStat());
+	}
+	
+	@Override
+	public String visitIfStat(IfStatContext ctx) {
+		ST st = group.getInstanceOf("if");
+		visit(ctx.expression());
+		Value val = values.get(ctx.expression());
+		st.add("value", val);
+		st.add("block", visit(ctx.block()));
+		st.add("scope", currentScope);
+		return st.render();
 	}
 }

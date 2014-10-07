@@ -98,4 +98,17 @@ public class Value {
     public void setRegister(int register) {
     	this.register = register;
     }
+    
+    public String getToBoolean() {
+    	if (isReference()) {
+    		throw new RuntimeException("Not to be used for references");
+    	}
+    	if (isString()) {
+    		return asString().length() == 0 ? "1" : "0";
+    	} else if (isNumber()) {
+    		return asDouble() != 0 ? "1" : "0";
+    	} else {
+    		return asBoolean() ? "1" : "0";
+    	}
+    }
 }

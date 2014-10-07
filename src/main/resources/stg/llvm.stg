@@ -60,6 +60,31 @@ store <llvmType(value)> %r<scope.register>, <llvmType(value)>* %<name><else>
 store <llvmType(value)> <llvmValue(value)>, <llvmType(value)>* %<name><endif>
 >>
 
+if(value, block, scope) ::= <<
+<compareValToZero(value, scope)>
+br i1 %c<scope.register>, label %true<scope.register>, label %false<scope.register>
+true<scope.register>: 
+	<block>
+	br label %endif<scope.register>
+false<scope.register>:
+	br label %endif<scope.register>
+endif<scope.register>:
+>>
+
+compareValToZero(value, scope) ::= <<
+<if(value.reference)>
+<if(value.boolean)>
+%r<scope.nextRegister> = load i32* %<value>
+%c<scope.register> = icmp ne i32 %r<scope.register>, 0<elseif(value.number)>
+%r<scope.nextRegister> = load double* %<value>
+%c<scope.register> = fcmp ne double %r<scope.register>, 0<else>
+%r<scope.nextRegister> = load i8** %<value>
+%c<scope.register> = icmp ne i8* <scope.register>, null<endif>
+<else>
+%r<scope.nextRegister> = add i32 0, <value.toBoolean>
+%c<scope.register> = icmp ne i32 %r<scope.register>, 0<endif>
+>>
+
 typeMap ::= [
 	"string": "i8*",
 	"number": "double",

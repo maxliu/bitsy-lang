@@ -4,12 +4,14 @@ import org.antlr.v4.runtime.misc.NotNull;
 
 import bitsy.antlr4.BitsyBaseListener;
 import bitsy.antlr4.BitsyParser.AssignmentContext;
+import bitsy.antlr4.BitsyParser.BlockContext;
 import bitsy.antlr4.BitsyParser.BoolExpressionContext;
 import bitsy.antlr4.BitsyParser.ExpressionContext;
 import bitsy.antlr4.BitsyParser.NullExpressionContext;
 import bitsy.antlr4.BitsyParser.NumberExpressionContext;
 import bitsy.antlr4.BitsyParser.StringExpressionContext;
 import bitsy.lang.symbols.BuiltinType;
+import bitsy.lang.symbols.LocalScope;
 import bitsy.lang.symbols.Scope;
 import bitsy.lang.symbols.Symbol;
 import bitsy.lang.symbols.SymbolTable;
@@ -26,6 +28,17 @@ public class SymbolListener extends BitsyBaseListener {
 	
 	private void define(String id, Type type) {
 		currentScope.define(new Symbol(id, type));
+	}
+	
+	@Override
+	public void enterBlock(@NotNull BlockContext ctx) {
+		currentScope = new LocalScope(currentScope);
+		symbolTable.scopes.put(ctx, currentScope);
+	}
+	
+	@Override
+	public void exitBlock(@NotNull BlockContext ctx) {
+		currentScope = currentScope.getEnclosingScope();
 	}
 	
 	@Override
