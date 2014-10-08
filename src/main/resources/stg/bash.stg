@@ -3,7 +3,7 @@ file(fileName, strings, locals, block) ::= <<
 <block>
 >>
 
-block(symbols, statements) ::= <<
+block(symbols, statements, scope) ::= <<
 <statements;separator="\n">
 >>
 

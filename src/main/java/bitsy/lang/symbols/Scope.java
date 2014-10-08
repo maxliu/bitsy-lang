@@ -7,7 +7,8 @@ import java.util.Map;
 public abstract class Scope {
 	Scope enclosingScope;
 	Map<String, Symbol> symbols = new LinkedHashMap<String, Symbol>();
-	int registerCount = 0;
+	int registerCount = 1;
+	int labelCount = 0;
 
 	public Scope(Scope enclosingScope) {
 		this.enclosingScope = enclosingScope;
@@ -74,5 +75,13 @@ public abstract class Scope {
 	
 	public void resetRegisters() {
 		registerCount = 0;
+	}
+	
+	public int getNextLabel() {
+		return ++labelCount;
+	}
+	
+	public int getLabel() {
+		return labelCount;
 	}
 }

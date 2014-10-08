@@ -60,7 +60,8 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         st.add("fileName", fileName);
         st.add("strings", strings);
         int locals = 1;
-        for(Symbol s: currentScope.getSymbols()) {
+        Scope blockScope = symbolTable.scopes.get(ctx.block());
+        for(Symbol s: blockScope.getSymbols()) {
         	if (s.type == BuiltinType.NUMBER) locals++;
         	locals++;
         }
@@ -82,6 +83,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         }
         st.add("symbols", currentScope.getSymbols());
         st.add("statements", statements);
+        st.add("scope", currentScope);
         String result = st.render();
         currentScope = currentScope.getEnclosingScope();
         return result;

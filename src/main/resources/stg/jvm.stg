@@ -9,14 +9,14 @@ file(fileName, strings, locals, block) ::= <<
 .end method
 
 .method public static main([Ljava/lang/String;)V
-   .limit stack 3  
+   .limit stack 4  
    .limit locals <locals>
    <block>
    return
 .end method
 >>
 
-block(symbols, statements) ::= <<
+block(symbols, statements, scope) ::= <<
 <statements;separator="\n">
 >>
 
@@ -71,4 +71,31 @@ ldc "<value>"
 astore_<scope.nextLocal>
 <endif>
 <endif>
+>>
+
+if(value, block, scope) ::= <<
+<if(value.reference)>
+<if(value.boolean)>
+iconst_1
+iload <value.register>
+if_icmpne Label<scope.nextLabel>
+<elseif(value.number)>
+dload <value.register>
+ldc2_w 0.0
+dcmpl
+ifeq Label<scope.nextLabel>
+<else>
+aload <value.register>
+ldc ""
+invokevirtual java/lang/String/equals(Ljava/lang/Object;)Z
+ifne Label<scope.nextLabel>
+<endif><else>
+iconst_1
+iconst_<value.toBoolean>
+if_icmpne Label<scope.nextLabel>
+<endif>
+<block>
+goto Label<scope.label>
+Label<scope.label>:
+
 >>

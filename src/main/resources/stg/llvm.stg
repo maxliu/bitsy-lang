@@ -12,7 +12,7 @@ define i32 @main() {
 }
 >>
 
-block(symbols, statements) ::= <<
+block(symbols, statements, scope) ::= <<
 <symbols:{ s | %<s.name> = alloca <symbolType(s.type)>}; separator="\n">
 <statements;separator="\n">
 ret i32 0;
