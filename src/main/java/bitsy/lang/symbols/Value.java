@@ -104,7 +104,7 @@ public class Value {
     		throw new RuntimeException("Not to be used for references");
     	}
     	if (isString()) {
-    		return asString().length() == 0 ? "1" : "0";
+    		return asString().length() != 0 ? "1" : "0";
     	} else if (isNumber()) {
     		return asDouble() != 0 ? "1" : "0";
     	} else {

@@ -55,6 +55,10 @@ public abstract class Scope {
 		return ++registerCount;
 	}
 	
+	public int getLastRegister() {
+		return registerCount - 1;
+	}
+	
 	public int getNextLocal() {
 		int ret = getRegister();
 		getNextRegister();
