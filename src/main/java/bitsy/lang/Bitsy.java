@@ -29,7 +29,7 @@ import bitsy.lang.symbols.SymbolTable;
 public class Bitsy {
 	
 	static void jvm(SymbolTable symbolTable, ParseTree tree, ANTLRFileStream source) throws IOException, Exception {
-		symbolTable.globals.resetRegisters();
+		symbolTable.resetRegisters();
 		STGroupFile stg = new STGroupFile("src/main/resources/stg/jvm.stg");
         ClassFile classFile = new ClassFile();
         String jasminString = new TranslateVisitor(stg, symbolTable, source.getSourceName()).visit(tree);
@@ -47,7 +47,7 @@ public class Bitsy {
 	}
     
 	static void bash(SymbolTable symbolTable, ParseTree tree, ANTLRFileStream source) throws IOException {
-		symbolTable.globals.resetRegisters();
+		symbolTable.resetRegisters();
 	    STGroupFile stg = new STGroupFile("src/main/resources/stg/bash.stg");
         String bashString = new TranslateVisitor(stg, symbolTable, source.getSourceName()).visit(tree);
         String fileName = FilenameUtil.getFilenameAndExtenion(source.getSourceName())[0];
@@ -64,7 +64,7 @@ public class Bitsy {
 	}
 	
 	static void llvm(SymbolTable symbolTable, ParseTree tree, ANTLRFileStream source) throws IOException {
-		symbolTable.globals.resetRegisters();
+		symbolTable.resetRegisters();
 	    STGroupFile stg = new STGroupFile("src/main/resources/stg/llvm.stg");
 	    String sourceName = source.getSourceName();
         String irString = new TranslateVisitor(stg, symbolTable, sourceName).visit(tree);
@@ -95,9 +95,9 @@ public class Bitsy {
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(new SymbolListener(symbolTable), tree);
         
-        //llvm(symbolTable, tree, source);
+        llvm(symbolTable, tree, source);
         //bash(symbolTable, tree, source);
-        jvm(symbolTable, tree, source);
+        //jvm(symbolTable, tree, source);
         /*
         if (args.length == 0) {
             System.out.println("Parsed successfully. Please specify -native, -bash or -jvm to create output files");

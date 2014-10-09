@@ -31,7 +31,7 @@ assignment(name, value, scope) ::= <<
 <endif>
 >>
 
-if(value, block, scope) ::= <<
+ifStat(value, block, scope) ::= <<
 <if(value.reference)>
 <if(value.number)>
 if [[ $(echo "$<value> != 0.0"|bc) -eq 1 ]]; then

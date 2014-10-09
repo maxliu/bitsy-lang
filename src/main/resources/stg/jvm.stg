@@ -73,7 +73,7 @@ astore_<scope.nextLocal>
 <endif>
 >>
 
-if(value, block, scope) ::= <<
+ifStat(value, block, scope) ::= <<
 <if(value.reference)>
 <if(value.boolean)>
 iconst_1

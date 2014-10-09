@@ -12,6 +12,8 @@ import bitsy.antlr4.BitsyBaseVisitor;
 import bitsy.antlr4.BitsyParser.AssignmentContext;
 import bitsy.antlr4.BitsyParser.BlockContext;
 import bitsy.antlr4.BitsyParser.BoolExpressionContext;
+import bitsy.antlr4.BitsyParser.ElseIfStatContext;
+import bitsy.antlr4.BitsyParser.ElseStatContext;
 import bitsy.antlr4.BitsyParser.ExpressionContext;
 import bitsy.antlr4.BitsyParser.IdentifierExpressionContext;
 import bitsy.antlr4.BitsyParser.IfStatContext;
@@ -22,6 +24,7 @@ import bitsy.antlr4.BitsyParser.PrintFunctionCallContext;
 import bitsy.antlr4.BitsyParser.StatementContext;
 import bitsy.antlr4.BitsyParser.StringExpressionContext;
 import bitsy.lang.symbols.BuiltinType;
+import bitsy.lang.symbols.GlobalScope;
 import bitsy.lang.symbols.Scope;
 import bitsy.lang.symbols.Symbol;
 import bitsy.lang.symbols.SymbolTable;
@@ -165,17 +168,58 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 	
 	@Override
 	public String visitIfStatement(IfStatementContext ctx) {
-		return visit(ctx.ifStat());
+		StringBuilder ifStat = new StringBuilder();
+		int label = getMethodScope().getLabel();
+		int sublevel = 0;
+		ifStat.append(visitIfStat(ctx.ifStat(), label, sublevel++));
+		for (ElseIfStatContext ectx :ctx.elseIfStat()) {
+			ifStat.append(visitElseIfStat(ectx, label, sublevel++));
+		}
+		if (ctx.elseStat() != null) {
+			ifStat.append(visitElseStat(ctx.elseStat(), label));
+		}
+		ST st = group.getInstanceOf("endifStat");
+		st.add("label", label);
+		ifStat.append(st.render());
+		return ifStat.toString();
 	}
 	
-	@Override
-	public String visitIfStat(IfStatContext ctx) {
-		ST st = group.getInstanceOf("if");
+	public String visitElseIfStat(ElseIfStatContext ctx, int label, int sublevel) {
+		ST st = group.getInstanceOf("ifStat");
 		visit(ctx.expression());
 		Value val = values.get(ctx.expression());
 		st.add("value", val);
 		st.add("block", visit(ctx.block()));
-		st.add("scope", currentScope);
+		st.add("scope", getMethodScope());
+		st.add("label", label);
+		st.add("sublevel", sublevel);
 		return st.render();
+	}
+	
+	public String visitIfStat(IfStatContext ctx, int label, int sublevel) {
+		ST st = group.getInstanceOf("elseifStat");
+		visit(ctx.expression());
+		Value val = values.get(ctx.expression());
+		st.add("value", val);
+		st.add("block", visit(ctx.block()));
+		st.add("scope", getMethodScope());
+		st.add("label", label);
+		st.add("sublevel", sublevel);
+		return st.render();
+	}
+	
+	public String visitElseStat(ElseStatContext ctx, int label) {
+		ST st = group.getInstanceOf("elseStat");
+		st.add("block", visit(ctx.block()));
+		st.add("label", label);
+		return st.render();
+	}
+	
+	private Scope getMethodScope() {
+		Scope walkScope = currentScope;
+		while (!(walkScope.getEnclosingScope() instanceof GlobalScope)) {
+			walkScope = walkScope.getEnclosingScope();
+		}
+		return walkScope;
 	}
 }

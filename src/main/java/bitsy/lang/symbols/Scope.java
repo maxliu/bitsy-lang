@@ -1,17 +1,32 @@
 package bitsy.lang.symbols;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public abstract class Scope {
 	Scope enclosingScope;
+	List<Scope> childScopes = new ArrayList<Scope>();
 	Map<String, Symbol> symbols = new LinkedHashMap<String, Symbol>();
-	int registerCount = 1;
-	int labelCount = 0;
+	int registerCount;
+	int labelCount;
 
 	public Scope(Scope enclosingScope) {
 		this.enclosingScope = enclosingScope;
+		if (enclosingScope != null) {
+			enclosingScope.childScopes.add(this);
+		}
+		resetRegisters();
+	}
+	
+	public void resetRegisters() {
+		registerCount = 1;
+		labelCount = 0;
+		for (Scope child: childScopes) {
+			child.resetRegisters();
+		}
 	}
 
 	public Symbol resolve(String name) {
@@ -71,10 +86,6 @@ public abstract class Scope {
 		getNextRegister();
 		getNextRegister();
 		return ret;
-	}
-	
-	public void resetRegisters() {
-		registerCount = 0;
 	}
 	
 	public int getNextLabel() {

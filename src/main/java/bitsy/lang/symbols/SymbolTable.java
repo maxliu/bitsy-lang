@@ -21,4 +21,8 @@ public class SymbolTable {
 	public String toString() {
 		return globals.toString();
 	}
+	
+	public void resetRegisters() {
+		globals.resetRegisters();
+	}
 }
