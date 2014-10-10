@@ -1,7 +1,7 @@
-a = "1"
+a = ""
 if a
 	println "True"
-else if false
+else if true
 	println "Middle True"
 else
 	println "False"

@@ -3,16 +3,16 @@ file(fileName, strings, locals, block) ::= <<
 .super java/lang/Object
 
 .method public \<init>()V
-   aload_0
-   invokenonvirtual java/lang/Object/\<init>()V
-   return
+	aload_0
+	invokenonvirtual java/lang/Object/\<init>()V
+	return
 .end method
 
 .method public static main([Ljava/lang/String;)V
-   .limit stack 4  
-   .limit locals <locals>
-   <block>
-   return
+   	.limit stack 4  
+   	.limit locals <locals>
+	<block>
+   	return
 .end method
 >>
 
@@ -73,29 +73,40 @@ astore_<scope.nextLocal>
 <endif>
 >>
 
-ifStat(value, block, scope) ::= <<
+ifStat(value, block, scope, label, sublevel) ::= <<
 <if(value.reference)>
 <if(value.boolean)>
 iconst_1
 iload <value.register>
-if_icmpne Label<scope.nextLabel>
+if_icmpne false<label>_<sublevel>
 <elseif(value.number)>
 dload <value.register>
 ldc2_w 0.0
 dcmpl
-ifeq Label<scope.nextLabel>
+ifeq false<label>_<sublevel>
 <else>
 aload <value.register>
 ldc ""
 invokevirtual java/lang/String/equals(Ljava/lang/Object;)Z
-ifne Label<scope.nextLabel>
+ifne false<label>_<sublevel>
 <endif><else>
 iconst_1
 iconst_<value.toBoolean>
-if_icmpne Label<scope.nextLabel>
+if_icmpne false<label>_<sublevel>
 <endif>
-<block>
-goto Label<scope.label>
-Label<scope.label>:
 
+	<block>
+	goto endif<label>
+false<label>_<sublevel>:
+
+>>
+
+elseifStat(value, block, scope, label, sublevel) ::= "<ifStat(value, block, scope, label, sublevel)>"
+
+elseStat(block, label) ::= <<
+	<block>
+>>
+
+endifStat(label) ::= <<
+endif<label>:
 >>
