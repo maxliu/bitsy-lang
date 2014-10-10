@@ -31,7 +31,7 @@ assignment(name, value, scope) ::= <<
 <endif>
 >>
 
-ifStat(value, block, scope) ::= <<
+ifStat(value, block, scope, label, sublevel) ::= <<
 <if(value.reference)>
 <if(value.number)>
 if [[ $(echo "$<value> != 0.0"|bc) -eq 1 ]]; then
@@ -43,8 +43,32 @@ if [[ "$<value>" != "" ]]; then
 if [[ "<value.toBoolean>" != "0" ]]; then
 <endif>
 	<block>
-fi
 
+>>
+
+elseifStat(value, block, scope, label, sublevel) ::= <<
+<if(value.reference)>
+<if(value.number)>
+elif [[ $(echo "$<value> != 0.0"|bc) -eq 1 ]]; then
+<elseif(value.boolean)>
+elif [[ $<value> -ne 0 ]]; then
+<else>
+elif [[ "$<value>" != "" ]]; then
+<endif><else>
+elif [[ "<value.toBoolean>" != "0" ]]; then
+<endif>
+	<block>
+
+>>
+
+elseStat(block, label) ::= <<
+else
+	<block>
+
+>>
+
+endifStat(label) ::= <<
+fi
 >>
 
 bashValue(s) ::= <<

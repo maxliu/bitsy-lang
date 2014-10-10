@@ -1,4 +1,4 @@
-a = ""
+a = "1"
 if a
 	println "True"
 else if false

@@ -184,7 +184,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 		return ifStat.toString();
 	}
 	
-	public String visitElseIfStat(ElseIfStatContext ctx, int label, int sublevel) {
+	public String visitIfStat(IfStatContext ctx, int label, int sublevel) {
 		ST st = group.getInstanceOf("ifStat");
 		visit(ctx.expression());
 		Value val = values.get(ctx.expression());
@@ -196,7 +196,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 		return st.render();
 	}
 	
-	public String visitIfStat(IfStatContext ctx, int label, int sublevel) {
+	public String visitElseIfStat(ElseIfStatContext ctx, int label, int sublevel) {
 		ST st = group.getInstanceOf("elseifStat");
 		visit(ctx.expression());
 		Value val = values.get(ctx.expression());
