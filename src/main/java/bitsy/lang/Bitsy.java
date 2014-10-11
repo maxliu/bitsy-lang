@@ -19,18 +19,20 @@ import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.stringtemplate.v4.STGroup;
+import org.stringtemplate.v4.STGroupDir;
 import org.stringtemplate.v4.STGroupFile;
 
 import bitsy.antlr4.BitsyLexer;
 import bitsy.antlr4.BitsyParser;
-import bitsy.lang.symbols.Scope;
 import bitsy.lang.symbols.SymbolTable;
 
 public class Bitsy {
 	
 	static void jvm(SymbolTable symbolTable, ParseTree tree, ANTLRFileStream source) throws IOException, Exception {
 		symbolTable.resetRegisters();
-		STGroupFile stg = new STGroupFile("src/main/resources/stg/jvm.stg");
+		STGroup stg = new STGroupDir("src/main/resources/stg/jvm");
+	    stg.importTemplates(new STGroupFile("src/main/resources/stg/jvm/common.stg"));
         ClassFile classFile = new ClassFile();
         String jasminString = new TranslateVisitor(stg, symbolTable, source.getSourceName()).visit(tree);
         Path jFile = new File(source.getSourceName()+".j").toPath();
@@ -48,7 +50,8 @@ public class Bitsy {
     
 	static void bash(SymbolTable symbolTable, ParseTree tree, ANTLRFileStream source) throws IOException {
 		symbolTable.resetRegisters();
-	    STGroupFile stg = new STGroupFile("src/main/resources/stg/bash.stg");
+		STGroup stg = new STGroupDir("src/main/resources/stg/bash");
+	    stg.importTemplates(new STGroupFile("src/main/resources/stg/bash/common.stg"));
         String bashString = new TranslateVisitor(stg, symbolTable, source.getSourceName()).visit(tree);
         String fileName = FilenameUtil.getFilenameAndExtenion(source.getSourceName())[0];
         Path bashFile = new File(fileName+".sh").toPath();
@@ -65,7 +68,8 @@ public class Bitsy {
 	
 	static void llvm(SymbolTable symbolTable, ParseTree tree, ANTLRFileStream source) throws IOException {
 		symbolTable.resetRegisters();
-	    STGroupFile stg = new STGroupFile("src/main/resources/stg/llvm.stg");
+	    STGroup stg = new STGroupDir("src/main/resources/stg/llvm");
+	    stg.importTemplates(new STGroupFile("src/main/resources/stg/llvm/common.stg"));
 	    String sourceName = source.getSourceName();
         String irString = new TranslateVisitor(stg, symbolTable, sourceName).visit(tree);
         File irFile = new File(source.getSourceName()+".ll");
@@ -80,6 +84,7 @@ public class Bitsy {
         if (run("clang -o "+exeFile+" "+sFile) != 0) return;
         sFile.delete();
         System.out.println(">>> Created native file "+exeFile);
+        run("./"+exeFile);
 	}
 	
     public static void main(String[] args) throws Exception {
@@ -89,15 +94,15 @@ public class Bitsy {
         BitsyParser parser = new BitsyParser(new CommonTokenStream(lexer));
         parser.setBuildParseTree(true);
         ParseTree tree = parser.parse();
-//        System.out.println(tree.toStringTree(parser));
+        //System.out.println(tree.toStringTree(parser));
         
         SymbolTable symbolTable = new SymbolTable();
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(new SymbolListener(symbolTable), tree);
         
-        //llvm(symbolTable, tree, source);
+        llvm(symbolTable, tree, source);
         //bash(symbolTable, tree, source);
-        jvm(symbolTable, tree, source);
+        //jvm(symbolTable, tree, source);
         /*
         if (args.length == 0) {
             System.out.println("Parsed successfully. Please specify -native, -bash or -jvm to create output files");

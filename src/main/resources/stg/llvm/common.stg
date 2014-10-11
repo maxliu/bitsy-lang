@@ -1,0 +1,49 @@
+compareValToZero(value, scope) ::= <<
+<if(value.reference&&value.symbol)>
+<if(value.boolean)>
+%r<scope.nextRegister> = load i32* %<bitsyVariable(value)>
+%c<scope.register> = icmp ne i32 %r<scope.register>, 0<elseif(value.number)>
+%r<scope.nextRegister> = load double* %<bitsyVariable(value)>
+%c<scope.register> = fcmp une double %r<scope.register>, 0.0<else>
+%r<scope.nextRegister> = load i8** %<bitsyVariable(value)>
+%r<scope.nextRegister> = load i8* %r<scope.lastRegister>
+%c<scope.register> = icmp ne i8 %r<scope.register>, 0<endif>
+<elseif(value.reference)>
+<if(value.boolean)>
+%c<scope.nextRegister> = icmp ne i32 %r<value>, 0<elseif(value.number)>
+%c<scope.nextRegister> = fcmp une double %r<value>, 0.0<else>
+%r<scope.nextRegister> = load i8* %r<value>
+%c<scope.register> = icmp ne i8 %r<scope.register>, 0<endif>
+<else>
+%r<scope.nextRegister> = add i32 0, <value.toBoolean>
+%c<scope.register> = icmp ne i32 %r<scope.register>, 0<endif>
+>>
+
+typeMap ::= [
+    "string": "i8*",
+    "number": "double",
+    "boolean": "i32"
+]
+
+args(lval, rval, scope) ::= <%
+<typeMap.(lval.type)> <argRegister(lval, "lval", scope.register)>, <typeMap.(rval.type)> <argRegister(rval, "rval", scope.register)>
+%>
+
+argRegister(val, side, register) ::= <%
+<if(val.reference&&!val.symbol)>%r<val>
+<elseif(val.symbol)>%<side><register>
+<elseif(val.string)><getString(val)>
+<else><val><endif>
+%>
+
+loadString(val, side, register) ::= "%<side><register> = load i8** %<bitsyVariable(val)>"
+loadNumber(val, side, register) ::= "%<side><register> = load double* %<bitsyVariable(val)>"
+loadBoolean(val, side, register) ::= "%<side><register> = load i32* %<bitsyVariable(val)>"
+
+
+bitsyVariable(name) ::= "$<name>"
+symbolType(type) ::= "<typeMap.(type.name)>"
+llvmConstant(s) ::= <<[<(s.LLVMLength)> x i8] c"<s.LLVMString>">>
+llvmType(v) ::= "<if(v.number)>double<elseif(v.boolean)>i32<else>i8*<endif>"
+llvmValue(v) ::= "<if(v.reference)>%<v><elseif(v.string)><getString(v)><else><v><endif>"
+getString(s) ::= "getelementptr ([<s.LLVMLength> x i8]* @.str<s.register>, i32 0, i32 0)"

@@ -1,0 +1,3 @@
+endifStat(label) ::= <<
+fi
+>>

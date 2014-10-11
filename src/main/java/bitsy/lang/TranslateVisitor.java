@@ -3,6 +3,7 @@ package bitsy.lang;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.stringtemplate.v4.ST;
@@ -14,10 +15,12 @@ import bitsy.antlr4.BitsyParser.BlockContext;
 import bitsy.antlr4.BitsyParser.BoolExpressionContext;
 import bitsy.antlr4.BitsyParser.ElseIfStatContext;
 import bitsy.antlr4.BitsyParser.ElseStatContext;
+import bitsy.antlr4.BitsyParser.EqExpressionContext;
 import bitsy.antlr4.BitsyParser.ExpressionContext;
 import bitsy.antlr4.BitsyParser.IdentifierExpressionContext;
 import bitsy.antlr4.BitsyParser.IfStatContext;
 import bitsy.antlr4.BitsyParser.IfStatementContext;
+import bitsy.antlr4.BitsyParser.NotEqExpressionContext;
 import bitsy.antlr4.BitsyParser.NumberExpressionContext;
 import bitsy.antlr4.BitsyParser.ParseContext;
 import bitsy.antlr4.BitsyParser.PrintFunctionCallContext;
@@ -25,6 +28,7 @@ import bitsy.antlr4.BitsyParser.StatementContext;
 import bitsy.antlr4.BitsyParser.StringExpressionContext;
 import bitsy.lang.symbols.BuiltinType;
 import bitsy.lang.symbols.GlobalScope;
+import bitsy.lang.symbols.Register;
 import bitsy.lang.symbols.Scope;
 import bitsy.lang.symbols.Symbol;
 import bitsy.lang.symbols.SymbolTable;
@@ -103,7 +107,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	ST st = group.getInstanceOf("assignment");
     	String id = ctx.IDENTIFIER().getText();
     	st.add("name", id);
-    	visit(ctx.expression());
+    	st.add("expression", visit(ctx.expression()));
     	Value val = values.get(ctx.expression());
     	currentScope.assign(id, currentScope.getRegister());
     	st.add("value", val);
@@ -127,6 +131,35 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         }
         String out = st.render();
         return out;
+    }
+    
+    private String renderEquality(ExpressionContext ctx, ST st, List<ExpressionContext> ecx) {
+    	ExpressionContext lcx = ecx.get(0);
+    	ExpressionContext rcx = ecx.get(1);
+    	st.add("lexpr", visit(lcx));
+    	st.add("rexpr", visit(rcx));
+    	st.add("lval", values.get(lcx));
+    	st.add("rval", values.get(rcx));
+    	st.add("scope", currentScope);
+    	currentScope.getNextRegister();
+    	String res = st.render();
+    	Register ref = new Register(currentScope.getRegister(), BuiltinType.BOOLEAN);
+    	values.put(ctx, new Value(ref));
+    	return res;
+    }
+    
+    @Override
+    public String visitEqExpression(EqExpressionContext ctx) {
+    	ST st = group.getInstanceOf("eqExpression");
+    	List<ExpressionContext> ecx = ctx.expression();
+    	return renderEquality(ctx, st, ecx);
+    }
+    
+    @Override
+    public String visitNotEqExpression(NotEqExpressionContext ctx) {
+    	ST st = group.getInstanceOf("neqExpression");
+    	List<ExpressionContext> ecx = ctx.expression();
+    	return renderEquality(ctx, st, ecx);
     }
     
     @Override
@@ -169,7 +202,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 	@Override
 	public String visitIfStatement(IfStatementContext ctx) {
 		StringBuilder ifStat = new StringBuilder();
-		int label = getMethodScope().getLabel();
+		int label = getMethodScope().getNextLabel();
 		int sublevel = 0;
 		ifStat.append(visitIfStat(ctx.ifStat(), label, sublevel++));
 		for (ElseIfStatContext ectx :ctx.elseIfStat()) {
@@ -186,7 +219,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 	
 	public String visitIfStat(IfStatContext ctx, int label, int sublevel) {
 		ST st = group.getInstanceOf("ifStat");
-		visit(ctx.expression());
+		st.add("expression", visit(ctx.expression()));
 		Value val = values.get(ctx.expression());
 		st.add("value", val);
 		st.add("block", visit(ctx.block()));
@@ -198,7 +231,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 	
 	public String visitElseIfStat(ElseIfStatContext ctx, int label, int sublevel) {
 		ST st = group.getInstanceOf("elseifStat");
-		visit(ctx.expression());
+		st.add("expression", visit(ctx.expression()));
 		Value val = values.get(ctx.expression());
 		st.add("value", val);
 		st.add("block", visit(ctx.block()));

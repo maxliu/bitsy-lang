@@ -1,17 +1,16 @@
 package bitsy.lang.symbols;
 
-public class Symbol {
+public class Symbol extends Register {
 	public String name;      // All symbols at least have a name
-    public Type type;
     public Scope scope;      // All symbols know what scope contains them.
-    private int register;
     
     public Symbol(String name) { 
-    	this.name = name; 
+    	this(name, null); 
     }
     
 	public Symbol(String name, Type type) {
-		this(name);
+		super(0, type);
+		this.name = name;
 		this.type = type;
 	}
 
@@ -28,13 +27,5 @@ public class Symbol {
 			return '<' + getName() + ":" + type + '>';
 		}
 		return getName();
-	}
-	
-	public void setRegister(int register) {
-		this.register = register;
-	}
-	
-	public int getRegister() {
-		return register;
 	}
 }

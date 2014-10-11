@@ -17,23 +17,28 @@ public class Value {
     }
     
     public boolean isReference() {
+    	return value instanceof Register;
+    }
+    
+    public boolean isSymbol() {
     	return value instanceof Symbol;
     }
     
-    public Symbol asSymbol() {
-    	return (Symbol) value;
+    public Register asReference() {
+    	return (Register) value;
     }
     
+    
     public boolean isString() {
-        return value instanceof String || (isReference() && asSymbol().type == BuiltinType.STRING);
+        return value instanceof String || (isReference() && asReference().isString());
     }
     
     public boolean isNumber() {
-        return value instanceof Number || (isReference() && asSymbol().type == BuiltinType.NUMBER);
+        return value instanceof Number || (isReference() && asReference().isNumber());
     }
     
     public boolean isBoolean() {
-    	return value instanceof Boolean || (isReference() && asSymbol().type == BuiltinType.BOOLEAN);
+    	return value instanceof Boolean || (isReference() && asReference().isBoolean());
     }
     
     public boolean isOnTrue() {
@@ -46,7 +51,11 @@ public class Value {
     
     public String asString() {
     	if (isReference()) {
-    		return ((Symbol) value).getName();
+    		if (value instanceof Symbol) {
+    			return ((Symbol) value).getName();
+    		} else {
+    			return ((Register) value).getRegister()+"";
+    		}
     	} else if (isString()) {
     		return (String) value;
     	} else if (isBoolean()) {
@@ -109,6 +118,16 @@ public class Value {
     		return asDouble() != 0 ? "1" : "0";
     	} else {
     		return asBoolean() ? "1" : "0";
+    	}
+    }
+    
+    public String getType() {
+    	if (isNumber()) {
+    		return "number";
+    	} else if (isBoolean()) {
+    		return "boolean";
+    	} else {
+    		return "string";
     	}
     }
 }

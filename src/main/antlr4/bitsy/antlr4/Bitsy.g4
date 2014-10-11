@@ -106,11 +106,13 @@ elseStat
  ;
  
 expression
- : STRING 		#stringExpression
- | NUMBER 		#numberExpression
- | BOOL   		#boolExpression
- | NULL   		#nullExpression
- | IDENTIFIER   #identifierExpression
+ : expression '==' expression   #eqExpression
+ | expression '!=' expression	#notEqExpression
+ | NUMBER 						#numberExpression
+ | BOOL   						#boolExpression
+ | NULL   						#nullExpression
+ | IDENTIFIER   				#identifierExpression
+ | STRING 						#stringExpression
  ;
 
 IF       : 'if';

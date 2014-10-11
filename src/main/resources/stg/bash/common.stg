@@ -1,0 +1,3 @@
+bashValue(s) ::= <<
+<if(s.boolean)><if(s.onTrue)>true<else>false<endif><else><s><endif>
+>> 

@@ -1,8 +1,10 @@
-a = ""
-if a
-	println "True"
-else if true
-	println "Middle True"
-else
-	println "False"
-	
+a = "test"
+if a != "test1"
+	println "test does no match test1"
+b = 1.2
+c = 1.2
+if b == c
+	println "b equals c"
+d = false
+if d != true
+	println "d is not true"
