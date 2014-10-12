@@ -1,4 +1,11 @@
 file(fileName, strings, locals, block) ::= <<
 #!/bin/bash
-<block>
+
+main() {
+	<block>
+}
+
+<runtime()>
+
+main "$@"
 >>

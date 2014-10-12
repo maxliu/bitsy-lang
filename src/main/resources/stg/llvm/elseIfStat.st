@@ -1,1 +1,1 @@
-elseifStat(expression, value, block, scope, label, sublevel) ::= "<ifStat(expression, value, block, scope, label, sublevel)>"
+elseifStat(value, block, scope, label, sublevel) ::= "<ifStat(value, block, scope, label, sublevel)>"

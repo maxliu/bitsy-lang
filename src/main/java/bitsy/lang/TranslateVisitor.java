@@ -104,16 +104,17 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     
     @Override
     public String visitAssignment(AssignmentContext ctx) {
+    	StringBuilder result = new StringBuilder();
     	ST st = group.getInstanceOf("assignment");
     	String id = ctx.IDENTIFIER().getText();
     	st.add("name", id);
-    	st.add("expression", visit(ctx.expression()));
+    	result.append(visit(ctx.expression()));
     	Value val = values.get(ctx.expression());
     	currentScope.assign(id, currentScope.getRegister());
     	st.add("value", val);
     	st.add("scope", currentScope);
-    	String result = st.render();
-    	return result;
+    	result.append(st.render());
+    	return result.toString();
     }
     
     @Override
@@ -134,18 +135,19 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     }
     
     private String renderEquality(ExpressionContext ctx, ST st, List<ExpressionContext> ecx) {
+    	StringBuilder result = new StringBuilder();
     	ExpressionContext lcx = ecx.get(0);
     	ExpressionContext rcx = ecx.get(1);
-    	st.add("lexpr", visit(lcx));
-    	st.add("rexpr", visit(rcx));
+    	result.append(visit(lcx));
+    	result.append(visit(rcx));
     	st.add("lval", values.get(lcx));
     	st.add("rval", values.get(rcx));
     	st.add("scope", currentScope);
     	currentScope.getNextRegister();
-    	String res = st.render();
+    	result.append(st.render());
     	Register ref = new Register(currentScope.getRegister(), BuiltinType.BOOLEAN);
     	values.put(ctx, new Value(ref));
-    	return res;
+		return result.toString();
     }
     
     @Override
@@ -218,27 +220,31 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 	}
 	
 	public String visitIfStat(IfStatContext ctx, int label, int sublevel) {
+		StringBuilder result = new StringBuilder();
 		ST st = group.getInstanceOf("ifStat");
-		st.add("expression", visit(ctx.expression()));
+		result.append(visit(ctx.expression()));
 		Value val = values.get(ctx.expression());
 		st.add("value", val);
 		st.add("block", visit(ctx.block()));
 		st.add("scope", getMethodScope());
 		st.add("label", label);
 		st.add("sublevel", sublevel);
-		return st.render();
+		result.append(st.render());
+		return result.toString();
 	}
 	
 	public String visitElseIfStat(ElseIfStatContext ctx, int label, int sublevel) {
+		StringBuilder result = new StringBuilder();
 		ST st = group.getInstanceOf("elseifStat");
-		st.add("expression", visit(ctx.expression()));
+		result.append(visit(ctx.expression()));
 		Value val = values.get(ctx.expression());
 		st.add("value", val);
 		st.add("block", visit(ctx.block()));
 		st.add("scope", getMethodScope());
 		st.add("label", label);
 		st.add("sublevel", sublevel);
-		return st.render();
+		result.append(st.render());
+		return result.toString();
 	}
 	
 	public String visitElseStat(ElseStatContext ctx, int label) {

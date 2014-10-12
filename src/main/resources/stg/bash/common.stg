@@ -1,3 +1,12 @@
 bashValue(s) ::= <<
 <if(s.boolean)><if(s.onTrue)>true<else>false<endif><else><s><endif>
 >> 
+
+args(lval, rval) ::= "<arg(lval)> <arg(rval)>"
+
+arg(val) ::= <%
+<if(val.symbol)>$<val>
+<elseif(val.reference)>$r<val>
+<else><bashValue(val)>
+<endif>
+%>

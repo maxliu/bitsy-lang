@@ -1,4 +1,5 @@
-elseifStat(value, block, scope, label, sublevel) ::= <<
+elseifStat(expression, value, block, scope, label, sublevel) ::= <<
+<expression>
 <if(value.reference)>
 <if(value.number)>
 elif [[ $(echo "$<value> != 0.0"|bc) -eq 1 ]]; then

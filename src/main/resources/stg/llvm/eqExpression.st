@@ -1,6 +1,4 @@
-eqExpression(lexpr, rexpr, lval, rval, scope) ::= <<
-<lexpr>
-<rexpr>
+eqExpression(lval, rval, scope) ::= <<
 <if(lval.symbol&&lval.string)><loadString(lval, "lval", scope.register)>
 <elseif(lval.symbol&&lval.number)><loadNumber(lval, "lval", scope.register)>
 <elseif(lval.symbol&&lval.boolean)><loadBoolean(lval, "lval", scope.register)>

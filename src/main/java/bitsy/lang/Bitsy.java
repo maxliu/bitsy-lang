@@ -78,7 +78,7 @@ public class Bitsy {
         File sFile = new File(sourceName+".s");
         if (run("llvm-as -f "+irFile) != 0) return;
         //irFile.delete();
-        if (run("llc  "+bcFile) != 0) return;
+        if (run("llc "+bcFile) != 0) return;
         bcFile.delete();
         String exeFile = FilenameUtil.getFilenameAndExtenion(sourceName)[0];
         if (run("clang -o "+exeFile+" "+sFile) != 0) return;
@@ -100,8 +100,8 @@ public class Bitsy {
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(new SymbolListener(symbolTable), tree);
         
-        llvm(symbolTable, tree, source);
-        //bash(symbolTable, tree, source);
+        //llvm(symbolTable, tree, source);
+        bash(symbolTable, tree, source);
         //jvm(symbolTable, tree, source);
         /*
         if (args.length == 0) {
