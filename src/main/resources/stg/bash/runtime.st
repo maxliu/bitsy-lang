@@ -5,4 +5,12 @@ comparestringstring() {
     else echo 0
     fi
 }
+
+comparestringnumber() {
+	echo $(echo "$1 == $2"|bc)
+}
+
+comparenumberstring() {
+	echo $(echo "$1 == $2"|bc)
+}
 >>

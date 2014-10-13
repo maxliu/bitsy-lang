@@ -1,2 +1,2 @@
-if "test1" == "test1"
+if 2.0 == "2"
 	println "test1 matches test1"
