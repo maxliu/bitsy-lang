@@ -60,6 +60,8 @@ public class Value {
     		return (String) value;
     	} else if (isBoolean()) {
     		return asBoolean() ? "1" : "0";
+    	} else if (value == null) {
+    		return "";
     	}
     	return value.toString();
     }

@@ -7,6 +7,7 @@ args(lval, rval) ::= "<arg(lval)> <arg(rval)>"
 arg(val) ::= <%
 <if(val.symbol)>$<val>
 <elseif(val.reference)>$r<val>
+<elseif(val.string)>"<bashValue(val)>"
 <else><bashValue(val)>
 <endif>
 %>

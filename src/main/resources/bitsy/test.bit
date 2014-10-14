@@ -1,2 +1,31 @@
-if 2.0 == "2"
-	println "test1 matches test1"
+println "Checking True"
+if true != 1
+	println "Failed"	
+if "test" == 1
+	println "Failed"	
+if 1 != true
+	println "Failed"
+if true != true
+	println "Failed"
+if false != 0
+	println "Failed"
+if "" == 0
+	println "Failed"
+if 0 != false
+	println "Failed"
+if false != false
+	println "Failed"
+	
+println "Checking False"
+if true == 0
+	println "Failed"
+if "" == 1
+	println "Failed"
+if 0 == true
+	println "Failed"
+if false == true
+	println "Failed"		
+if true == false
+	println "Failed"		
+if 1 == ""
+	println "Failed"
