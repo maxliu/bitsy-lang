@@ -64,6 +64,7 @@ public class Bitsy {
         Files.setPosixFilePermissions(bashFile, perms);
         
         System.out.println(">>> Created bash script "+bashFile);
+        run("./test.sh");
 	}
 	
 	static void llvm(SymbolTable symbolTable, ParseTree tree, ANTLRFileStream source) throws IOException {

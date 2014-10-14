@@ -1,6 +1,9 @@
 println "Checking True"
+a = true
+b = 1
+c = "test"
 if true != 1
-	println "Failed"	
+	println "Failed"
 if "test" == 1
 	println "Failed"	
 if 1 != true
@@ -15,7 +18,15 @@ if 0 != false
 	println "Failed"
 if false != false
 	println "Failed"
-	
+if a != true
+	println "Failed"
+if b != true
+	println "Failed"
+if a != b
+	println "Failed"
+if c != true
+	println "Failed"
+		
 println "Checking False"
 if true == 0
 	println "Failed"
