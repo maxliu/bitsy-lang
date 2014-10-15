@@ -1,0 +1,21 @@
+runtimeclass() ::= "test"
+
+load(value) ::= <%
+<if(value.reference)>
+	<if(value.string)>aload <value.register>
+	<elseif(value.number)>dload <value.register>
+	<else>iload <value.register>
+	<endif>
+<else>
+	<if(value.string)>ldc "<value>"
+	<elseif(value.number)>ldc2_w <value>
+	<else>iconst_<value>
+	<endif>
+<endif>
+%>
+
+typeMap ::= [
+	"string": "Ljava/lang/String;",
+	"number": "D",
+    "boolean": "Z"
+]

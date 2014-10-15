@@ -4,8 +4,10 @@ b = 1
 c = "test"
 if true != 1
 	println "Failed"
+	
 if "test" == 1
-	println "Failed"	
+	println "Failed"
+		
 if 1 != true
 	println "Failed"
 if true != true
@@ -19,7 +21,7 @@ if 0 != false
 if false != false
 	println "Failed"
 if a != true
-	println "Failed"
+	println "Failed"	
 if b != true
 	println "Failed"
 if a != b

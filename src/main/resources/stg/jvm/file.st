@@ -14,4 +14,6 @@ file(fileName, strings, locals, block) ::= <<
     <block>
     return
 .end method
+
+<runtime()>
 >>

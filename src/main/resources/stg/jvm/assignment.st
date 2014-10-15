@@ -2,13 +2,13 @@ assignment(name, value, scope) ::= <<
 <if(value.reference)>
 <if(value.number)>
 dload_<value.register>
-dstore_<scope.nextLocal>
+dstore <scope.nextLocal>
 <elseif (value.boolean)>
 iload <value.register>
 istore <scope.nextLocal>
 <else>
 aload_<value.register>
-astore_<scope.nextLocal>
+astore <scope.nextLocal>
 <endif>
 <else>
 <if(value.number)>
@@ -19,7 +19,7 @@ iconst_<value>
 istore <scope.nextLocal>
 <else>
 ldc "<value>"
-astore_<scope.nextLocal>
+astore <scope.nextLocal>
 <endif>
 <endif>
 >>

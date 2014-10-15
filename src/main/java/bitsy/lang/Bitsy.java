@@ -46,6 +46,8 @@ public class Bitsy {
         System.out.println(">>> Created java class "+classFile.getClassName()+".class");
         FileOutputStream outp = new FileOutputStream(new File(classFile.getClassName()+".class"));
         classFile.write(outp);
+        
+        run("java test");
 	}
     
 	static void bash(SymbolTable symbolTable, ParseTree tree, ANTLRFileStream source) throws IOException {
@@ -102,8 +104,8 @@ public class Bitsy {
         walker.walk(new SymbolListener(symbolTable), tree);
         
         //llvm(symbolTable, tree, source);
-        bash(symbolTable, tree, source);
-        //jvm(symbolTable, tree, source);
+        //bash(symbolTable, tree, source);
+        jvm(symbolTable, tree, source);
         /*
         if (args.length == 0) {
             System.out.println("Parsed successfully. Please specify -native, -bash or -jvm to create output files");
