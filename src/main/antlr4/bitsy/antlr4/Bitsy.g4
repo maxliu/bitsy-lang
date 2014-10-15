@@ -108,6 +108,7 @@ elseStat
 expression
  : expression '==' expression   #eqExpression
  | expression '!=' expression	#notEqExpression
+ | expression '&&' expression   #andExpression
  | NUMBER 						#numberExpression
  | BOOL   						#boolExpression
  | NULL   						#nullExpression

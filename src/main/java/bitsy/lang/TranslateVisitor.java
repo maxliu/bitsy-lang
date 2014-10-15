@@ -10,6 +10,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import bitsy.antlr4.BitsyBaseVisitor;
+import bitsy.antlr4.BitsyParser.AndExpressionContext;
 import bitsy.antlr4.BitsyParser.AssignmentContext;
 import bitsy.antlr4.BitsyParser.BlockContext;
 import bitsy.antlr4.BitsyParser.BoolExpressionContext;
@@ -134,7 +135,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         return out;
     }
     
-    private String renderEquality(ExpressionContext ctx, ST st, List<ExpressionContext> ecx) {
+    private String renderBOP(ExpressionContext ctx, ST st, List<ExpressionContext> ecx) {
     	StringBuilder result = new StringBuilder();
     	ExpressionContext lcx = ecx.get(0);
     	ExpressionContext rcx = ecx.get(1);
@@ -154,14 +155,21 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     public String visitEqExpression(EqExpressionContext ctx) {
     	ST st = group.getInstanceOf("eqExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderEquality(ctx, st, ecx);
+    	return renderBOP(ctx, st, ecx);
     }
     
     @Override
     public String visitNotEqExpression(NotEqExpressionContext ctx) {
     	ST st = group.getInstanceOf("neqExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderEquality(ctx, st, ecx);
+    	return renderBOP(ctx, st, ecx);
+    }
+    
+    @Override
+    public String visitAndExpression(AndExpressionContext ctx) {
+    	ST st = group.getInstanceOf("andExpression");
+    	List<ExpressionContext> ecx = ctx.expression();
+    	return renderBOP(ctx, st, ecx);
     }
     
     @Override
