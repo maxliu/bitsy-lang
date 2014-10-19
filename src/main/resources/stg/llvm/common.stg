@@ -9,9 +9,22 @@ loadOperands(lval, rval, scope) ::= <<
 <endif>
 >>
 
+compareRegToZero(prefix, value, register, lastRegister) ::= <<
+<if(value.string)>
+%<prefix><register> = load i8* <argRegister(value, prefix, lastRegister)>
+%<prefix>_sext<register> = sext i8 %<prefix><register> to i32
+%<prefix>_cmp<register> = icmp eq i32 %<prefix>_sext<register>, 0
+<elseif(value.number)>
+%<prefix><register> = fadd double <argRegister(value, prefix, lastRegister)>, 0.0
+%<prefix>_cmp<register> = fcmp ueq double %<prefix><register>, 0.000000e+00
+<elseif(value.boolean)>
+%<prefix><register> = add i32 <argRegister(value, prefix, lastRegister)>, 0
+%<prefix>_cmp<register> = icmp eq i32 %<prefix><register>, 0
+<endif>
+>>
 
 compareValToZero(value, scope) ::= <<
-<if(value.reference&&value.symbol)>
+<if(value.symbol)>
 <if(value.boolean)>
 %r<scope.nextRegister> = load i32* %<bitsyVariable(value)>
 %c<scope.register> = icmp ne i32 %r<scope.register>, 0<elseif(value.number)>

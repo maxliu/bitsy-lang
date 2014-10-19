@@ -1,2 +1,4 @@
-if "t" && 1
-	println "wut"
+a = false
+b = 1.2
+if b && a
+	println ">>> WORKED"
