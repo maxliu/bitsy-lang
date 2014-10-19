@@ -1,6 +1,6 @@
 runtimeclass() ::= "test"
 
-isTrue(value, label) ::= <<
+ifFalseGotoLabel(value, label) ::= <<
 <if(value.string)>
 invokevirtual java/lang/String/length()I
 ifle false<label> 
@@ -11,6 +11,20 @@ ifeq false<label>
 <else>
 iconst_0
 if_icmpeq false<label>
+<endif>
+>>
+
+ifTrueGotoLabel(value, label) ::= <<
+<if(value.string)>
+invokevirtual java/lang/String/length()I
+ifne true<label> 
+<elseif(value.number)>
+dconst_0
+dcmpl
+ifne true<label>	
+<else>
+iconst_0
+if_icmpne true<label>
 <endif>
 >>
 

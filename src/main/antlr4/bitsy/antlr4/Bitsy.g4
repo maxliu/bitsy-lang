@@ -109,6 +109,7 @@ expression
  : expression '==' expression   #eqExpression
  | expression '!=' expression	#notEqExpression
  | expression '&&' expression   #andExpression
+ | expression '||' expression   #orExpression
  | NUMBER 						#numberExpression
  | BOOL   						#boolExpression
  | NULL   						#nullExpression

@@ -3,7 +3,6 @@ package bitsy.lang;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.stringtemplate.v4.ST;
@@ -23,6 +22,7 @@ import bitsy.antlr4.BitsyParser.IfStatContext;
 import bitsy.antlr4.BitsyParser.IfStatementContext;
 import bitsy.antlr4.BitsyParser.NotEqExpressionContext;
 import bitsy.antlr4.BitsyParser.NumberExpressionContext;
+import bitsy.antlr4.BitsyParser.OrExpressionContext;
 import bitsy.antlr4.BitsyParser.ParseContext;
 import bitsy.antlr4.BitsyParser.PrintFunctionCallContext;
 import bitsy.antlr4.BitsyParser.StatementContext;
@@ -168,6 +168,13 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     @Override
     public String visitAndExpression(AndExpressionContext ctx) {
     	ST st = group.getInstanceOf("andExpression");
+    	List<ExpressionContext> ecx = ctx.expression();
+    	return renderBOP(ctx, st, ecx);
+    }
+    
+    @Override
+    public String visitOrExpression(OrExpressionContext ctx) {
+    	ST st = group.getInstanceOf("orExpression");
     	List<ExpressionContext> ecx = ctx.expression();
     	return renderBOP(ctx, st, ecx);
     }
