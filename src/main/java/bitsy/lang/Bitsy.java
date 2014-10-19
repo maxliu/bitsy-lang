@@ -103,9 +103,9 @@ public class Bitsy {
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(new SymbolListener(symbolTable), tree);
         
-        //llvm(symbolTable, tree, source);
+        llvm(symbolTable, tree, source);
         //bash(symbolTable, tree, source);
-        jvm(symbolTable, tree, source);
+        //jvm(symbolTable, tree, source);
         /*
         if (args.length == 0) {
             System.out.println("Parsed successfully. Please specify -native, -bash or -jvm to create output files");

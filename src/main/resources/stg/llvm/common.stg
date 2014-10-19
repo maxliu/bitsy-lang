@@ -18,8 +18,8 @@ compareRegToZero(prefix, value, register, lastRegister) ::= <<
 %<prefix><register> = fadd double <argRegister(value, prefix, lastRegister)>, 0.0
 %<prefix>_cmp<register> = fcmp ueq double %<prefix><register>, 0.000000e+00
 <elseif(value.boolean)>
-%<prefix><register> = add i32 <argRegister(value, prefix, lastRegister)>, 0
-%<prefix>_cmp<register> = icmp eq i32 %<prefix><register>, 0
+%<prefix><register> = add i1 <argRegister(value, prefix, lastRegister)>, 0
+%<prefix>_cmp<register> = icmp eq i1 %<prefix><register>, 0
 <endif>
 >>
 
@@ -27,7 +27,7 @@ compareValToZero(value, scope) ::= <<
 <if(value.symbol)>
 <if(value.boolean)>
 %r<scope.nextRegister> = load i32* %<bitsyVariable(value)>
-%c<scope.register> = icmp ne i32 %r<scope.register>, 0<elseif(value.number)>
+%c<scope.register> = icmp ne i1 %r<scope.register>, 0<elseif(value.number)>
 %r<scope.nextRegister> = load double* %<bitsyVariable(value)>
 %c<scope.register> = fcmp une double %r<scope.register>, 0.0<else>
 %r<scope.nextRegister> = load i8** %<bitsyVariable(value)>
@@ -35,7 +35,7 @@ compareValToZero(value, scope) ::= <<
 %c<scope.register> = icmp ne i8 %r<scope.register>, 0<endif>
 <elseif(value.reference)>
 <if(value.boolean)>
-%c<scope.nextRegister> = icmp ne i32 %r<value>, 0<elseif(value.number)>
+%c<scope.nextRegister> = icmp ne i1 %r<value>, 0<elseif(value.number)>
 %c<scope.nextRegister> = fcmp une double %r<value>, 0.0<else>
 %r<scope.nextRegister> = load i8* %r<value>
 %c<scope.register> = icmp ne i8 %r<scope.register>, 0<endif>
@@ -47,7 +47,7 @@ compareValToZero(value, scope) ::= <<
 typeMap ::= [
     "string": "i8*",
     "number": "double",
-    "boolean": "i32"
+    "boolean": "i1"
 ]
 
 args(lval, rval, scope) ::= <%

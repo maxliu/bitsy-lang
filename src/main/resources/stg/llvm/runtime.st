@@ -7,6 +7,7 @@ runtime() ::= <<
 declare i32 @printf(i8 *, ...)
 declare i32 @strcmp(i8*, i8*)
 declare i32 @snprintf(i8*, i64, i8*, ...)
+declare double @atof(i8*)
 
 define i32 @comparestringstring(i8* %s1, i8* %s2) {
   %1 = alloca i8*, align 8

@@ -1,4 +1,4 @@
-a = 0
-b = "a"
-if b || a
+a = 1
+b = 2
+if "b" < "a"
 	println ">>> WORKED"
