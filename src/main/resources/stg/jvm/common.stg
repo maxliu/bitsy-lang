@@ -1,5 +1,20 @@
 runtimeclass() ::= "test"
 
+isTrue(value, label) ::= <<
+<if(value.string)>
+invokevirtual java/lang/String/length()I
+ifle false<label> 
+<elseif(value.number)>
+dconst_0
+dcmpl
+ifeq false<label>	
+<else>
+iconst_0
+if_icmpeq false<label>
+<endif>
+>>
+
+
 load(value) ::= <%
 <if(value.reference)>
 	<if(value.string)>aload <value.register>
