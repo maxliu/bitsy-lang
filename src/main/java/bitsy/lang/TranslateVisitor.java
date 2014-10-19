@@ -17,9 +17,13 @@ import bitsy.antlr4.BitsyParser.ElseIfStatContext;
 import bitsy.antlr4.BitsyParser.ElseStatContext;
 import bitsy.antlr4.BitsyParser.EqExpressionContext;
 import bitsy.antlr4.BitsyParser.ExpressionContext;
+import bitsy.antlr4.BitsyParser.GtEqExpressionContext;
+import bitsy.antlr4.BitsyParser.GtExpressionContext;
 import bitsy.antlr4.BitsyParser.IdentifierExpressionContext;
 import bitsy.antlr4.BitsyParser.IfStatContext;
 import bitsy.antlr4.BitsyParser.IfStatementContext;
+import bitsy.antlr4.BitsyParser.LtEqExpressionContext;
+import bitsy.antlr4.BitsyParser.LtExpressionContext;
 import bitsy.antlr4.BitsyParser.NotEqExpressionContext;
 import bitsy.antlr4.BitsyParser.NumberExpressionContext;
 import bitsy.antlr4.BitsyParser.OrExpressionContext;
@@ -149,6 +153,34 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	Register ref = new Register(currentScope.getRegister(), BuiltinType.BOOLEAN);
     	values.put(ctx, new Value(ref));
 		return result.toString();
+    }
+    
+    @Override
+    public String visitGtEqExpression(GtEqExpressionContext ctx) {
+    	ST st = group.getInstanceOf("gtEqExpression");
+    	List<ExpressionContext> ecx = ctx.expression();
+    	return renderBOP(ctx, st, ecx);
+    }
+    
+    @Override
+    public String visitGtExpression(GtExpressionContext ctx) {
+    	ST st = group.getInstanceOf("gtExpression");
+    	List<ExpressionContext> ecx = ctx.expression();
+    	return renderBOP(ctx, st, ecx);
+    }
+    
+    @Override
+    public String visitLtExpression(LtExpressionContext ctx) {
+    	ST st = group.getInstanceOf("ltExpression");
+    	List<ExpressionContext> ecx = ctx.expression();
+    	return renderBOP(ctx, st, ecx);
+    }
+    
+    @Override
+    public String visitLtEqExpression(LtEqExpressionContext ctx) {
+    	ST st = group.getInstanceOf("ltEqExpression");
+    	List<ExpressionContext> ecx = ctx.expression();
+    	return renderBOP(ctx, st, ecx);
     }
     
     @Override

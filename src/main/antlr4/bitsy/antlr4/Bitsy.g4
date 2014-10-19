@@ -106,7 +106,11 @@ elseStat
  ;
  
 expression
- : expression '==' expression   #eqExpression
+ : expression '>=' expression   #gtEqExpression
+ | expression '<=' expression   #ltEqExpression
+ | expression '>' expression    #gtExpression
+ | expression '<' expression    #ltExpression
+ | expression '==' expression   #eqExpression
  | expression '!=' expression	#notEqExpression
  | expression '&&' expression   #andExpression
  | expression '||' expression   #orExpression
