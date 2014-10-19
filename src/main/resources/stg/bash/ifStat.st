@@ -3,11 +3,11 @@ ifStat(value, block, scope, label, sublevel) ::= <<
 <if(value.number)>
 if [[ $(echo "<arg(value)> != 0.0"|bc) -eq 1 ]]; then
 <elseif(value.boolean)>
-if [[ "<arg(value)>" -ne 0 ]]; then
+if [[ <arg(value)> == true ]]; then
 <else>
-if [[ "<arg(value)>" != "" ]]; then
+if [[ "x<arg(value)>" != "x" ]]; then
 <endif><else>
-if [[ "<value.toBoolean>" != "0" ]]; then
+if [[ <if(value.onTrue)>true<else>false<endif> == true ]]; then
 <endif>
     <block>
 

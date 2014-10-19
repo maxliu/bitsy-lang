@@ -1,13 +1,38 @@
-bashValue(s) ::= <<
-<if(s.boolean)><if(s.onTrue)>true<else>false<endif><else><s><endif>
->> 
+isTrue(value) ::= <%
+<if(value.string&&value.reference)>
+	"x<arg(value)>" != "x"
+<elseif(value.string)>
+	<arg(value,"x")> != "x"
+<elseif(value.number)>
+	$(echo "<arg(value)> != 0.0"|bc) -ne 0
+<else>
+	<arg(value)> == true
+<endif>
+%>
+
+
+bashValue(s,suffix="") ::= <%
+<if(s.boolean)>
+	<if(s.onTrue)>
+		true
+	<else>
+		false
+	<endif>
+<elseif(s.string)>
+	"<s><suffix>"
+<else>
+	<s><suffix>
+<endif>
+%>
 
 args(lval, rval) ::= "<arg(lval)> <arg(rval)>"
 
-arg(val) ::= <%
-<if(val.symbol)>$<val>
-<elseif(val.reference)>$r<val>
-<elseif(val.string)>"<bashValue(val)>"
-<else><bashValue(val)>
+arg(val,suffix="") ::= <%
+<if(val.symbol)>
+	$<val>
+<elseif(val.reference)>
+	$r<val>
+<else>
+	<bashValue(val,suffix)>
 <endif>
 %>

@@ -1,4 +1,5 @@
-a = false
-b = 1.2
+a = true
+b = ""
+b = ""
 if b && a
 	println ">>> WORKED"

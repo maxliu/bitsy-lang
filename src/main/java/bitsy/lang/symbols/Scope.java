@@ -42,7 +42,11 @@ public abstract class Scope {
 		return null;
 	}
 
-	public void define(Symbol symbol) {
+	public void define(Symbol symbol) throws SymbolException {
+		Symbol prevSymbol = symbols.get(symbol.name);
+		if (prevSymbol != null && symbol.type != prevSymbol.type) {
+			throw new SymbolException();
+		}
 		symbols.put(symbol.name, symbol);
 		symbol.scope = this;
 	}

@@ -14,6 +14,7 @@ import bitsy.lang.symbols.BuiltinType;
 import bitsy.lang.symbols.LocalScope;
 import bitsy.lang.symbols.Scope;
 import bitsy.lang.symbols.Symbol;
+import bitsy.lang.symbols.SymbolException;
 import bitsy.lang.symbols.SymbolTable;
 import bitsy.lang.symbols.Type;
 
@@ -26,7 +27,7 @@ public class SymbolListener extends BitsyBaseListener {
 		this.currentScope = symbolTable.globals;
 	}
 	
-	private void define(String id, Type type) {
+	private void define(String id, Type type) throws SymbolException {
 		currentScope.define(new Symbol(id, type));
 	}
 	
@@ -45,22 +46,26 @@ public class SymbolListener extends BitsyBaseListener {
 	public void exitAssignment(@NotNull AssignmentContext ctx) {
 		String id = ctx.IDENTIFIER().getText();
 		ExpressionContext ex = ctx.expression();
-		if (ex instanceof StringExpressionContext) {
-			define(id, BuiltinType.STRING);
-		} else if (ex instanceof NumberExpressionContext) {
-			define(id, BuiltinType.NUMBER);
-		} else if (ex instanceof BoolExpressionContext) {
-			define(id, BuiltinType.BOOLEAN);
-		} else if (ex instanceof NullExpressionContext) {
-			define(id, BuiltinType.NULL);
-		} else {
-			// reference
-			String rhsId = ex.getText();
-			Symbol rhs = currentScope.resolve(rhsId);
-			if (rhs == null) {
-				throw new RuntimeException("Attempt to reference variable "+rhsId+" that does not exist : line "+ctx.start.getLine());
+		try {
+			if (ex instanceof StringExpressionContext) {
+				define(id, BuiltinType.STRING);
+			} else if (ex instanceof NumberExpressionContext) {
+				define(id, BuiltinType.NUMBER);
+			} else if (ex instanceof BoolExpressionContext) {
+				define(id, BuiltinType.BOOLEAN);
+			} else if (ex instanceof NullExpressionContext) {
+				define(id, BuiltinType.NULL);
+			} else {
+				// reference
+				String rhsId = ex.getText();
+				Symbol rhs = currentScope.resolve(rhsId);
+				if (rhs == null) {
+					throw new RuntimeException("Attempt to reference variable "+rhsId+" that does not exist : line "+ctx.start.getLine());
+				}
+				define(id, rhs.type);
 			}
-			define(id, rhs.type);
+		} catch (SymbolException se) {
+			throw new RuntimeException("Symbol type redefinition for "+id+" line:"+ctx.IDENTIFIER().getSymbol().getLine());
 		}
 	}
 }
