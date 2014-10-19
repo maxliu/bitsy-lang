@@ -1,2 +1,2 @@
-if "test" && "test"
+if "t" && 1
 	println "wut"
