@@ -1,4 +1,4 @@
-a = 1
-b = 2
-if "b" < "a"
+a = "test"
+b = "test"
+if b != false
 	println ">>> WORKED"
