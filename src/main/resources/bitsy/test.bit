@@ -1,4 +1,4 @@
-a = "1"
-b = 2
-if b >= a
+a = true
+b = true
+if a == b
 	println ">>> WORKED"

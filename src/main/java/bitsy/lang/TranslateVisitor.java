@@ -71,14 +71,9 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	ST st = group.getInstanceOf("file");
         st.add("fileName", fileName);
         st.add("strings", strings);
-        int locals = 1;
         Scope blockScope = symbolTable.scopes.get(ctx.block());
-        for(Symbol s: blockScope.getSymbols()) {
-        	if (s.type == BuiltinType.NUMBER) locals++;
-        	locals++;
-        }
-        st.add("locals", locals);
         st.add("block", visit(ctx.block()));
+        st.add("locals", blockScope.getRegister() + 1);
     	return st.render();
     }
     

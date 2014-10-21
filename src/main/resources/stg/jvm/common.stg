@@ -1,5 +1,64 @@
 runtimeclass() ::= "test"
 
+compareBooleans(label) ::= <<
+if_icmpne false<label>
+iconst_1
+goto endif<label>
+false<label>:
+iconst_0
+endif<label>:
+
+>>
+
+compareNumberBoolean(number, boolean, scope) ::= <<
+<load(number)>
+dconst_0
+dcmpl
+<load(boolean)>
+<compareBooleans(scope.nextLabel)>
+
+>>
+
+compareStringBoolean(string, boolean, scope) ::= <<
+<load(string)>
+invokevirtual java/lang/String/length()I
+<isNotZero(scope.nextLabel)>
+<load(boolean)>
+<compareBooleans(scope.nextLabel)>
+>>
+
+
+compareStringToNumber(string,number) ::= <<
+new java/text/DecimalFormat
+dup
+ldc "#.####"
+invokespecial java/text/DecimalFormat/\<init>(Ljava/lang/String;)V
+<load(number)>
+invokevirtual java/text/DecimalFormat/format(D)Ljava/lang/String;
+<load(string)>
+invokevirtual java/lang/String/equals(Ljava/lang/Object;)Z
+>>
+
+isNotZero(label) ::=<<
+ifne true<label>
+iconst_0
+goto endif<label>
+true<label>:
+iconst_1
+endif<label>:
+
+>>
+
+isZero(label) ::= <<
+ifne false<label>
+iconst_1
+goto endif<label>
+false<label>:
+iconst_0
+endif<label>:
+
+>>
+
 ifFalseGotoLabel(value, label) ::= <<
 <if(value.string)>
 invokevirtual java/lang/String/length()I
