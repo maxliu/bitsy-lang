@@ -1,4 +1,4 @@
 neqExpression(lval, rval, scope) ::= <<
-r<scope.register>=$(not $(compare<lval.type><rval.type> <args(lval, rval)>))
+<expr(lval,rval,scope)>&& r<scope.register>=false || r<scope.register>=true
 
 >>
