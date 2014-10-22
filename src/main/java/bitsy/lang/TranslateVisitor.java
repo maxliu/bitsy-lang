@@ -10,6 +10,7 @@ import org.stringtemplate.v4.STGroup;
 
 import bitsy.antlr4.BitsyBaseVisitor;
 import bitsy.antlr4.BitsyParser.AndExpressionContext;
+import bitsy.antlr4.BitsyParser.AssertFunctionCallContext;
 import bitsy.antlr4.BitsyParser.AssignmentContext;
 import bitsy.antlr4.BitsyParser.BlockContext;
 import bitsy.antlr4.BitsyParser.BoolExpressionContext;
@@ -35,7 +36,6 @@ import bitsy.lang.symbols.BuiltinType;
 import bitsy.lang.symbols.GlobalScope;
 import bitsy.lang.symbols.Register;
 import bitsy.lang.symbols.Scope;
-import bitsy.lang.symbols.Symbol;
 import bitsy.lang.symbols.SymbolTable;
 import bitsy.lang.symbols.Value;
 
@@ -119,10 +119,11 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     
     @Override
     public String visitPrintFunctionCall(PrintFunctionCallContext ctx) {
+    	StringBuilder result = new StringBuilder();
         ST st = group.getInstanceOf("println");
         ExpressionContext ectx = ctx.expression();
         if ( ectx != null) {
-        	visit(ectx);
+        	result.append(visit(ectx));
         	Value val = values.get(ectx);
             st.add("value", val);
             st.add("scope", currentScope);
@@ -130,8 +131,32 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
             	constantString(val);
             }
         }
-        String out = st.render();
-        return out;
+        result.append(st.render());
+        return result.toString();
+    }
+    
+    @Override
+    public String visitAssertFunctionCall(AssertFunctionCallContext ctx) {
+    	StringBuilder result = new StringBuilder();
+        ST st = group.getInstanceOf("assert");
+        ExpressionContext ectx = ctx.expression();
+        if ( ectx != null) {
+        	result.append(visit(ectx));
+        	Value val = values.get(ectx);
+            st.add("value", val);
+            st.add("label", currentScope.getNextLabel());
+            st.add("scope", currentScope);
+            if (!val.isReference()) {
+            	constantString(val);
+            }
+            // TODO replace the function name here, possibly the brackets message
+            Value message = new Value("Assertion failed: (false), function main, file "+
+            		fileName+".bit, line "+ectx.start.getLine()+".");
+            constantString(message);
+            st.add("message", message);
+        }
+        result.append(st.render());
+        return result.toString();
     }
     
     private String renderBOP(ExpressionContext ctx, ST st, List<ExpressionContext> ecx, boolean booleansOk) {

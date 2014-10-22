@@ -17,15 +17,16 @@ bopExpression(lval, rval, scope, op) ::= <<
 <endif>
 >>
 
+loadOperand(val, register, prefix="r") ::= <%
+<if(val.symbol&&val.string)><loadString(val, prefix, register)>
+<elseif(val.symbol&&val.number)><loadNumber(lval, prefix, register)>
+<elseif(val.symbol&&val.boolean)><loadBoolean(lval, prefix, register)>
+<endif>
+%>
+
 loadOperands(lval, rval, scope) ::= <<
-<if(lval.symbol&&lval.string)><loadString(lval, "lval", scope.register)>
-<elseif(lval.symbol&&lval.number)><loadNumber(lval, "lval", scope.register)>
-<elseif(lval.symbol&&lval.boolean)><loadBoolean(lval, "lval", scope.register)>
-<endif>
-<if(rval.symbol&&rval.string)><loadString(rval, "rval", scope.register)>
-<elseif(rval.symbol&&rval.number)><loadNumber(rval, "rval", scope.register)>
-<elseif(rval.symbol&&rval.boolean)><loadBoolean(rval, "rval", scope.register)>
-<endif>
+<loadOperand(lval, scope.register, "lval")>
+<loadOperand(rval, scope.register, "rval")>
 >>
 
 compareRegToZero(prefix, value, register, lastRegister) ::= <<
@@ -81,9 +82,9 @@ args(lval, rval, scope) ::= <%
 <typeMap.(lval.type)> <argRegister(lval, "lval", scope.register)>, <typeMap.(rval.type)> <argRegister(rval, "rval", scope.register)>
 %>
 
-argRegister(val, side, register) ::= <%
+argRegister(val, prefix, register) ::= <%
 <if(val.reference&&!val.symbol)>%r<val>
-<elseif(val.symbol)>%<side><register>
+<elseif(val.symbol)>%<prefix><register>
 <elseif(val.string)><getString(val)>
 <else><val><endif>
 %>

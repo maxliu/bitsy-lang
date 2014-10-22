@@ -77,12 +77,17 @@ block
 
 statement
  : printFunctionCall
+ | assertFunctionCall
  | assignment
  | ifStatement
  ;
  
 printFunctionCall
  : 'println' ( '(' expression? ')' | expression? )
+ ;
+ 
+assertFunctionCall
+ : 'assert' expression
  ;
 
 assignment

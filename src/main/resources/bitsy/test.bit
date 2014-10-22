@@ -1,4 +1,6 @@
 a = "wut"
 b = "wut"
-if "t" > 2
+if "3" == "3"
 	println ">>> WORKED"
+	
+assert false
