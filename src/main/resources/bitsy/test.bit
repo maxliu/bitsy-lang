@@ -1,4 +1,4 @@
-a = true
-b = true
-if a == b
+a = "wut"
+b = "wut"
+if "t" > 2
 	println ">>> WORKED"

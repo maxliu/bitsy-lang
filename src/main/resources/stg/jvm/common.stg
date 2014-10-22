@@ -1,5 +1,46 @@
 runtimeclass() ::= "test"
 
+bopExpression(lval, rval, scope, op) ::= <<
+<if(lval.string&&rval.string)>
+<load(lval)>
+<load(rval)>
+invokevirtual java/lang/String/compareTo(Ljava/lang/String;)I
+iconst_1
+
+<elseif(lval.string&&rval.number)>
+<load(lval)>
+invokestatic java/lang/Double/parseDouble(Ljava/lang/String;)D
+<load(rval)>
+dcmpl
+iconst_0
+<elseif(lval.number&&rval.string)>
+<load(lval)>
+<load(rval)>
+invokestatic java/lang/Double/parseDouble(Ljava/lang/String;)D
+dcmpl
+iconst_0
+<elseif(lval.number&&rval.number)>
+<load(lval)>
+<load(rval)>
+dcmpl
+iconst_0
+<endif>
+if_icmp<opMap.(op)> true<scope.nextLabel>
+iconst_0
+goto endif<scope.label>
+true<scope.label>:
+iconst_1
+endif<scope.label>:
+
+>>
+
+opMap ::= [
+	"<": "lt",
+	"<=": "le",
+	">": "gt",
+	">=": "ge"
+]
+
 compareBooleans(label) ::= <<
 if_icmpne false<label>
 iconst_1
