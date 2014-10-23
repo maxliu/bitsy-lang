@@ -1,6 +1,25 @@
-a = "wut"
-b = "wut"
-if "3" == "3"
-	println ">>> WORKED"
-	
-assert false
+// Equality
+a = "test"
+b = "3.3"
+c = 3.3
+d = true
+assert "test" == "test"
+assert "" == ""
+assert "1" == 1
+assert "1" == true
+assert 2.2 == "2.2"
+assert 2.2 == true
+assert true == 1.1
+assert true == "a"
+assert a == "test"
+assert b == c
+assert b == d
+assert c == b
+assert c == c
+assert c == d
+assert d == a
+assert d == c
+assert d == d
+assert d == true
+// Inequality
+

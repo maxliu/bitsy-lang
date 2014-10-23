@@ -146,6 +146,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
             st.add("value", val);
             st.add("label", currentScope.getNextLabel());
             st.add("scope", currentScope);
+            st.add("line", ectx.start.getLine());
             if (!val.isReference()) {
             	constantString(val);
             }

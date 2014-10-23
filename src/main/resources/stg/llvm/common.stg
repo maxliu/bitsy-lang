@@ -19,8 +19,8 @@ bopExpression(lval, rval, scope, op) ::= <<
 
 loadOperand(val, register, prefix="r") ::= <%
 <if(val.symbol&&val.string)><loadString(val, prefix, register)>
-<elseif(val.symbol&&val.number)><loadNumber(lval, prefix, register)>
-<elseif(val.symbol&&val.boolean)><loadBoolean(lval, prefix, register)>
+<elseif(val.symbol&&val.number)><loadNumber(val, prefix, register)>
+<elseif(val.symbol&&val.boolean)><loadBoolean(val, prefix, register)>
 <endif>
 %>
 
@@ -91,12 +91,12 @@ argRegister(val, prefix, register) ::= <%
 
 loadString(val, side, register) ::= "%<side><register> = load i8** %<bitsyVariable(val)>"
 loadNumber(val, side, register) ::= "%<side><register> = load double* %<bitsyVariable(val)>"
-loadBoolean(val, side, register) ::= "%<side><register> = load i32* %<bitsyVariable(val)>"
+loadBoolean(val, side, register) ::= "%<side><register> = load i1* %<bitsyVariable(val)>"
 
 
 bitsyVariable(name) ::= "$<name>"
 symbolType(type) ::= "<typeMap.(type.name)>"
 llvmConstant(s) ::= <<[<(s.LLVMLength)> x i8] c"<s.LLVMString>">>
-llvmType(v) ::= "<if(v.number)>double<elseif(v.boolean)>i32<else>i8*<endif>"
+llvmType(v) ::= "<if(v.number)><typeMap.number><elseif(v.boolean)><typeMap.boolean><else><typeMap.string><endif>"
 llvmValue(v) ::= "<if(v.reference)>%<v><elseif(v.string)><getString(v)><else><v><endif>"
 getString(s) ::= "getelementptr ([<s.LLVMLength> x i8]* @.str<s.register>, i32 0, i32 0)"
