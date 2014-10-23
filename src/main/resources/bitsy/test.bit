@@ -3,6 +3,8 @@ a = "test"
 b = "3.3"
 c = 3.3
 d = true
+e = false
+f = 4.4
 assert "test" == "test"
 assert "" == ""
 assert "1" == 1
@@ -22,4 +24,23 @@ assert d == c
 assert d == d
 assert d == true
 // Inequality
+assert "test" != "test1"
+assert "" != "t"
+assert "1" != 2
+assert "" != true
+assert 2.2 != "2.3"
+assert 2.2 != false
+assert false != 1.1
+assert true != ""
+assert a != "test2"
+assert b != f
+assert b != f
+assert c != f
+assert c != e
+assert c != f
+assert d != e
+assert d != e
+assert f != e
+assert d != false
 
+println "All Passed"
