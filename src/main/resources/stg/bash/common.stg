@@ -1,13 +1,17 @@
 isTrue(value) ::= <%
 <if(value.string&&value.reference)>
-	"x<arg(value)>" != "x"
+	$([ "x<arg(value)>" != "x" ] && echo true || echo false)
 <elseif(value.string)>
-	<arg(value,"x")> != "x"
+	$([ <arg(value,"x")> != "x" ] && echo true || echo false)
 <elseif(value.number)>
-	$(echo "<arg(value)> != 0.0"|bc) -ne 0
+	$([ $(echo "<arg(value)> != 0.0"|bc) -ne 0 ] && echo true || echo false)
 <else>
-	<arg(value)> == true
+	$([ <arg(value)> = true ] && echo true || echo false)
 <endif>
+%>
+
+toboolean(val) ::= <%
+
 %>
 
 expr(lval,rval,scope) ::= <%
@@ -16,18 +20,18 @@ expr(lval,rval,scope) ::= <%
 <elseif(lval.string&&rval.number)>
 [ $(echo "<arg(lval)> == <arg(rval)>"|bc) -eq 1 ]
 <elseif(lval.string&&rval.boolean)>
-[ $(<isTrue(lval)>) = <arg(rval)> ]
+[ <isTrue(lval)> = <arg(rval)> ]
 <elseif(lval.number&&rval.string)>
 [ $(echo "<arg(lval)> == <arg(rval)>"|bc) -eq 1 ]
 <elseif(lval.number&&rval.number)>
 [ $(echo "<arg(lval)> == <arg(rval)>"|bc) -eq 1 ]
 <elseif(lval.number&&rval.boolean)>
-[ $(echo "<arg(lval)> != 0"|bc) = <arg(rval)> ]
+[ <isTrue(lval)> = <arg(rval)> ]
 <elseif(lval.boolean&&rval.string)>
-[ $(<isTrue(rval)>) = <arg(lval)> ]
+[ <isTrue(rval)> = <arg(lval)> ]
 <elseif(lval.boolean&&rval.number)>
-[ $(echo "<arg(rval)> != 0"|bc) = <arg(lval)> ]
-<elseif(lval.boolean&&rval.boolen)>
+[ <isTrue(rval)> = <arg(lval)> ]
+<elseif(lval.boolean&&rval.boolean)>
 [ <arg(lval)> = <arg(rval)> ]
 <endif>
 %>
