@@ -21,12 +21,12 @@ eqExpression(lval, rval, scope) ::= <<
 %r<scope.register> = fcmp one double <argRegister(rval,"rval",scope.register)>, 0.0
 %r<scope.nextRegister> = icmp eq i1 <argRegister(lval,"lval",scope.lastRegister)>, %r<scope.lastRegister>
 <elseif(lval.string&&rval.boolean)>
-%r<scope.register> = call i32 @strlen(i8* <argRegister(lval,"lval",scope.register)>)
-%l<scope.register> = icmp ne i32 %r<scope.register>, 0
+%r<scope.register> = call i64 @strlen(i8* <argRegister(lval,"lval",scope.register)>)
+%l<scope.register> = icmp ne i64 %r<scope.register>, 0
 %r<scope.nextRegister> = icmp eq i1 %l<scope.lastRegister>, <argRegister(rval,"rval",scope.lastRegister)>
 <elseif(lval.boolean&&rval.string)>
-%r<scope.register> = call i32 @strlen(i8* <argRegister(rval,"rval",scope.register)>)
-%l<scope.register> = icmp ne i32 %r<scope.register>, 0
+%r<scope.register> = call i64 @strlen(i8* <argRegister(rval,"rval",scope.register)>)
+%l<scope.register> = icmp ne i64 %r<scope.register>, 0
 %r<scope.nextRegister> = icmp eq i1 %l<scope.lastRegister>, <argRegister(lval,"lval",scope.lastRegister)>
 <elseif(lval.boolean&&rval.boolean)>
 %r<scope.nextRegister> = icmp eq i1 <argRegister(lval,"lval",scope.lastRegister)>, <argRegister(rval,"rval",scope.lastRegister)> 

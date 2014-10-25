@@ -90,39 +90,43 @@ public class Bitsy {
         run("./"+exeFile);
 	}
 	
-    public static void main(String[] args) throws Exception {
-        ANTLRFileStream source = new ANTLRFileStream("src/main/resources/bitsy/test.bit");
-        
-        BitsyLexer lexer = new BitsyLexer(source);
-        BitsyParser parser = new BitsyParser(new CommonTokenStream(lexer));
-        parser.setBuildParseTree(true);
-        ParseTree tree = parser.parse();
-        //System.out.println(tree.toStringTree(parser));
-        
-        SymbolTable symbolTable = new SymbolTable();
-        ParseTreeWalker walker = new ParseTreeWalker();
-        walker.walk(new SymbolListener(symbolTable), tree);
-        
-        //llvm(symbolTable, tree, source);
-        //bash(symbolTable, tree, source);
-        jvm(symbolTable, tree, source);
-        /*
-        if (args.length == 0) {
-            System.out.println("Parsed successfully. Please specify -native, -bash or -jvm to create output files");
-            return;
-        } 
-        for (String arg: args) {
-        	if (arg.equals("-llvm")) { 
-                llvm(scope, tree, source);
-            } else if (arg.equals("-jvm")) {
-                jvm(scope, tree, source);
-            } else if (arg.equals("-bash")) {
-                bash(scope, tree, source);
-            } else {
-            	System.err.println("Invalid argument "+arg+" exiting.");
-            	return;
-            }
-        }
-        */
+    public static void main(String[] args) {
+    	try {
+	        ANTLRFileStream source = new ANTLRFileStream("src/main/resources/bitsy/test.bit");
+	        
+	        BitsyLexer lexer = new BitsyLexer(source);
+	        BitsyParser parser = new BitsyParser(new CommonTokenStream(lexer));
+	        parser.setBuildParseTree(true);
+	        ParseTree tree = parser.parse();
+	        //System.out.println(tree.toStringTree(parser));
+	        
+	        SymbolTable symbolTable = new SymbolTable();
+	        ParseTreeWalker walker = new ParseTreeWalker();
+	        walker.walk(new SymbolListener(symbolTable), tree);
+	        
+	        llvm(symbolTable, tree, source);
+	        //bash(symbolTable, tree, source);
+	        //jvm(symbolTable, tree, source);
+	        /*
+	        if (args.length == 0) {
+	            System.out.println("Parsed successfully. Please specify -native, -bash or -jvm to create output files");
+	            return;
+	        } 
+	        for (String arg: args) {
+	        	if (arg.equals("-llvm")) { 
+	                llvm(scope, tree, source);
+	            } else if (arg.equals("-jvm")) {
+	                jvm(scope, tree, source);
+	            } else if (arg.equals("-bash")) {
+	                bash(scope, tree, source);
+	            } else {
+	            	System.err.println("Invalid argument "+arg+" exiting.");
+	            	return;
+	            }
+	        }
+	        */
+    	} catch (Exception e) {
+    		System.err.println("Exception "+e.getMessage());
+    	}
     }
 }

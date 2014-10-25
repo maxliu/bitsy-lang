@@ -111,7 +111,9 @@ elseStat
  ;
  
 expression
- : expression '>=' expression   #gtEqExpression
+ : expression '+' expression    #addExpression
+ | expression '-' expression    #subtractExpression
+ | expression '>=' expression   #gtEqExpression
  | expression '<=' expression   #ltEqExpression
  | expression '>' expression    #gtExpression
  | expression '<' expression    #ltExpression

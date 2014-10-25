@@ -1,4 +1,5 @@
 // Equality
+
 a = "test"
 b = "3.3"
 c = 3.3
@@ -23,6 +24,7 @@ assert d == a
 assert d == c
 assert d == d
 assert d == true
+
 // Inequality
 assert "test" != "test1"
 assert "" != "t"
@@ -42,4 +44,67 @@ assert d != e
 assert d != e
 assert f != e
 assert d != false
+
+// Less than 
+assert 1 < 2
+assert "1" < 2
+assert "abc" < "bcd"
+assert 1 < "2"
+assert c < f
+
+// Less than or equal
+assert 1 <= 2
+assert 1 <= 1
+assert "3.3" <= "3.3"
+assert "6" <= 6
+assert 6 <= "6"
+assert c <= f
+assert c <= c
+assert "abc" <= "abc"
+
+// Greater than
+assert 2 > 1
+assert 2 > "1"
+assert "bcd" > "abc"  
+assert "2" > 1
+assert f > c
+
+// Greater than or equal
+assert 2 >= 1
+assert 1 >= 1
+assert "3.3" >= "3.3"
+assert "6" >= 6
+assert 6 >= "6"
+assert f >= c
+assert c >= c
+assert "abc" >= "abc"
+
+// And
+assert true && true
+assert false != true && true == true
+assert a == "test" && b == "3.3"
+assert c == 3.3 && c > 1 && c < 4
+
+// Or
+assert true || true
+assert true || false
+assert false || true
+assert a || false
+assert false || b
+assert a || c || b
+
+// Mixed And / Or
+assert true && false || true
+assert a && c || b
+assert a && false != true || false
+
+// Sums
+assert 1 + 1 == 2
+assert 1 + " test" == "1 test"
+assert "test " + 1 == "test 1"
+assert "test " + "test" == "test test"
+assert 1.1 + 1.2 == 2.3
+assert c + f == 7.7
+assert a + " test" == "test test"
+assert "test " + a == "test test"
 println "All Passed"

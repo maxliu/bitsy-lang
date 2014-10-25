@@ -9,7 +9,7 @@ file(fileName, strings, locals, block) ::= <<
 .end method
 
 .method public static main([Ljava/lang/String;)V
-    .limit stack 4  
+    .limit stack 10  
     .limit locals <locals>
     <block>
     return

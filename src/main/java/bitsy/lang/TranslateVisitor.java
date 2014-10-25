@@ -9,6 +9,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import bitsy.antlr4.BitsyBaseVisitor;
+import bitsy.antlr4.BitsyParser.AddExpressionContext;
 import bitsy.antlr4.BitsyParser.AndExpressionContext;
 import bitsy.antlr4.BitsyParser.AssertFunctionCallContext;
 import bitsy.antlr4.BitsyParser.AssignmentContext;
@@ -32,11 +33,14 @@ import bitsy.antlr4.BitsyParser.ParseContext;
 import bitsy.antlr4.BitsyParser.PrintFunctionCallContext;
 import bitsy.antlr4.BitsyParser.StatementContext;
 import bitsy.antlr4.BitsyParser.StringExpressionContext;
+import bitsy.antlr4.BitsyParser.SubtractExpressionContext;
 import bitsy.lang.symbols.BuiltinType;
 import bitsy.lang.symbols.GlobalScope;
 import bitsy.lang.symbols.Register;
 import bitsy.lang.symbols.Scope;
+import bitsy.lang.symbols.Symbol;
 import bitsy.lang.symbols.SymbolTable;
+import bitsy.lang.symbols.Type;
 import bitsy.lang.symbols.Value;
 
 public class TranslateVisitor extends BitsyBaseVisitor<String> {
@@ -160,7 +164,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         return result.toString();
     }
     
-    private String renderBOP(ExpressionContext ctx, ST st, List<ExpressionContext> ecx, boolean booleansOk) {
+    private String renderBOP(ExpressionContext ctx, ST st, List<ExpressionContext> ecx, boolean booleansOk, boolean booleanType) {
     	StringBuilder result = new StringBuilder();
     	ExpressionContext lcx = ecx.get(0);
     	ExpressionContext rcx = ecx.get(1);
@@ -176,7 +180,11 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	st.add("scope", currentScope);
     	currentScope.getNextRegister();
     	result.append(st.render());
-    	Register ref = new Register(currentScope.getRegister(), BuiltinType.BOOLEAN);
+    	Type type = BuiltinType.BOOLEAN;
+    	if (!booleanType) {
+    		type = lval.isNumber() && rval.isNumber() ? BuiltinType.NUMBER : BuiltinType.STRING;
+    	}
+    	Register ref = new Register(currentScope.getRegister(), type);
     	values.put(ctx, new Value(ref));
 		return result.toString();
     }
@@ -185,56 +193,70 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     public String visitGtEqExpression(GtEqExpressionContext ctx) {
     	ST st = group.getInstanceOf("gtEqExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false);
+    	return renderBOP(ctx, st, ecx, false, true);
     }
     
     @Override
     public String visitGtExpression(GtExpressionContext ctx) {
     	ST st = group.getInstanceOf("gtExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false);
+    	return renderBOP(ctx, st, ecx, false, true);
     }
     
     @Override
     public String visitLtExpression(LtExpressionContext ctx) {
     	ST st = group.getInstanceOf("ltExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false);
+    	return renderBOP(ctx, st, ecx, false, true);
     }
     
     @Override
     public String visitLtEqExpression(LtEqExpressionContext ctx) {
     	ST st = group.getInstanceOf("ltEqExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false);
+    	return renderBOP(ctx, st, ecx, false, true);
     }
     
     @Override
     public String visitEqExpression(EqExpressionContext ctx) {
     	ST st = group.getInstanceOf("eqExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, true);
+    	return renderBOP(ctx, st, ecx, true, true);
     }
     
     @Override
     public String visitNotEqExpression(NotEqExpressionContext ctx) {
     	ST st = group.getInstanceOf("neqExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, true);
+    	return renderBOP(ctx, st, ecx, true, true);
+    }
+    
+    @Override
+    public String visitAddExpression(AddExpressionContext ctx) {
+    	ST st = group.getInstanceOf("addExpression");
+    	List<ExpressionContext> ecx = ctx.expression();
+    	return renderBOP(ctx, st, ecx, false, false);
+    }
+    
+    @Override
+    public String visitSubtractExpression(SubtractExpressionContext ctx) {
+    	ST st = group.getInstanceOf("subtractExpression");
+    	List<ExpressionContext> ecx = ctx.expression();
+    	return renderBOP(ctx, st, ecx, false, false);
     }
     
     @Override
     public String visitAndExpression(AndExpressionContext ctx) {
     	ST st = group.getInstanceOf("andExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, true);
+    	return renderBOP(ctx, st, ecx, true, true);
     }
     
     @Override
     public String visitOrExpression(OrExpressionContext ctx) {
     	ST st = group.getInstanceOf("orExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, true);
+    	return renderBOP(ctx, st, ecx, true, true);
     }
     
     @Override
@@ -264,7 +286,11 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     @Override
     public String visitIdentifierExpression(IdentifierExpressionContext ctx) {
     	String id = ctx.IDENTIFIER().getText();
-    	values.put(ctx, new Value(currentScope.resolve(id)));
+    	Symbol s = currentScope.resolve(id);
+    	if (s == null) {
+    		throw new RuntimeException("Invalid identifier "+id+" in "+fileName+".bit on line:"+ctx.start.getLine());
+    	}
+    	values.put(ctx, new Value(s));
     	return "";
     }
     

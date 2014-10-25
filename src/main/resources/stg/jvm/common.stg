@@ -1,10 +1,40 @@
+equalityExpr(lval, rval, scope, equal) ::= <<; START <if(equal)>EQ<else>NEQ<endif> expr
+<if(lval.string&&rval.string)>
+<load(lval)>
+<load(rval)>
+invokevirtual java/lang/String/compareTo(Ljava/lang/String;)I
+<if(equal)><isZero(scope.nextLabel)><else><isNotZero(scope.nextLabel)><endif>
+<elseif(lval.string&&rval.number)>
+<compareStringToNumber(lval, rval, scope, equal)>
+<elseif(lval.string&&rval.boolean)>
+<compareStringBoolean(lval, rval, scope, equal)>
+<elseif(lval.number&&rval.string)>
+<compareStringToNumber(rval, lval, scope, equal)>
+<elseif(lval.number&&rval.number)>
+<load(lval)>
+<load(rval)>
+dcmpl
+<if(equal)><isZero(scope.nextLabel)><else><isNotZero(scope.nextLabel)><endif>
+<elseif(lval.number&&rval.boolean)>
+<compareNumberBoolean(lval, rval, scope, equal)>
+<elseif(lval.boolean&&rval.string)>
+<compareStringBoolean(rval, lval, scope, equal)>
+<elseif(lval.boolean&&rval.number)>
+<compareNumberBoolean(rval, lval, scope, equal)>
+<elseif(lval.boolean&&rval.boolean)>
+<load(lval)>
+<load(rval)>
+<compareBooleans(scope.nextLabel, equal)>
+<endif>
+; END <if(equal)>EQ<else>NEQ<endif> expr
+>>
 
 bopExpression(lval, rval, scope, op) ::= <<
 <if(lval.string&&rval.string)>
 <load(lval)>
 <load(rval)>
 invokevirtual java/lang/String/compareTo(Ljava/lang/String;)I
-iconst_1
+iconst_0
 
 <elseif(lval.string&&rval.number)>
 <load(lval)>
@@ -40,35 +70,33 @@ opMap ::= [
 	">=": "ge"
 ]
 
-compareBooleans(label) ::= <<
-if_icmpne false<label>
-iconst_1
-goto endif<label>
-false<label>:
-iconst_0
+compareBooleans(label, equal) ::= <<
+if_icmp<if(equal)>eq<else>ne<endif> true<label>
+	iconst_0
+	goto endif<label>
+true<label>:
+	iconst_1
 endif<label>:
-
 >>
 
-compareNumberBoolean(number, boolean, scope) ::= <<
+compareNumberBoolean(number, boolean, scope, equal) ::= <<
 <load(number)>
 dconst_0
 dcmpl
 <load(boolean)>
-<compareBooleans(scope.nextLabel)>
-
+<compareBooleans(scope.nextLabel, equal)>
 >>
 
-compareStringBoolean(string, boolean, scope) ::= <<
+compareStringBoolean(string, boolean, scope, equal) ::= <<
 <load(string)>
 invokevirtual java/lang/String/length()I
 <isNotZero(scope.nextLabel)>
 <load(boolean)>
-<compareBooleans(scope.nextLabel)>
+<compareBooleans(scope.nextLabel, equal)>
 >>
 
 
-compareStringToNumber(string,number) ::= <<
+compareStringToNumber(string, number, scope, equal) ::= <<
 new java/text/DecimalFormat
 dup
 ldc "#.####"
@@ -77,53 +105,49 @@ invokespecial java/text/DecimalFormat/\<init>(Ljava/lang/String;)V
 invokevirtual java/text/DecimalFormat/format(D)Ljava/lang/String;
 <load(string)>
 invokevirtual java/lang/String/equals(Ljava/lang/Object;)Z
+<if(!equal)><isZero(scope.nextLabel)><endif>
 >>
 
 isNotZero(label) ::=<<
 ifne true<label>
-iconst_0
-goto endif<label>
+	iconst_0
+	goto endif<label>
 true<label>:
-iconst_1
+	iconst_1
 endif<label>:
-
 >>
 
 isZero(label) ::= <<
 ifne false<label>
-iconst_1
-goto endif<label>
+	iconst_1
+	goto endif<label>
 false<label>:
-iconst_0
+	iconst_0
 endif<label>:
-
 >>
 
-ifFalseGotoLabel(value, label) ::= <<
+ifFalseGotoLabel(value, label, pop=false) ::= <<
 <if(value.string)>
 invokevirtual java/lang/String/length()I
-ifle false<label> 
+ifle false<if(pop)>Pop<endif><label><elseif(value.number)>
+dconst_0
+dcmpl
+ifeq false<if(pop)>Pop<endif><label><else>
+iconst_0
+if_icmpeq false<if(pop)>Pop<endif><label><endif>
+>>
+
+ifTrueGotoLabel(value, label, pop=false) ::= <<
+<if(value.string)>
+invokevirtual java/lang/String/length()I
+ifne true<if(pop)>Pop<endif><label> 
 <elseif(value.number)>
 dconst_0
 dcmpl
-ifeq false<label>	
+ifne true<if(pop)>Pop<endif><label>	
 <else>
 iconst_0
-if_icmpeq false<label>
-<endif>
->>
-
-ifTrueGotoLabel(value, label) ::= <<
-<if(value.string)>
-invokevirtual java/lang/String/length()I
-ifne true<label> 
-<elseif(value.number)>
-dconst_0
-dcmpl
-ifne true<label>	
-<else>
-iconst_0
-if_icmpne true<label>
+if_icmpne true<if(pop)>Pop<endif><label>
 <endif>
 >>
 

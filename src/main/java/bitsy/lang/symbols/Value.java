@@ -24,6 +24,14 @@ public class Value {
     	return value instanceof Symbol;
     }
     
+    public boolean isLiteral() {
+    	return !(value instanceof Register);
+    }
+    
+    public boolean isOnstack() {
+    	return (value instanceof Register) && !(value instanceof Symbol);
+    }
+    
     public Register asReference() {
     	return (Register) value;
     }
