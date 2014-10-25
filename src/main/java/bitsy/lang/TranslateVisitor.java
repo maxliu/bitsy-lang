@@ -164,7 +164,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         return result.toString();
     }
     
-    private String renderBOP(ExpressionContext ctx, ST st, List<ExpressionContext> ecx, boolean booleansOk, boolean booleanType) {
+    private String renderBOP(ExpressionContext ctx, ST st, List<ExpressionContext> ecx, boolean booleansOk, String resultType) {
     	StringBuilder result = new StringBuilder();
     	ExpressionContext lcx = ecx.get(0);
     	ExpressionContext rcx = ecx.get(1);
@@ -181,8 +181,12 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	currentScope.getNextRegister();
     	result.append(st.render());
     	Type type = BuiltinType.BOOLEAN;
-    	if (!booleanType) {
+    	if (resultType.equals("boolean")) {
+    		type = BuiltinType.BOOLEAN;
+    	} else if (resultType.equals("addition")) {
     		type = lval.isNumber() && rval.isNumber() ? BuiltinType.NUMBER : BuiltinType.STRING;
+    	} else if (resultType.equals("subtraction")) {
+    		type = BuiltinType.NUMBER;
     	}
     	Register ref = new Register(currentScope.getRegister(), type);
     	values.put(ctx, new Value(ref));
@@ -193,70 +197,70 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     public String visitGtEqExpression(GtEqExpressionContext ctx) {
     	ST st = group.getInstanceOf("gtEqExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false, true);
+    	return renderBOP(ctx, st, ecx, false, "boolean");
     }
     
     @Override
     public String visitGtExpression(GtExpressionContext ctx) {
     	ST st = group.getInstanceOf("gtExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false, true);
+    	return renderBOP(ctx, st, ecx, false, "boolean");
     }
     
     @Override
     public String visitLtExpression(LtExpressionContext ctx) {
     	ST st = group.getInstanceOf("ltExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false, true);
+    	return renderBOP(ctx, st, ecx, false, "boolean");
     }
     
     @Override
     public String visitLtEqExpression(LtEqExpressionContext ctx) {
     	ST st = group.getInstanceOf("ltEqExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false, true);
+    	return renderBOP(ctx, st, ecx, false, "boolean");
     }
     
     @Override
     public String visitEqExpression(EqExpressionContext ctx) {
     	ST st = group.getInstanceOf("eqExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, true, true);
+    	return renderBOP(ctx, st, ecx, true, "boolean");
     }
     
     @Override
     public String visitNotEqExpression(NotEqExpressionContext ctx) {
     	ST st = group.getInstanceOf("neqExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, true, true);
+    	return renderBOP(ctx, st, ecx, true, "boolean");
     }
     
     @Override
     public String visitAddExpression(AddExpressionContext ctx) {
     	ST st = group.getInstanceOf("addExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false, false);
+    	return renderBOP(ctx, st, ecx, false, "addition");
     }
     
     @Override
     public String visitSubtractExpression(SubtractExpressionContext ctx) {
     	ST st = group.getInstanceOf("subtractExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false, false);
+    	return renderBOP(ctx, st, ecx, false, "subtraction");
     }
     
     @Override
     public String visitAndExpression(AndExpressionContext ctx) {
     	ST st = group.getInstanceOf("andExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, true, true);
+    	return renderBOP(ctx, st, ecx, true, "boolean");
     }
     
     @Override
     public String visitOrExpression(OrExpressionContext ctx) {
     	ST st = group.getInstanceOf("orExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, true, true);
+    	return renderBOP(ctx, st, ecx, true, "boolean");
     }
     
     @Override

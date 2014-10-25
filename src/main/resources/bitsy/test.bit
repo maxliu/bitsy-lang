@@ -6,6 +6,7 @@ c = 3.3
 d = true
 e = false
 f = 4.4
+
 assert "test" == "test"
 assert "" == ""
 assert "1" == 1
@@ -110,4 +111,7 @@ assert "test " + a == "test test"
 
 // Subtract
 assert 2 - 1 == 1
+assert "2" - 1 == 1
+assert 2.4 - "1.2" == 1.2
+assert f - c - 1.1 < 0.000001
 println "All Passed"
