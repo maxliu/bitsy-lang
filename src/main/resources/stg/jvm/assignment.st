@@ -13,7 +13,7 @@ astore <scope.nextLocal>
 <else>
 <if(value.number)>
 ldc2_w <value>
-dstore_<scope.nextLocalWide>
+dstore <scope.nextLocalWide>
 <elseif(value.boolean)>
 iconst_<value>
 istore <scope.nextLocal>

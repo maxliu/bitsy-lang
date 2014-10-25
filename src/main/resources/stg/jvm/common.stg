@@ -1,4 +1,3 @@
-runtimeclass() ::= "test"
 
 bopExpression(lval, rval, scope, op) ::= <<
 <if(lval.string&&rval.string)>
@@ -130,12 +129,12 @@ if_icmpne true<label>
 
 
 load(value) ::= <%
-<if(value.reference)>
+<if(value.symbol)>
 	<if(value.string)>aload <value.register>
 	<elseif(value.number)>dload <value.register>
 	<else>iload <value.register>
 	<endif>
-<else>
+<elseif(!value.reference)>
 	<if(value.string)>ldc "<value>"
 	<elseif(value.number)>ldc2_w <value>
 	<else>iconst_<value>
