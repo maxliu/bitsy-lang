@@ -19,6 +19,7 @@ import bitsy.antlr4.BitsyParser.ElseIfStatContext;
 import bitsy.antlr4.BitsyParser.ElseStatContext;
 import bitsy.antlr4.BitsyParser.EqExpressionContext;
 import bitsy.antlr4.BitsyParser.ExpressionContext;
+import bitsy.antlr4.BitsyParser.ExpressionExpressionContext;
 import bitsy.antlr4.BitsyParser.GtEqExpressionContext;
 import bitsy.antlr4.BitsyParser.GtExpressionContext;
 import bitsy.antlr4.BitsyParser.IdentifierExpressionContext;
@@ -261,6 +262,13 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	ST st = group.getInstanceOf("orExpression");
     	List<ExpressionContext> ecx = ctx.expression();
     	return renderBOP(ctx, st, ecx, true, "boolean");
+    }
+    
+    @Override
+    public String visitExpressionExpression(ExpressionExpressionContext ctx) {
+    	String result = visit(ctx.expression());
+    	values.put(ctx, values.get(ctx.expression()));
+    	return result;
     }
     
     @Override

@@ -126,6 +126,7 @@ expression
  | NULL   						#nullExpression
  | IDENTIFIER   				#identifierExpression
  | STRING 						#stringExpression
+ | '(' expression ')' 			#expressionExpression
  ;
 
 IF       : 'if';
