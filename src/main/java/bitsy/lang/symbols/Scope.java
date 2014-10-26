@@ -92,6 +92,10 @@ public abstract class Scope {
 		return ret;
 	}
 	
+	public int getLastLocalWide() {
+		return getRegister() - 2;
+	}
+	
 	public int getNextLabel() {
 		return ++labelCount;
 	}

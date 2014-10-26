@@ -95,7 +95,6 @@ invokevirtual java/lang/String/length()I
 <compareBooleans(scope.nextLabel, equal)>
 >>
 
-
 compareStringToNumber(string, number, scope, equal) ::= <<
 new java/text/DecimalFormat
 dup
