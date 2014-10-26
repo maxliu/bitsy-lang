@@ -111,7 +111,13 @@ elseStat
  ;
  
 expression
- : expression '+' expression    #addExpression
+ : '-' expression               #unaryMinusExpression
+ | '!' expression               #notExpression
+ | expression '^' expression    #powerExpression
+ | expression '*' expression    #multiplyExpression
+ | expression '/' expression    #divideExpression
+ | expression '%' expression    #modulusExpression
+ | expression '+' expression    #addExpression
  | expression '-' expression    #subtractExpression
  | expression '>=' expression   #gtEqExpression
  | expression '<=' expression   #ltEqExpression

@@ -28,6 +28,7 @@ import bitsy.antlr4.BitsyParser.IfStatementContext;
 import bitsy.antlr4.BitsyParser.LtEqExpressionContext;
 import bitsy.antlr4.BitsyParser.LtExpressionContext;
 import bitsy.antlr4.BitsyParser.NotEqExpressionContext;
+import bitsy.antlr4.BitsyParser.NotExpressionContext;
 import bitsy.antlr4.BitsyParser.NumberExpressionContext;
 import bitsy.antlr4.BitsyParser.OrExpressionContext;
 import bitsy.antlr4.BitsyParser.ParseContext;
@@ -35,6 +36,7 @@ import bitsy.antlr4.BitsyParser.PrintFunctionCallContext;
 import bitsy.antlr4.BitsyParser.StatementContext;
 import bitsy.antlr4.BitsyParser.StringExpressionContext;
 import bitsy.antlr4.BitsyParser.SubtractExpressionContext;
+import bitsy.antlr4.BitsyParser.UnaryMinusExpressionContext;
 import bitsy.lang.symbols.BuiltinType;
 import bitsy.lang.symbols.GlobalScope;
 import bitsy.lang.symbols.Register;
@@ -234,6 +236,34 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	ST st = group.getInstanceOf("neqExpression");
     	List<ExpressionContext> ecx = ctx.expression();
     	return renderBOP(ctx, st, ecx, true, "boolean");
+    }
+    
+    private String renderUOP(ExpressionContext ctx, ST st, String op, Type type) {
+    	StringBuilder result = new StringBuilder();
+    	result.append(visit(ctx));
+    	Value value = values.get(ctx);
+    	if (op.equals("unary minus") && !value.isNumber()) {
+    		throw new RuntimeException("Cannot apply "+op+" to non-number expression. line:"+ctx.start.getLine());
+    	}
+    	st.add("scope", currentScope);
+    	st.add("value", value);
+    	currentScope.getNextRegister();
+    	result.append(st.render());
+    	Register ref = new Register(currentScope.getRegister(), type);
+    	values.put(ctx.parent, new Value(ref));
+    	return result.toString();
+    }
+    
+    @Override
+    public String visitUnaryMinusExpression(UnaryMinusExpressionContext ctx) {
+    	ST st = group.getInstanceOf("unaryMinusExpression");
+    	return renderUOP(ctx.expression(), st, "unary minus", BuiltinType.NUMBER);
+    }
+    
+    @Override
+    public String visitNotExpression(NotExpressionContext ctx) {
+    	ST st = group.getInstanceOf("notExpression");
+    	return renderUOP(ctx.expression(), st, "not", BuiltinType.BOOLEAN);
     }
     
     @Override

@@ -1,4 +1,4 @@
-eqExpression(lval, rval, scope) ::= <<
+eqExpression(lval, rval, scope) ::= << ; EQ EXPR [<lval.type> <rval.type>]
 <loadOperands(lval, rval, scope)>
 <if(lval.string&&rval.string)>
 %r<scope.register> = call i32 @strcmp(<args(lval, rval, scope)>)

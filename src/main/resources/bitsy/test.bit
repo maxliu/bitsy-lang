@@ -6,7 +6,7 @@ c = 3.3
 d = true
 e = false
 f = 4.4
-
+/*
 assert "test" == "test"
 assert "" == ""
 assert "1" == 1
@@ -117,5 +117,18 @@ assert f - c - 1.1 < 0.000001
 
 // Round brackets
 assert ( 1 + 2 ) == 3
+
+// Unary minus
+assert -1 == -1
+assert -c == -3.3
+assert -f == -4.4
+*/
+
+// Not
+assert !false
+assert !""
+assert !0
+assert !0.0
+assert !0 && !false
 
 println "All Passed"
