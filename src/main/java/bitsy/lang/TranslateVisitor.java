@@ -15,6 +15,7 @@ import bitsy.antlr4.BitsyParser.AssertFunctionCallContext;
 import bitsy.antlr4.BitsyParser.AssignmentContext;
 import bitsy.antlr4.BitsyParser.BlockContext;
 import bitsy.antlr4.BitsyParser.BoolExpressionContext;
+import bitsy.antlr4.BitsyParser.DivideExpressionContext;
 import bitsy.antlr4.BitsyParser.ElseIfStatContext;
 import bitsy.antlr4.BitsyParser.ElseStatContext;
 import bitsy.antlr4.BitsyParser.EqExpressionContext;
@@ -27,6 +28,8 @@ import bitsy.antlr4.BitsyParser.IfStatContext;
 import bitsy.antlr4.BitsyParser.IfStatementContext;
 import bitsy.antlr4.BitsyParser.LtEqExpressionContext;
 import bitsy.antlr4.BitsyParser.LtExpressionContext;
+import bitsy.antlr4.BitsyParser.ModulusExpressionContext;
+import bitsy.antlr4.BitsyParser.MultiplyExpressionContext;
 import bitsy.antlr4.BitsyParser.NotEqExpressionContext;
 import bitsy.antlr4.BitsyParser.NotExpressionContext;
 import bitsy.antlr4.BitsyParser.NumberExpressionContext;
@@ -167,6 +170,35 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         return result.toString();
     }
     
+
+    private String renderUOP(ExpressionContext ctx, ST st, String op, Type type) {
+    	StringBuilder result = new StringBuilder();
+    	result.append(visit(ctx));
+    	Value value = values.get(ctx);
+    	if (op.equals("unary minus") && !value.isNumber()) {
+    		throw new RuntimeException("Cannot apply "+op+" to non-number expression. line:"+ctx.start.getLine());
+    	}
+    	st.add("scope", currentScope);
+    	st.add("value", value);
+    	currentScope.getNextRegister();
+    	result.append(st.render());
+    	Register ref = new Register(currentScope.getRegister(), type);
+    	values.put(ctx.parent, new Value(ref));
+    	return result.toString();
+    }
+    
+    @Override
+    public String visitUnaryMinusExpression(UnaryMinusExpressionContext ctx) {
+    	ST st = group.getInstanceOf("unaryMinusExpression");
+    	return renderUOP(ctx.expression(), st, "unary minus", BuiltinType.NUMBER);
+    }
+    
+    @Override
+    public String visitNotExpression(NotExpressionContext ctx) {
+    	ST st = group.getInstanceOf("notExpression");
+    	return renderUOP(ctx.expression(), st, "not", BuiltinType.BOOLEAN);
+    }
+    
     private String renderBOP(ExpressionContext ctx, ST st, List<ExpressionContext> ecx, boolean booleansOk, String resultType) {
     	StringBuilder result = new StringBuilder();
     	ExpressionContext lcx = ecx.get(0);
@@ -175,20 +207,26 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	result.append(visit(rcx));
     	Value lval = values.get(lcx);
     	Value rval = values.get(rcx);
+    	// more checks for valid types here.
     	if (!booleansOk && (lval.isBoolean() || rval.isBoolean())) {
     		throw new RuntimeException("Cannot include booleans in binary operation.");
     	}
+    	
     	st.add("lval", lval);
     	st.add("rval", rval);
     	st.add("scope", currentScope);
     	currentScope.getNextRegister();
     	result.append(st.render());
     	Type type = BuiltinType.BOOLEAN;
+    	// move this to a collection lookup
     	if (resultType.equals("boolean")) {
     		type = BuiltinType.BOOLEAN;
     	} else if (resultType.equals("addition")) {
     		type = lval.isNumber() && rval.isNumber() ? BuiltinType.NUMBER : BuiltinType.STRING;
-    	} else if (resultType.equals("subtraction")) {
+    	} else if (resultType.equals("subtraction")
+    			|| resultType.equals("multiply")
+    			|| resultType.equals("divide")
+    			|| resultType.equals("modulus")) {
     		type = BuiltinType.NUMBER;
     	}
     	Register ref = new Register(currentScope.getRegister(), type);
@@ -238,32 +276,25 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	return renderBOP(ctx, st, ecx, true, "boolean");
     }
     
-    private String renderUOP(ExpressionContext ctx, ST st, String op, Type type) {
-    	StringBuilder result = new StringBuilder();
-    	result.append(visit(ctx));
-    	Value value = values.get(ctx);
-    	if (op.equals("unary minus") && !value.isNumber()) {
-    		throw new RuntimeException("Cannot apply "+op+" to non-number expression. line:"+ctx.start.getLine());
-    	}
-    	st.add("scope", currentScope);
-    	st.add("value", value);
-    	currentScope.getNextRegister();
-    	result.append(st.render());
-    	Register ref = new Register(currentScope.getRegister(), type);
-    	values.put(ctx.parent, new Value(ref));
-    	return result.toString();
+    @Override
+    public String visitMultiplyExpression(MultiplyExpressionContext ctx) {
+    	ST st = group.getInstanceOf("multiplyExpression");
+    	List<ExpressionContext> ecx = ctx.expression();
+    	return renderBOP(ctx, st, ecx, false, "multiply");
     }
     
     @Override
-    public String visitUnaryMinusExpression(UnaryMinusExpressionContext ctx) {
-    	ST st = group.getInstanceOf("unaryMinusExpression");
-    	return renderUOP(ctx.expression(), st, "unary minus", BuiltinType.NUMBER);
+    public String visitDivideExpression(DivideExpressionContext ctx) {
+    	ST st = group.getInstanceOf("divideExpression");
+    	List<ExpressionContext> ecx = ctx.expression();
+    	return renderBOP(ctx, st, ecx, false, "multiply");
     }
     
     @Override
-    public String visitNotExpression(NotExpressionContext ctx) {
-    	ST st = group.getInstanceOf("notExpression");
-    	return renderUOP(ctx.expression(), st, "not", BuiltinType.BOOLEAN);
+    public String visitModulusExpression(ModulusExpressionContext ctx) {
+    	ST st = group.getInstanceOf("modulusExpression");
+    	List<ExpressionContext> ecx = ctx.expression();
+    	return renderBOP(ctx, st, ecx, false, "multiply");
     }
     
     @Override

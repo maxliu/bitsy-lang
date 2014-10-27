@@ -6,7 +6,7 @@ c = 3.3
 d = true
 e = false
 f = 4.4
-/*
+/**/
 assert "test" == "test"
 assert "" == ""
 assert "1" == 1
@@ -122,7 +122,7 @@ assert ( 1 + 2 ) == 3
 assert -1 == -1
 assert -c == -3.3
 assert -f == -4.4
-*/
+
 
 // Not
 assert !false
@@ -130,5 +130,27 @@ assert !""
 assert !0
 assert !0.0
 assert !0 && !false
+
+
+// Multiply
+assert 1 * 1 == 1
+assert 1 * 2 == 2
+assert 2 * 2 == 4
+assert 2 * 0.5 == 1
+assert 100 * 100 == 10000
+assert c * f - 14.52 < 0.000001
+
+// Divide
+assert 10 / 2 == 5
+assert 1 / 2 == 0.5
+assert 1 / 0.5 == 2
+assert 2.5 / 2 - 1.25 < 0.000001
+
+// Modulus
+assert (5 % 2) == 1
+assert (0.5 % 2) == 0.5
+assert (2 % 2) == 0
+assert (1 % 2) == 1
+
 
 println "All Passed"

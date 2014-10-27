@@ -14,5 +14,6 @@ declare i64 @strlen(i8*)
 declare i8* @malloc(i64)
 declare double @atof(i8*)
 declare void @exit(i32)
+declare double @fmod(double, double)
 
 >>
