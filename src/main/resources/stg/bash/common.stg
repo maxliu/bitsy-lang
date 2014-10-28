@@ -10,10 +10,6 @@ isTrue(value) ::= <%
 <endif>
 %>
 
-toboolean(val) ::= <%
-
-%>
-
 expr(lval,rval,scope) ::= <%
 <if(lval.string&&rval.string)>
 [[ <arg(lval)> == <arg(rval)> ]]
