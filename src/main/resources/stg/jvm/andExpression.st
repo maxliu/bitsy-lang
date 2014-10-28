@@ -1,4 +1,4 @@
-andExpression(lval, rval, scope) ::= <<; START and
+andExpression(lval, rval, scope) ::= <<; START and 
 <load(lval)>
 <ifFalseGotoLabel(lval, scope.nextLabel, rval.onstack)>
 	<load(rval)>

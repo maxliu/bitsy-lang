@@ -123,14 +123,12 @@ assert -1 == -1
 assert -c == -3.3
 assert -f == -4.4
 
-
 // Not
 assert !false
 assert !""
 assert !0
 assert !0.0
 assert !0 && !false
-
 
 // Multiply
 assert 1 * 1 == 1
@@ -151,5 +149,5 @@ assert (5 % 2) == 1
 assert (0.5 % 2) == 0.5
 assert (2 % 2) == 0
 assert (1 % 2) == 1
-
+/**/
 println "All Passed"
