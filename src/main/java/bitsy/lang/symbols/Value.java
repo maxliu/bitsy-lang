@@ -1,7 +1,5 @@
 package bitsy.lang.symbols;
 
-
-
 public class Value {
 	public static final Value NULL = new Value();
 	public static final Value VOID = new Value();
@@ -138,6 +136,16 @@ public class Value {
     		return "boolean";
     	} else {
     		return "string";
+    	}
+    }
+    
+    public BuiltinType type() {
+    	if (isNumber()) {
+    		return BuiltinType.NUMBER;
+    	} else if (isBoolean()) {
+    		return BuiltinType.BOOLEAN;
+    	} else {
+    		return BuiltinType.STRING;
     	}
     }
 }

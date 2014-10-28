@@ -1,8 +1,12 @@
 package bitsy.lang;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.stringtemplate.v4.ST;
@@ -160,6 +164,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
             if (!val.isReference()) {
             	constantString(val);
             }
+            
             // TODO replace the function name here, possibly the brackets message
             Value message = new Value("Assertion failed: (false), function main, file "+
             		fileName+".bit, line "+ectx.start.getLine()+".");
@@ -199,7 +204,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	return renderUOP(ctx.expression(), st, "not", BuiltinType.BOOLEAN);
     }
     
-    private String renderBOP(ExpressionContext ctx, ST st, List<ExpressionContext> ecx, boolean booleansOk, String resultType) {
+    private String renderBOP(ExpressionContext ctx, ST st, List<ExpressionContext> ecx, BinaryOperation bop) {
     	StringBuilder result = new StringBuilder();
     	ExpressionContext lcx = ecx.get(0);
     	ExpressionContext rcx = ecx.get(1);
@@ -207,29 +212,20 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	result.append(visit(rcx));
     	Value lval = values.get(lcx);
     	Value rval = values.get(rcx);
-    	// more checks for valid types here.
-    	if (!booleansOk && (lval.isBoolean() || rval.isBoolean())) {
-    		throw new RuntimeException("Cannot include booleans in binary operation.");
+    	Type resultType = bop.allowed(lval.type().ordinal() * BinaryOperation.COLS + 
+    	                              rval.type().ordinal());
+    	if (resultType == BuiltinType.NULL) {
+    		Token token = ctx.start;
+    		throw new RuntimeException("Invalid arguments types "+lval.getType()+
+    				" and "+rval.getType()+" for "+bop.name()+" operation ["+
+    				ctx.getText()+"] in "+fileName+".bit on line:"+token.getLine());
     	}
-    	
     	st.add("lval", lval);
     	st.add("rval", rval);
     	st.add("scope", currentScope);
     	currentScope.getNextRegister();
     	result.append(st.render());
-    	Type type = BuiltinType.BOOLEAN;
-    	// move this to a collection lookup
-    	if (resultType.equals("boolean")) {
-    		type = BuiltinType.BOOLEAN;
-    	} else if (resultType.equals("addition")) {
-    		type = lval.isNumber() && rval.isNumber() ? BuiltinType.NUMBER : BuiltinType.STRING;
-    	} else if (resultType.equals("subtraction")
-    			|| resultType.equals("multiply")
-    			|| resultType.equals("divide")
-    			|| resultType.equals("modulus")) {
-    		type = BuiltinType.NUMBER;
-    	}
-    	Register ref = new Register(currentScope.getRegister(), type);
+    	Register ref = new Register(currentScope.getRegister(), resultType);
     	values.put(ctx, new Value(ref));
 		return result.toString();
     }
@@ -238,91 +234,91 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     public String visitGtEqExpression(GtEqExpressionContext ctx) {
     	ST st = group.getInstanceOf("gtEqExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false, "boolean");
+    	return renderBOP(ctx, st, ecx, BinaryOperation.GTE);
     }
     
     @Override
     public String visitGtExpression(GtExpressionContext ctx) {
     	ST st = group.getInstanceOf("gtExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false, "boolean");
+    	return renderBOP(ctx, st, ecx, BinaryOperation.GT);
     }
     
     @Override
     public String visitLtExpression(LtExpressionContext ctx) {
     	ST st = group.getInstanceOf("ltExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false, "boolean");
+    	return renderBOP(ctx, st, ecx, BinaryOperation.LT);
     }
     
     @Override
     public String visitLtEqExpression(LtEqExpressionContext ctx) {
     	ST st = group.getInstanceOf("ltEqExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false, "boolean");
+    	return renderBOP(ctx, st, ecx, BinaryOperation.LTE);
     }
     
     @Override
     public String visitEqExpression(EqExpressionContext ctx) {
     	ST st = group.getInstanceOf("eqExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, true, "boolean");
+    	return renderBOP(ctx, st, ecx, BinaryOperation.EQ);
     }
     
     @Override
     public String visitNotEqExpression(NotEqExpressionContext ctx) {
     	ST st = group.getInstanceOf("neqExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, true, "boolean");
+    	return renderBOP(ctx, st, ecx, BinaryOperation.NE);
     }
     
     @Override
     public String visitMultiplyExpression(MultiplyExpressionContext ctx) {
     	ST st = group.getInstanceOf("multiplyExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false, "multiply");
+    	return renderBOP(ctx, st, ecx, BinaryOperation.MULTIPLY);
     }
     
     @Override
     public String visitDivideExpression(DivideExpressionContext ctx) {
     	ST st = group.getInstanceOf("divideExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false, "multiply");
+    	return renderBOP(ctx, st, ecx, BinaryOperation.DIVIDE);
     }
     
     @Override
     public String visitModulusExpression(ModulusExpressionContext ctx) {
     	ST st = group.getInstanceOf("modulusExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false, "multiply");
+    	return renderBOP(ctx, st, ecx, BinaryOperation.MODULUS);
     }
     
     @Override
     public String visitAddExpression(AddExpressionContext ctx) {
     	ST st = group.getInstanceOf("addExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false, "addition");
+    	return renderBOP(ctx, st, ecx, BinaryOperation.ADD);
     }
     
     @Override
     public String visitSubtractExpression(SubtractExpressionContext ctx) {
     	ST st = group.getInstanceOf("subtractExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, false, "subtraction");
+    	return renderBOP(ctx, st, ecx, BinaryOperation.SUBTRACT);
     }
     
     @Override
     public String visitAndExpression(AndExpressionContext ctx) {
     	ST st = group.getInstanceOf("andExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, true, "boolean");
+    	return renderBOP(ctx, st, ecx, BinaryOperation.AND);
     }
     
     @Override
     public String visitOrExpression(OrExpressionContext ctx) {
     	ST st = group.getInstanceOf("orExpression");
     	List<ExpressionContext> ecx = ctx.expression();
-    	return renderBOP(ctx, st, ecx, true, "boolean");
+    	return renderBOP(ctx, st, ecx, BinaryOperation.OR);
     }
     
     @Override

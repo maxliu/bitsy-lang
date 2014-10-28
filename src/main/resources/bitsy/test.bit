@@ -152,5 +152,4 @@ assert (0.5 % 2) == 0.5
 assert (2 % 2) == 0
 assert (1 % 2) == 1
 
-
 println "All Passed"
