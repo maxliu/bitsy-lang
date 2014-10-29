@@ -15,5 +15,6 @@ declare i8* @malloc(i64)
 declare double @atof(i8*)
 declare void @exit(i32)
 declare double @fmod(double, double)
+declare double @pow(double, double)
 
 >>

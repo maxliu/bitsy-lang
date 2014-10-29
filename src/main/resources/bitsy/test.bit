@@ -149,5 +149,8 @@ assert (5 % 2) == 1
 assert (0.5 % 2) == 0.5
 assert (2 % 2) == 0
 assert (1 % 2) == 1
-/**/
+
+// Power
+assert 2 ^ 2 == 4
+assert 9 ^ 0.5 == 3
 println "All Passed"

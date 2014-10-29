@@ -39,6 +39,7 @@ import bitsy.antlr4.BitsyParser.NotExpressionContext;
 import bitsy.antlr4.BitsyParser.NumberExpressionContext;
 import bitsy.antlr4.BitsyParser.OrExpressionContext;
 import bitsy.antlr4.BitsyParser.ParseContext;
+import bitsy.antlr4.BitsyParser.PowerExpressionContext;
 import bitsy.antlr4.BitsyParser.PrintFunctionCallContext;
 import bitsy.antlr4.BitsyParser.StatementContext;
 import bitsy.antlr4.BitsyParser.StringExpressionContext;
@@ -270,6 +271,13 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	ST st = group.getInstanceOf("neqExpression");
     	List<ExpressionContext> ecx = ctx.expression();
     	return renderBOP(ctx, st, ecx, BinaryOperation.NE);
+    }
+    
+    @Override
+    public String visitPowerExpression(PowerExpressionContext ctx) {
+    	ST st = group.getInstanceOf("powerExpression");
+    	List<ExpressionContext> ecx = ctx.expression();
+    	return renderBOP(ctx, st, ecx, BinaryOperation.POWER);
     }
     
     @Override
