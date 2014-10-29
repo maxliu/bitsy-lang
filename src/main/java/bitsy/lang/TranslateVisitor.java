@@ -44,6 +44,7 @@ import bitsy.antlr4.BitsyParser.PrintFunctionCallContext;
 import bitsy.antlr4.BitsyParser.StatementContext;
 import bitsy.antlr4.BitsyParser.StringExpressionContext;
 import bitsy.antlr4.BitsyParser.SubtractExpressionContext;
+import bitsy.antlr4.BitsyParser.TernaryExpressionContext;
 import bitsy.antlr4.BitsyParser.UnaryMinusExpressionContext;
 import bitsy.lang.symbols.BuiltinType;
 import bitsy.lang.symbols.GlobalScope;
@@ -327,6 +328,43 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	ST st = group.getInstanceOf("orExpression");
     	List<ExpressionContext> ecx = ctx.expression();
     	return renderBOP(ctx, st, ecx, BinaryOperation.OR);
+    }
+    
+    @Override
+    public String visitTernaryExpression(TernaryExpressionContext ctx) {
+    	ST st = group.getInstanceOf("ternaryExpression");
+    	StringBuilder result = new StringBuilder();
+    	ExpressionContext conditionCtx = ctx.expression(0);
+    	ExpressionContext trueCtx = ctx.expression(1);
+    	ExpressionContext falseCtx = ctx.expression(2);
+    	result.append(visit(conditionCtx));
+    	Value value = values.get(conditionCtx);
+    	if (!value.isBoolean()) {
+    		throw new RuntimeException("Ternary expression ["+ctx.getText()+
+    				"] does not evaluate to boolean in "+fileName+".bit on line:"
+    				+ctx.start.getLine());
+    	}
+    	st.add("value", value);
+    	st.add("trueBlock", visit(trueCtx));
+    	st.add("trueVal", values.get(trueCtx));
+    	st.add("falseBlock", visit(falseCtx));
+    	st.add("falseVal", values.get(falseCtx));
+    	st.add("scope", currentScope);
+    	st.add("label", currentScope.getNextLabel());
+    	BuiltinType trueType = values.get(trueCtx).type();
+    	BuiltinType falseType = values.get(trueCtx).type();
+    	if (trueType != falseType) {
+    		throw new RuntimeException("Ternary expression ["+ ctx.getText() +
+    				"] has a true type of ["+trueType+"] and a false type of ["+
+    				falseType +"] these need to be "+
+    				"of the same type in "+ fileName +".bit on line:"
+    				+ctx.start.getLine());
+    	}
+    	currentScope.getNextRegister();
+    	result.append(st.render());
+    	Register ref = new Register(currentScope.getRegister(), values.get(trueCtx).type());
+    	values.put(ctx, new Value(ref));
+		return result.toString();
     }
     
     @Override

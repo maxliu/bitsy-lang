@@ -78,6 +78,18 @@ typeMap ::= [
     "boolean": "i1"
 ]
 
+storeResult(value, prefix, register) ::= <%
+<if(value.reference)>
+store <typeMap.(value.type)> %r<value>,<typeMap.(value.type)>* %<prefix><register>  
+<elseif(value.string)>
+store i8* <getString(value)>, i8** %<prefix><register>
+<elseif(value.number)>
+store double <value>, double* %<prefix><register>
+<elseif(value.boolean)>
+store i1 <value>, i1* %<prefix><register>
+<endif>
+%>
+
 args(lval, rval, scope) ::= <%
 <typeMap.(lval.type)> <argRegister(lval, "lval", scope.register)>, <typeMap.(rval.type)> <argRegister(rval, "rval", scope.register)>
 %>
