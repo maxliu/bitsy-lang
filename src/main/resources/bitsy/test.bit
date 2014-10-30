@@ -6,7 +6,7 @@ c = 3.3
 d = true
 e = false
 f = 4.4
-/*
+/**/
 assert "test" == "test"
 assert "" == ""
 assert "1" == 1
@@ -155,7 +155,6 @@ assert 2 ^ 2 == 4
 assert 9 ^ 0.5 == 3
 
 // Ternary
-*/
 assert (true ? 1 : 2) == 1
 assert (false ? 1 : 2) == 2
 assert (1 > 2 ? 1 : 2) == 2
