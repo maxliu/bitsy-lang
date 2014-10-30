@@ -158,5 +158,8 @@ assert 9 ^ 0.5 == 3
 */
 assert (true ? 1 : 2) == 1
 assert (false ? 1 : 2) == 2
+assert (1 > 2 ? 1 : 2) == 2
+assert (c > f ? f : c) == c
+
 
 println "All Passed"

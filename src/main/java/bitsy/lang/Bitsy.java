@@ -127,6 +127,7 @@ public class Bitsy {
 	        */
     	} catch (Exception e) {
     		System.err.println("Exception "+e.getMessage());
+    		e.printStackTrace();
     	}
     }
 }
