@@ -7,4 +7,5 @@ ifne endif<label>
     invokestatic java/lang/System/exit(I)V
 endif<label>:
 ; END assert
+
 >>

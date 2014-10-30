@@ -46,7 +46,7 @@ compareRegToZero(prefix, value, register, lastRegister, op="eq") ::= <<
 compareValToZero(value, scope) ::= <<
 <if(value.symbol)>
 <if(value.boolean)>
-%r<scope.nextRegister> = load i32* %<bitsyVariable(value)>
+%r<scope.nextRegister> = load i1* %<bitsyVariable(value)>
 %c<scope.register> = icmp ne i1 %r<scope.register>, 0<elseif(value.number)>
 %r<scope.nextRegister> = load double* %<bitsyVariable(value)>
 %c<scope.register> = fcmp une double %r<scope.register>, 0.0<else>
@@ -60,8 +60,8 @@ compareValToZero(value, scope) ::= <<
 %r<scope.nextRegister> = load i8* %r<value>
 %c<scope.register> = icmp ne i8 %r<scope.register>, 0<endif>
 <else>
-%r<scope.nextRegister> = add i32 0, <value.toBoolean>
-%c<scope.register> = icmp ne i32 %r<scope.register>, 0<endif>
+%r<scope.nextRegister> = add i1 0, <value.toBoolean>
+%c<scope.register> = icmp ne i1 %r<scope.register>, 0<endif>
 >>
 
 opMap ::= [
