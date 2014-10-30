@@ -104,8 +104,8 @@ public class Bitsy {
 	        ParseTreeWalker walker = new ParseTreeWalker();
 	        walker.walk(new SymbolListener(symbolTable), tree);
 	        
-	        //llvm(symbolTable, tree, source);
-	        bash(symbolTable, tree, source);
+	        llvm(symbolTable, tree, source);
+	        //bash(symbolTable, tree, source);
 	        //jvm(symbolTable, tree, source);
 	        /*
 	        if (args.length == 0) {
@@ -114,11 +114,11 @@ public class Bitsy {
 	        } 
 	        for (String arg: args) {
 	        	if (arg.equals("-llvm")) { 
-	                llvm(scope, tree, source);
+	                llvm(symbolTable, tree, source);
 	            } else if (arg.equals("-jvm")) {
-	                jvm(scope, tree, source);
+	                jvm(symbolTable, tree, source);
 	            } else if (arg.equals("-bash")) {
-	                bash(scope, tree, source);
+	                bash(symbolTable, tree, source);
 	            } else {
 	            	System.err.println("Invalid argument "+arg+" exiting.");
 	            	return;

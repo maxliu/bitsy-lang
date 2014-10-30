@@ -80,6 +80,7 @@ statement
  | assertFunctionCall
  | assignment
  | ifStatement
+ | forStatement
  ;
  
 printFunctionCall
@@ -108,6 +109,10 @@ elseIfStat
 
 elseStat
  : ELSE NEWLINE INDENT block DEDENT
+ ;
+ 
+forStatement
+ : FOR IDENTIFIER '=' expression TO expression NEWLINE INDENT block DEDENT
  ;
  
 expression
@@ -139,6 +144,8 @@ expression
 IF       : 'if';
 ELSE     : 'else'; 
 NULL 	 : 'null';
+FOR      : 'for';
+TO       : 'to';
 
 BOOL
  : 'true' 

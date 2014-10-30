@@ -25,6 +25,7 @@ import bitsy.antlr4.BitsyParser.ElseStatContext;
 import bitsy.antlr4.BitsyParser.EqExpressionContext;
 import bitsy.antlr4.BitsyParser.ExpressionContext;
 import bitsy.antlr4.BitsyParser.ExpressionExpressionContext;
+import bitsy.antlr4.BitsyParser.ForStatementContext;
 import bitsy.antlr4.BitsyParser.GtEqExpressionContext;
 import bitsy.antlr4.BitsyParser.GtExpressionContext;
 import bitsy.antlr4.BitsyParser.IdentifierExpressionContext;
@@ -467,6 +468,25 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 		st.add("block", visit(ctx.block()));
 		st.add("label", label);
 		return st.render();
+	}
+	
+	@Override
+	public String visitForStatement(ForStatementContext ctx) {
+		StringBuilder result = new StringBuilder();
+		result.append(visit(ctx.expression(0)));
+		result.append(visit(ctx.expression(1)));
+		Value from = values.get(ctx.expression(0));
+		Value to = values.get(ctx.expression(1));
+		ST st = group.getInstanceOf("forStatement");
+		currentScope.getNextRegister();
+		st.add("id", ctx.IDENTIFIER().getText());
+		st.add("fromVal", from);
+		st.add("toVal", to);
+		st.add("block", visit(ctx.block()));
+		st.add("scope", currentScope);
+		st.add("label", getMethodScope().getNextLabel());
+		result.append(st.render());
+		return result.toString();
 	}
 	
 	private Scope getMethodScope() {

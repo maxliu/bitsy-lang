@@ -1,4 +1,7 @@
-// Equality
+for i = 1 to 10
+	println i + " wut"
+
+
 /*
 a = "test"
 b = "3.3"
@@ -7,6 +10,7 @@ d = true
 e = false
 f = 4.4
 
+// Equality
 assert "test" == "test"
 assert "" == ""
 assert "1" == 1
@@ -159,7 +163,7 @@ assert (true ? 1 : 2) == 1
 assert (false ? 1 : 2) == 2
 assert (1 > 2 ? 1 : 2) == 2
 assert (c > f ? f : c) == c
-*/
+
 // if,elseif,else
 if_a = true
 if_b = false
@@ -205,5 +209,5 @@ else if if_a
 	assert true
 else 
 	assert false
-	
+*/	
 println "All Passed"

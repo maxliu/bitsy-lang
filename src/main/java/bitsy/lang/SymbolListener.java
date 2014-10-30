@@ -7,6 +7,7 @@ import bitsy.antlr4.BitsyParser.AssignmentContext;
 import bitsy.antlr4.BitsyParser.BlockContext;
 import bitsy.antlr4.BitsyParser.BoolExpressionContext;
 import bitsy.antlr4.BitsyParser.ExpressionContext;
+import bitsy.antlr4.BitsyParser.ForStatementContext;
 import bitsy.antlr4.BitsyParser.NullExpressionContext;
 import bitsy.antlr4.BitsyParser.NumberExpressionContext;
 import bitsy.antlr4.BitsyParser.StringExpressionContext;
@@ -65,7 +66,18 @@ public class SymbolListener extends BitsyBaseListener {
 				define(id, rhs.type);
 			}
 		} catch (SymbolException se) {
-			throw new RuntimeException("Symbol type redefinition for "+id+" line:"+ctx.IDENTIFIER().getSymbol().getLine());
+			throw new RuntimeException("Symbol type redefinition for "+id+" line:"+ctx.start.getLine());
+		}
+	}
+	
+	@Override
+	public void exitForStatement(@NotNull ForStatementContext ctx) {
+		String id = ctx.IDENTIFIER().getText();
+		try {
+			
+			define(id, BuiltinType.NUMBER);
+		} catch (SymbolException se) {
+			throw new RuntimeException("Symbol type redefinition for "+id+" line:"+ctx.start.getLine());
 		}
 	}
 }

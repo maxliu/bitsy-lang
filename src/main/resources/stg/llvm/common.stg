@@ -105,7 +105,13 @@ argRegister(val, prefix, register) ::= <%
 %>
 
 loadString(val, side, register) ::= "%<side><register> = load i8** %<bitsyVariable(val)>"
-loadNumber(val, side, register) ::= "%<side><register> = load double* %<bitsyVariable(val)>"
+loadNumber(val, side, register) ::= <%
+<if(val.reference)>
+%<side><register> = load double* %<bitsyVariable(val)>
+<else>
+%<side><register> = fadd double 0.0, <val>
+<endif>
+%>
 loadBoolean(val, side, register) ::= "%<side><register> = load i1* %<bitsyVariable(val)>"
 
 
