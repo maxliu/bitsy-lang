@@ -3,7 +3,6 @@ forStatement(id, fromVal, toVal, block, scope, label) ::= <<
 <loadNumber(fromVal, "from", scope.register)>
 <loadNumber(toVal, "to", scope.register)>
 
-; %<bitsyVariable(id)> = alloca double
 store double %from<scope.register>, double* %<bitsyVariable(id)>
 br label %compareIdAndTo<label>
 

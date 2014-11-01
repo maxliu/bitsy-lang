@@ -76,6 +76,14 @@ public class Value {
     	return asString();
     }
     
+    public long getLong() {
+    	if (isNumber()) {
+    		return asLong();
+    	} else {
+    		return 0;
+    	}
+    }
+    
     public Boolean asBoolean() {
         return (Boolean)value;
     }

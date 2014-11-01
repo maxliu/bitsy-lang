@@ -4,100 +4,100 @@ import static bitsy.lang.symbols.BuiltinType.STRING;
 import static bitsy.lang.symbols.BuiltinType.NUMBER;
 import static bitsy.lang.symbols.BuiltinType.BOOLEAN;
 import static bitsy.lang.symbols.BuiltinType.NULL;
-import bitsy.lang.symbols.Type;
+import bitsy.lang.symbols.BuiltinType;
 
 public enum BinaryOperation {
-	POWER(new Type[] {
+	POWER(new BuiltinType[] {
 		//       S, 	N, 		B
 		/* S */  NULL,  NULL,	NULL,	
 		/* N */  NULL,  NUMBER,	NULL,	
 		/* B */	 NULL,	NULL,	NULL
 	}), 
-	MULTIPLY(new Type[] {
+	MULTIPLY(new BuiltinType[] {
 		//       S, 	N, 		B
 		/* S */  NULL,  NULL,	NULL,	
 		/* N */  NULL,  NUMBER,	NULL,	
 		/* B */	 NULL,	NULL,	NULL
 	}), 
-	DIVIDE(new Type[] {
+	DIVIDE(new BuiltinType[] {
 		//       S, 	N, 		B
 		/* S */  NULL,  NULL,	NULL,	
 		/* N */  NULL,  NUMBER,	NULL,	
 		/* B */	 NULL,	NULL,	NULL
 	}), 
-	MODULUS(new Type[] {
+	MODULUS(new BuiltinType[] {
 		//       S, 	N, 		B
 		/* S */  NULL,  NULL,	NULL,	
 		/* N */  NULL,  NUMBER,	NULL,	
 		/* B */	 NULL,	NULL,	NULL
 	}), 
-	ADD(new Type[] {
+	ADD(new BuiltinType[] {
 		//       S, 	 N, 		B
 		/* S */  STRING, STRING,	NULL,	
 		/* N */  STRING, NUMBER,	NULL,	
 		/* B */	 NULL,	 NULL,		NULL
 	}),
-	SUBTRACT(new Type[] {
+	SUBTRACT(new BuiltinType[] {
 		//       S, 	 N, 		B
 		/* S */  NUMBER, NUMBER,	NULL,	
 		/* N */  NUMBER, NUMBER,	NULL,	
 		/* B */	 NULL,	 NULL,		NULL
 	}),
-	GTE(new Type[] {
+	GTE(new BuiltinType[] {
 		//       S,			N, 			B
 		/* S */  BOOLEAN, 	BOOLEAN,	NULL,	
 		/* N */  BOOLEAN,	BOOLEAN,	NULL,	
 		/* B */	 NULL,		NULL,		NULL
 	}),
-	GT(new Type[] {
+	GT(new BuiltinType[] {
 		//       S,			N, 			B
 		/* S */  BOOLEAN, 	BOOLEAN,	NULL,	
 		/* N */  BOOLEAN,	BOOLEAN,	NULL,	
 		/* B */	 NULL,		NULL,		NULL
 	}),
-	LTE(new Type[] {
+	LTE(new BuiltinType[] {
 		//       S,			N, 			B
 		/* S */  BOOLEAN, 	BOOLEAN,	NULL,	
 		/* N */  BOOLEAN,	BOOLEAN,	NULL,	
 		/* B */	 NULL,		NULL,		NULL
 	}),
-	LT(new Type[] {
+	LT(new BuiltinType[] {
 		//       S,			N, 			B
 		/* S */  BOOLEAN, 	BOOLEAN,	NULL,	
 		/* N */  BOOLEAN,	BOOLEAN,	NULL,	
 		/* B */	 NULL,		NULL,		NULL
 	}),
-	EQ(new Type[] {
+	EQ(new BuiltinType[] {
 		//       S,			N, 			B
 		/* S */  BOOLEAN, 	BOOLEAN,	BOOLEAN,	
 		/* N */  BOOLEAN,	BOOLEAN,	BOOLEAN,	
 		/* B */	 BOOLEAN,	BOOLEAN,	BOOLEAN
 	}),
-	NE(new Type[] {
+	NE(new BuiltinType[] {
 		//       S,			N, 			B
 		/* S */  BOOLEAN, 	BOOLEAN,	BOOLEAN,	
 		/* N */  BOOLEAN,	BOOLEAN,	BOOLEAN,	
 		/* B */	 BOOLEAN,	BOOLEAN,	BOOLEAN
 	}),
-	AND(new Type[] {
+	AND(new BuiltinType[] {
 		//       S,			N, 			B
 		/* S */  BOOLEAN, 	BOOLEAN,	BOOLEAN,	
 		/* N */  BOOLEAN,	BOOLEAN,	BOOLEAN,	
 		/* B */	 BOOLEAN,	BOOLEAN,	BOOLEAN
 	}),
-	OR(new Type[] {
+	OR(new BuiltinType[] {
 		//       S,			N, 			B
 		/* S */  BOOLEAN, 	BOOLEAN,	BOOLEAN,	
 		/* N */  BOOLEAN,	BOOLEAN,	BOOLEAN,	
 		/* B */	 BOOLEAN,	BOOLEAN,	BOOLEAN
 	});
 	public static int COLS = 3;
-	Type[] allowed;
+	BuiltinType[] allowed;
 	
-	private BinaryOperation(Type[] allowed) {
+	private BinaryOperation(BuiltinType[] allowed) {
 		this.allowed = allowed;
 	}
-	public Type allowed(int index) {
+	public BuiltinType allowed(int index) {
 		return allowed[index];
 	}
 }

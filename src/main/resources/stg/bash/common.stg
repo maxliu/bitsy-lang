@@ -46,6 +46,14 @@ bashValue(s,suffix="") ::= <%
 <endif>
 %>
 
+int(number) ::= <%
+<if(number.reference)>
+$(printf "%.0f" ${<number>})
+<else>
+<number.long>
+<endif>
+%>
+
 args(lval, rval) ::= "<arg(lval)> <arg(rval)>"
 
 arg(val,suffix="") ::= <%

@@ -4,6 +4,7 @@ import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 public class SymbolTable {
 	public ParseTreeProperty<Scope> scopes = new ParseTreeProperty<Scope>();
+	public ParseTreeProperty<BuiltinType> resultTypes = new ParseTreeProperty<BuiltinType>();
 	public GlobalScope globals = new GlobalScope();
 
 	public SymbolTable() {

@@ -109,7 +109,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         st.add("statements", statements);
         st.add("scope", currentScope);
         String result = st.render();
-        currentScope = currentScope.getEnclosingScope();
+    	currentScope = currentScope.getEnclosingScope();
         return result;
     }
     
@@ -180,18 +180,15 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     }
     
 
-    private String renderUOP(ExpressionContext ctx, ST st, String op, Type type) {
+    private String renderUOP(ExpressionContext ctx, ST st) {
     	StringBuilder result = new StringBuilder();
     	result.append(visit(ctx));
     	Value value = values.get(ctx);
-    	if (op.equals("unary minus") && !value.isNumber()) {
-    		throw new RuntimeException("Cannot apply "+op+" to non-number expression. line:"+ctx.start.getLine());
-    	}
     	st.add("scope", currentScope);
     	st.add("value", value);
     	currentScope.getNextRegister();
     	result.append(st.render());
-    	Register ref = new Register(currentScope.getRegister(), type);
+    	Register ref = new Register(currentScope.getRegister(), symbolTable.resultTypes.get(ctx.parent));
     	values.put(ctx.parent, new Value(ref));
     	return result.toString();
     }
@@ -199,13 +196,13 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     @Override
     public String visitUnaryMinusExpression(UnaryMinusExpressionContext ctx) {
     	ST st = group.getInstanceOf("unaryMinusExpression");
-    	return renderUOP(ctx.expression(), st, "unary minus", BuiltinType.NUMBER);
+    	return renderUOP(ctx.expression(), st);
     }
     
     @Override
     public String visitNotExpression(NotExpressionContext ctx) {
     	ST st = group.getInstanceOf("notExpression");
-    	return renderUOP(ctx.expression(), st, "not", BuiltinType.BOOLEAN);
+    	return renderUOP(ctx.expression(), st);
     }
     
     private String renderBOP(ExpressionContext ctx, ST st, List<ExpressionContext> ecx, BinaryOperation bop) {
@@ -216,20 +213,12 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	result.append(visit(rcx));
     	Value lval = values.get(lcx);
     	Value rval = values.get(rcx);
-    	Type resultType = bop.allowed(lval.type().ordinal() * BinaryOperation.COLS + 
-    	                              rval.type().ordinal());
-    	if (resultType == BuiltinType.NULL) {
-    		Token token = ctx.start;
-    		throw new RuntimeException("Invalid arguments types "+lval.getType()+
-    				" and "+rval.getType()+" for "+bop.name()+" operation ["+
-    				ctx.getText()+"] in "+fileName+".bit on line:"+token.getLine());
-    	}
     	st.add("lval", lval);
     	st.add("rval", rval);
     	st.add("scope", currentScope);
     	currentScope.getNextRegister();
     	result.append(st.render());
-    	Register ref = new Register(currentScope.getRegister(), resultType);
+    	Register ref = new Register(currentScope.getRegister(), symbolTable.resultTypes.get(lcx.parent));
     	values.put(ctx, new Value(ref));
 		return result.toString();
     }
@@ -341,11 +330,6 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	ExpressionContext falseCtx = ctx.expression(2);
     	result.append(visit(conditionCtx));
     	Value value = values.get(conditionCtx);
-    	if (!value.isBoolean()) {
-    		throw new RuntimeException("Ternary expression ["+ctx.getText()+
-    				"] does not evaluate to boolean in "+fileName+".bit on line:"
-    				+ctx.start.getLine());
-    	}
     	st.add("value", value);
     	st.add("trueBlock", visit(trueCtx));
     	st.add("trueVal", values.get(trueCtx));
@@ -353,15 +337,6 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	st.add("falseVal", values.get(falseCtx));
     	st.add("scope", currentScope);
     	st.add("label", currentScope.getNextLabel());
-    	BuiltinType trueType = values.get(trueCtx).type();
-    	BuiltinType falseType = values.get(trueCtx).type();
-    	if (trueType != falseType) {
-    		throw new RuntimeException("Ternary expression ["+ ctx.getText() +
-    				"] has a true type of ["+trueType+"] and a false type of ["+
-    				falseType +"] these need to be "+
-    				"of the same type in "+ fileName +".bit on line:"
-    				+ctx.start.getLine());
-    	}
     	currentScope.getNextRegister();
     	result.append(st.render());
     	Register ref = new Register(currentScope.getRegister(), values.get(trueCtx).type());
@@ -483,7 +458,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 		st.add("fromVal", from);
 		st.add("toVal", to);
 		st.add("block", visit(ctx.block()));
-		st.add("scope", currentScope);
+		st.add("scope", getMethodScope());
 		st.add("label", getMethodScope().getNextLabel());
 		result.append(st.render());
 		return result.toString();
@@ -491,6 +466,9 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 	
 	private Scope getMethodScope() {
 		Scope walkScope = currentScope;
+		if (walkScope instanceof GlobalScope) {
+			return walkScope;
+		}
 		while (!(walkScope.getEnclosingScope() instanceof GlobalScope)) {
 			walkScope = walkScope.getEnclosingScope();
 		}

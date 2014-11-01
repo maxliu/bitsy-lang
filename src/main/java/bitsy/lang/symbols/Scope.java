@@ -7,26 +7,24 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Scope {
+	static int registerCount = 1;
+	static int labelCount = 0;
 	Scope enclosingScope;
 	List<Scope> childScopes = new ArrayList<Scope>();
 	Map<String, Symbol> symbols = new LinkedHashMap<String, Symbol>();
-	int registerCount;
-	int labelCount;
+	
+	
 
 	public Scope(Scope enclosingScope) {
 		this.enclosingScope = enclosingScope;
 		if (enclosingScope != null) {
 			enclosingScope.childScopes.add(this);
 		}
-		resetRegisters();
 	}
 	
 	public void resetRegisters() {
 		registerCount = 1;
 		labelCount = 0;
-		for (Scope child: childScopes) {
-			child.resetRegisters();
-		}
 	}
 
 	public Symbol resolve(String name) {
@@ -43,12 +41,14 @@ public abstract class Scope {
 	}
 
 	public void define(Symbol symbol) throws SymbolException {
-		Symbol prevSymbol = symbols.get(symbol.name);
+		Symbol prevSymbol = resolve(symbol.name); //symbols.get(symbol.name);
 		if (prevSymbol != null && symbol.type != prevSymbol.type) {
 			throw new SymbolException();
 		}
-		symbols.put(symbol.name, symbol);
-		symbol.scope = this;
+		if (prevSymbol == null) {
+			symbols.put(symbol.name, symbol);
+			symbol.scope = this;
+		}
 	}
 	
 	public void assign(String name, int register) {

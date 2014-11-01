@@ -1,8 +1,4 @@
-for i = 1 to 10
-	println i + " wut"
-
-
-/*
+/**/
 a = "test"
 b = "3.3"
 c = 3.3
@@ -209,5 +205,12 @@ else if if_a
 	assert true
 else 
 	assert false
-*/	
+	
+// for statement
+for_test = 1
+for_to = 10
+for for_i = 1 to 10
+	for_test = for_test + for_i
+assert for_test == 56
+	
 println "All Passed"
