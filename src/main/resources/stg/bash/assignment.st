@@ -1,4 +1,4 @@
-assignment(name, value, scope) ::= <%
+assignment(name, symbol, value, scope) ::= <%
 <if(value.symbol)>
 	<name>=${<value>}
 <elseif(value.reference)>

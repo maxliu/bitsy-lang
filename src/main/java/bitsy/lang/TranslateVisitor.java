@@ -90,7 +90,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         st.add("strings", strings);
         Scope blockScope = symbolTable.scopes.get(ctx.block());
         st.add("block", visit(ctx.block()));
-        st.add("locals", blockScope.getRegister() + 1);
+        st.add("scope", blockScope);
     	return st.render();
     }
     
@@ -127,7 +127,8 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	st.add("name", id);
     	result.append(visit(ctx.expression()));
     	Value val = values.get(ctx.expression());
-    	currentScope.assign(id, currentScope.getRegister());
+    	Symbol symbol = currentScope.assign(id, currentScope.getRegister());
+    	st.add("symbol", symbol);
     	st.add("value", val);
     	st.add("scope", currentScope);
     	result.append(st.render());
@@ -454,12 +455,16 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 		Value to = values.get(ctx.expression(1));
 		ST st = group.getInstanceOf("forStatement");
 		currentScope.getNextRegister();
-		st.add("id", ctx.IDENTIFIER().getText());
+		String id = ctx.IDENTIFIER().getText();
+		currentScope.assign(id, currentScope.getRegister());
+		st.add("id", id);
+		st.add("symbol", currentScope.resolve(id));
 		st.add("fromVal", from);
 		st.add("toVal", to);
+		st.add("register", currentScope.getRegister());
+		st.add("scope", currentScope);
+		st.add("label", currentScope.getNextLabel());
 		st.add("block", visit(ctx.block()));
-		st.add("scope", getMethodScope());
-		st.add("label", getMethodScope().getNextLabel());
 		result.append(st.render());
 		return result.toString();
 	}

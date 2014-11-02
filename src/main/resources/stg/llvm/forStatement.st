@@ -1,4 +1,4 @@
-forStatement(id, fromVal, toVal, block, scope, label) ::= <<
+forStatement(id, symbol, fromVal, toVal, block, scope, label, register) ::= <<
 ; forStatement <id> <fromVal> <toVal>
 <loadNumber(fromVal, "from", scope.register)>
 <loadNumber(toVal, "to", scope.register)>

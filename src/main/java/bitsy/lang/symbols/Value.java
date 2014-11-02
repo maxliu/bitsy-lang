@@ -113,6 +113,13 @@ public class Value {
     	return simple.length() + 1; 
     }
     
+    public int getLocal() {
+    	if (isReference()) {
+    		return ((Symbol) value).getLocal();
+    	} 
+    	throw new RuntimeException("Invalid call to getLocal");
+    }
+    
     public int getRegister() {
     	if (isReference()) {
     		return ((Symbol) value).getRegister();

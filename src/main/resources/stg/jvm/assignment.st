@@ -1,10 +1,11 @@
-assignment(name, value, scope) ::= <<
+assignment(name, symbol, value, scope) ::= <<
+; <name> = <value> <symbol.local>
 <load(value)>
 <if(value.number)>
-dstore <scope.nextLocalWide>
+dstore <symbol.local>
 <elseif (value.boolean)>
-istore <scope.nextLocal>
+istore <symbol.local>
 <else>
-astore <scope.nextLocal>
+astore <symbol.local>
 <endif>
 >>

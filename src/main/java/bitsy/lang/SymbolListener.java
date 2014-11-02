@@ -37,6 +37,7 @@ import bitsy.antlr4.BitsyParser.SubtractExpressionContext;
 import bitsy.antlr4.BitsyParser.TernaryExpressionContext;
 import bitsy.antlr4.BitsyParser.UnaryMinusExpressionContext;
 import bitsy.lang.symbols.BuiltinType;
+import bitsy.lang.symbols.GlobalScope;
 import bitsy.lang.symbols.LocalScope;
 import bitsy.lang.symbols.Scope;
 import bitsy.lang.symbols.Symbol;

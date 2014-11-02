@@ -1,4 +1,4 @@
-assignment(name, value, scope) ::= <<
+assignment(name, symbol, value, scope) ::= <<
 <if(value.reference)>
 <if(value.symbol)>%r<scope.nextRegister> = load <llvmType(value)>* %r<value><endif>
 store <llvmType(value)> %r<scope.register>, <llvmType(value)>* %<bitsyVariable(name)><else>

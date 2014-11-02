@@ -3,6 +3,7 @@ package bitsy.lang.symbols;
 public class Symbol extends Register {
 	public String name;      // All symbols at least have a name
     public Scope scope;      // All symbols know what scope contains them.
+    int local;
     
     public Symbol(String name) { 
     	this(name, null); 
@@ -27,5 +28,13 @@ public class Symbol extends Register {
 			return '<' + getName() + ":" + type + '>';
 		}
 		return getName();
+	}
+	
+	public void setLocal(int local) {
+		this.local = local;
+	}
+	
+	public int getLocal() {
+		return local;
 	}
 }

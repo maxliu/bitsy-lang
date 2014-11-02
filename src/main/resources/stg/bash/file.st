@@ -1,4 +1,4 @@
-file(fileName, strings, locals, block) ::= <<
+file(fileName, strings, scope, block) ::= <<
 #!/bin/bash
 
 main() {

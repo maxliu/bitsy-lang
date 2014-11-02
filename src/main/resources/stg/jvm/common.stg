@@ -153,9 +153,9 @@ if_icmpne true<if(pop)>Pop<endif><label>
 
 load(value) ::= <%
 <if(value.symbol)>
-	<if(value.string)>aload <value.register>
-	<elseif(value.number)>dload <value.register>
-	<else>iload <value.register>
+	<if(value.string)>aload <value.local>
+	<elseif(value.number)>dload <value.local>
+	<else>iload <value.local>
 	<endif>
 <elseif(!value.reference)>
 	<if(value.string)>ldc "<value>"

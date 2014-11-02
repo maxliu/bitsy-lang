@@ -9,6 +9,7 @@ import java.util.Map;
 public abstract class Scope {
 	static int registerCount = 1;
 	static int labelCount = 0;
+	int localCount = 1; // need to start this after args on method
 	Scope enclosingScope;
 	List<Scope> childScopes = new ArrayList<Scope>();
 	Map<String, Symbol> symbols = new LinkedHashMap<String, Symbol>();
@@ -26,7 +27,7 @@ public abstract class Scope {
 		registerCount = 1;
 		labelCount = 0;
 	}
-
+	
 	public Symbol resolve(String name) {
 		Symbol s = symbols.get(name);
 		if (s != null) {
@@ -48,11 +49,17 @@ public abstract class Scope {
 		if (prevSymbol == null) {
 			symbols.put(symbol.name, symbol);
 			symbol.scope = this;
+			
+			Scope methodScope = getMethodScope();
+			symbol.setLocal(methodScope.localCount);
+			methodScope.localCount += symbol.type == BuiltinType.NUMBER ? 2 : 1; 
 		}
 	}
 	
-	public void assign(String name, int register) {
-		resolve(name).setRegister(register);
+	public Symbol assign(String name, int register) {
+		Symbol symbol = resolve(name);
+		symbol.setRegister(register);
+		return symbol;
 	}
 
 	public Scope getEnclosingScope() {
@@ -79,21 +86,12 @@ public abstract class Scope {
 		return registerCount - 1;
 	}
 	
-	public int getNextLocal() {
-		int ret = getRegister();
-		getNextRegister();
-		return ret;
-	}
-	
-	public int getNextLocalWide() {
-		int ret = getRegister();  
-		getNextRegister();
-		getNextRegister();
-		return ret;
-	}
-	
-	public int getLastLocalWide() {
-		return getRegister() - 2;
+	public Scope getMethodScope() {
+		Scope methodScope = this;
+		while (!(methodScope.getEnclosingScope() instanceof GlobalScope)) {
+			methodScope = methodScope.getEnclosingScope();
+		}
+		return methodScope;
 	}
 	
 	public int getNextLabel() {
@@ -102,5 +100,9 @@ public abstract class Scope {
 	
 	public int getLabel() {
 		return labelCount;
+	}
+	
+	public int getLocalCount() {
+		return localCount;
 	}
 }

@@ -1,4 +1,4 @@
-file(fileName, strings, locals, block) ::= <<
+file(fileName, strings, scope, block) ::= <<
 <strings:{s | @.str<i> = internal constant <llvmConstant(s)>}; separator="\n">
 
 define i32 @main() {
