@@ -47,6 +47,7 @@ import bitsy.antlr4.BitsyParser.StringExpressionContext;
 import bitsy.antlr4.BitsyParser.SubtractExpressionContext;
 import bitsy.antlr4.BitsyParser.TernaryExpressionContext;
 import bitsy.antlr4.BitsyParser.UnaryMinusExpressionContext;
+import bitsy.antlr4.BitsyParser.WhileStatementContext;
 import bitsy.lang.symbols.BuiltinType;
 import bitsy.lang.symbols.GlobalScope;
 import bitsy.lang.symbols.Register;
@@ -467,6 +468,18 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 		st.add("block", visit(ctx.block()));
 		result.append(st.render());
 		return result.toString();
+	}
+	
+	@Override
+	public String visitWhileStatement(WhileStatementContext ctx) {
+		ST st = group.getInstanceOf("whileStatement");
+		currentScope.getNextRegister();
+		st.add("valBlock", visit(ctx.expression()));
+		st.add("value", values.get(ctx.expression()));
+		st.add("block", visit(ctx.block()));
+		st.add("label", currentScope.getNextLabel());
+		st.add("scope", currentScope);
+		return st.render();
 	}
 	
 	private Scope getMethodScope() {

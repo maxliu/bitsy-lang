@@ -1,3 +1,4 @@
+/*
 a = "test"
 b = "3.3"
 c = 3.3
@@ -210,6 +211,11 @@ for_test = 1
 for_to = 10
 for for_i = 1 to 10
 	for_test = for_test + for_i
-//assert for_test == 56
-	
+assert for_test == 56
+
+*/
+i = 1
+while i < 10
+	println "woot"
+	i = i + 1 	
 println "All Passed"

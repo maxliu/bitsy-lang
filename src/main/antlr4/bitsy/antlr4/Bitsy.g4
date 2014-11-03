@@ -81,6 +81,7 @@ statement
  | assignment
  | ifStatement
  | forStatement
+ | whileStatement
  ;
  
 printFunctionCall
@@ -115,6 +116,10 @@ forStatement
  : FOR IDENTIFIER '=' expression TO expression NEWLINE INDENT block DEDENT
  ;
  
+whileStatement
+ : WHILE expression NEWLINE INDENT block DEDENT
+ ;
+ 
 expression
  : '-' expression                           #unaryMinusExpression
  | '!' expression                           #notExpression
@@ -146,6 +151,7 @@ ELSE     : 'else';
 NULL 	 : 'null';
 FOR      : 'for';
 TO       : 'to';
+WHILE    : 'while';
 
 BOOL
  : 'true' 
