@@ -216,6 +216,6 @@ assert for_test == 56
 */
 i = 1
 while i < 10
-	println "woot"
+	println i+" woot"
 	i = i + 1 	
 println "All Passed"

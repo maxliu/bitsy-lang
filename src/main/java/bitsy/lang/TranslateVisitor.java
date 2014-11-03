@@ -475,6 +475,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 		ST st = group.getInstanceOf("whileStatement");
 		currentScope.getNextRegister();
 		st.add("valBlock", visit(ctx.expression()));
+		st.add("register", currentScope.getRegister());
 		st.add("value", values.get(ctx.expression()));
 		st.add("block", visit(ctx.block()));
 		st.add("label", currentScope.getNextLabel());
