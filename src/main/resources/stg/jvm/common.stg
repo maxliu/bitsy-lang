@@ -125,6 +125,17 @@ false<label>:
 endif<label>:
 >>
 
+ifFalseGoto(value, prefix, label) ::= <<
+<if(value.string)>
+invokevirtual java/lang/String/length()I
+ifle <prefix><label><elseif(value.number)>
+dconst_0
+dcmpl
+ifeq <prefix><label><else>
+iconst_0
+if_icmpeq <prefix><label><endif>
+>>
+
 ifFalseGotoLabel(value, label, pop=false) ::= <<
 <if(value.string)>
 invokevirtual java/lang/String/length()I
