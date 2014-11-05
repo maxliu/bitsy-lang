@@ -81,8 +81,14 @@ statement
  | ifStatement
  | forStatement
  | whileStatement
+ | functionDecl
+ | returnStatement
  ;
 
+returnStatement
+ : RETURN expression 
+ ;
+ 
 functionCall
  : IDENTIFIER '(' exprList? ')'                     #identifierFunctionCall 
  | 'println' ( '(' expression? ')' | expression? )  #printFunctionCall            
@@ -162,6 +168,7 @@ FOR      : 'for';
 TO       : 'to';
 WHILE    : 'while';
 DEF      : 'def';
+RETURN   : 'return';
 
 BOOL
  : 'true' 

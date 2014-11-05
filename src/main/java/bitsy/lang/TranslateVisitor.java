@@ -1,12 +1,8 @@
 package bitsy.lang;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.stringtemplate.v4.ST;
@@ -44,19 +40,18 @@ import bitsy.antlr4.BitsyParser.OrExpressionContext;
 import bitsy.antlr4.BitsyParser.ParseContext;
 import bitsy.antlr4.BitsyParser.PowerExpressionContext;
 import bitsy.antlr4.BitsyParser.PrintFunctionCallContext;
+import bitsy.antlr4.BitsyParser.ReturnStatementContext;
 import bitsy.antlr4.BitsyParser.StatementContext;
 import bitsy.antlr4.BitsyParser.StringExpressionContext;
 import bitsy.antlr4.BitsyParser.SubtractExpressionContext;
 import bitsy.antlr4.BitsyParser.TernaryExpressionContext;
 import bitsy.antlr4.BitsyParser.UnaryMinusExpressionContext;
 import bitsy.antlr4.BitsyParser.WhileStatementContext;
-import bitsy.lang.symbols.BuiltinType;
 import bitsy.lang.symbols.GlobalScope;
 import bitsy.lang.symbols.Register;
 import bitsy.lang.symbols.Scope;
 import bitsy.lang.symbols.Symbol;
 import bitsy.lang.symbols.SymbolTable;
-import bitsy.lang.symbols.Type;
 import bitsy.lang.symbols.Value;
 
 public class TranslateVisitor extends BitsyBaseVisitor<String> {
@@ -455,10 +450,28 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 	}
 	
 	@Override
+	public String visitReturnStatement(ReturnStatementContext ctx) {
+		StringBuilder result = new StringBuilder();
+		ST st = group.getInstanceOf("returnStatement");
+		result.append(visit(ctx.expression()));
+		st.add("value", values.get(ctx.expression()));
+		st.add("register", currentScope.getNextRegister());
+		values.put(ctx, values.get(ctx.expression()));
+		return st.render();
+	}
+	
+	@Override
 	public String visitFunctionDecl(FunctionDeclContext ctx) {
 	    StringBuilder result = new StringBuilder();
         ST st = group.getInstanceOf("functionDecl");
-        
+	    st.add("id", ctx.IDENTIFIER().getText());
+	    st.add("idList", ctx.idList());
+	    BlockContext block = ctx.block();
+	    st.add("block", visit(block));
+	    Value val = values.get(block);
+	    st.add("returnValue", val);
+	    st.add("scope", symbolTable.scopes.get(block));
+        result.append(st.render());
         return result.toString();
 	}
 	

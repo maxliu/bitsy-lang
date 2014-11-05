@@ -1,12 +1,13 @@
 package bitsy.lang;
 
-import static bitsy.lang.symbols.BuiltinType.NUMBER;
 import static bitsy.lang.symbols.BuiltinType.BOOLEAN;
-import static bitsy.lang.symbols.BuiltinType.STRING;
 import static bitsy.lang.symbols.BuiltinType.NULL;
+import static bitsy.lang.symbols.BuiltinType.NUMBER;
+import static bitsy.lang.symbols.BuiltinType.STRING;
 
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import bitsy.antlr4.BitsyBaseListener;
 import bitsy.antlr4.BitsyParser.AddExpressionContext;
@@ -19,6 +20,7 @@ import bitsy.antlr4.BitsyParser.EqExpressionContext;
 import bitsy.antlr4.BitsyParser.ExpressionContext;
 import bitsy.antlr4.BitsyParser.ExpressionExpressionContext;
 import bitsy.antlr4.BitsyParser.ForStatementContext;
+import bitsy.antlr4.BitsyParser.FunctionDeclContext;
 import bitsy.antlr4.BitsyParser.GtEqExpressionContext;
 import bitsy.antlr4.BitsyParser.GtExpressionContext;
 import bitsy.antlr4.BitsyParser.IdentifierExpressionContext;
@@ -37,7 +39,7 @@ import bitsy.antlr4.BitsyParser.SubtractExpressionContext;
 import bitsy.antlr4.BitsyParser.TernaryExpressionContext;
 import bitsy.antlr4.BitsyParser.UnaryMinusExpressionContext;
 import bitsy.lang.symbols.BuiltinType;
-import bitsy.lang.symbols.GlobalScope;
+import bitsy.lang.symbols.FunctionScope;
 import bitsy.lang.symbols.LocalScope;
 import bitsy.lang.symbols.Scope;
 import bitsy.lang.symbols.Symbol;
@@ -60,6 +62,27 @@ public class SymbolListener extends BitsyBaseListener {
 	
 	private void define(String id, Type type) throws SymbolException {
 		currentScope.define(new Symbol(id, type));
+	}
+	
+	@Override
+	public void enterFunctionDecl(@NotNull FunctionDeclContext ctx) {
+		currentScope = new FunctionScope(currentScope);
+		if (!ctx.idList().isEmpty()) {
+			for (TerminalNode node: ctx.idList().IDENTIFIER()) {
+				String id = node.getText();
+				try {
+					define(id, NUMBER);
+				} catch (SymbolException e) {
+					throw new RuntimeException("Symbol type redefinition for "+id+
+							"in "+sourceName+" line:"+ctx.start.getLine());
+				}
+			}
+		}
+	}
+	
+	@Override
+	public void exitFunctionDecl(@NotNull FunctionDeclContext ctx) {
+		currentScope = currentScope.getEnclosingScope();
 	}
 	
 	@Override
