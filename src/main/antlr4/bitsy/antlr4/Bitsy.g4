@@ -76,22 +76,19 @@ block
  ;
 
 statement
- : printFunctionCall
- | assertFunctionCall
+ : functionCall
  | assignment
  | ifStatement
  | forStatement
  | whileStatement
  ;
- 
-printFunctionCall
- : 'println' ( '(' expression? ')' | expression? )
- ;
- 
-assertFunctionCall
- : 'assert' expression
- ;
 
+functionCall
+ : IDENTIFIER '(' exprList? ')'                     #identifierFunctionCall 
+ | 'println' ( '(' expression? ')' | expression? )  #printFunctionCall            
+ | 'assert' expression                              #assertFunctionCall
+ ;
+ 
 assignment
  : IDENTIFIER '=' expression
  ;
@@ -111,7 +108,11 @@ elseIfStat
 elseStat
  : ELSE NEWLINE INDENT block DEDENT
  ;
- 
+
+functionDecl
+ : DEF IDENTIFIER '(' idList? ')' NEWLINE INDENT block DEDENT
+ ;
+  
 forStatement
  : FOR IDENTIFIER '=' expression TO expression NEWLINE INDENT block DEDENT
  ;
@@ -119,7 +120,15 @@ forStatement
 whileStatement
  : WHILE expression NEWLINE INDENT block DEDENT
  ;
- 
+
+idList
+ : IDENTIFIER (',' IDENTIFIER)*
+ ;
+
+exprList
+ : expression (',' expression)*
+ ;
+
 expression
  : '-' expression                           #unaryMinusExpression
  | '!' expression                           #notExpression
@@ -152,6 +161,7 @@ NULL 	 : 'null';
 FOR      : 'for';
 TO       : 'to';
 WHILE    : 'while';
+DEF      : 'def';
 
 BOOL
  : 'true' 
