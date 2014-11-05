@@ -26,9 +26,11 @@ import bitsy.antlr4.BitsyParser.EqExpressionContext;
 import bitsy.antlr4.BitsyParser.ExpressionContext;
 import bitsy.antlr4.BitsyParser.ExpressionExpressionContext;
 import bitsy.antlr4.BitsyParser.ForStatementContext;
+import bitsy.antlr4.BitsyParser.FunctionDeclContext;
 import bitsy.antlr4.BitsyParser.GtEqExpressionContext;
 import bitsy.antlr4.BitsyParser.GtExpressionContext;
 import bitsy.antlr4.BitsyParser.IdentifierExpressionContext;
+import bitsy.antlr4.BitsyParser.IdentifierFunctionCallContext;
 import bitsy.antlr4.BitsyParser.IfStatContext;
 import bitsy.antlr4.BitsyParser.IfStatementContext;
 import bitsy.antlr4.BitsyParser.LtEqExpressionContext;
@@ -134,6 +136,11 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	st.add("scope", currentScope);
     	result.append(st.render());
     	return result.toString();
+    }
+    
+    @Override
+    public String visitIdentifierFunctionCall(IdentifierFunctionCallContext ctx) {
+        return super.visitIdentifierFunctionCall(ctx);
     }
     
     @Override
@@ -445,6 +452,14 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 		st.add("block", visit(ctx.block()));
 		st.add("label", label);
 		return st.render();
+	}
+	
+	@Override
+	public String visitFunctionDecl(FunctionDeclContext ctx) {
+	    StringBuilder result = new StringBuilder();
+        ST st = group.getInstanceOf("functionDecl");
+        
+        return result.toString();
 	}
 	
 	@Override
