@@ -453,11 +453,13 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 	public String visitReturnStatement(ReturnStatementContext ctx) {
 		StringBuilder result = new StringBuilder();
 		ST st = group.getInstanceOf("returnStatement");
-		result.append(visit(ctx.expression()));
-		st.add("value", values.get(ctx.expression()));
+		ExpressionContext rtx = ctx.expression(); 
+		result.append(visit(rtx));
+		st.add("value", values.get(rtx));
 		st.add("register", currentScope.getNextRegister());
-		values.put(ctx, values.get(ctx.expression()));
-		return st.render();
+		values.put(ctx, values.get(rtx));
+		result.append(st.render());
+		return result.toString();
 	}
 	
 	@Override
@@ -468,8 +470,6 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 	    st.add("idList", ctx.idList());
 	    BlockContext block = ctx.block();
 	    st.add("block", visit(block));
-	    Value val = values.get(block);
-	    st.add("returnValue", val);
 	    st.add("scope", symbolTable.scopes.get(block));
         result.append(st.render());
         return result.toString();
