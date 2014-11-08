@@ -3,6 +3,7 @@ package bitsy.lang;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.stringtemplate.v4.ST;
@@ -61,6 +62,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     Scope currentScope;
     String fileName;
     List<Value> strings = new ArrayList<Value>();
+    List<String> functions = new ArrayList<String>();
     
     public TranslateVisitor(STGroup group, SymbolTable symbolTable, String fileName) {
         this.group = group;
@@ -86,6 +88,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	ST st = group.getInstanceOf("file");
         st.add("fileName", fileName);
         st.add("strings", strings);
+        st.add("functions", functions);
         Scope blockScope = symbolTable.scopes.get(ctx.block());
         st.add("block", visit(ctx.block()));
         st.add("scope", blockScope);
@@ -449,30 +452,46 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 		return st.render();
 	}
 	
+	private void methodReturnValue(RuleContext ctx, Value returnValue) {
+		RuleContext parentCtx = ctx;
+		while (parentCtx != null && !(parentCtx instanceof FunctionDeclContext)) {
+			parentCtx = parentCtx.getParent();
+		}
+		if (parentCtx != null) {
+			values.put(parentCtx, returnValue);
+		}
+	}
+	
 	@Override
 	public String visitReturnStatement(ReturnStatementContext ctx) {
 		StringBuilder result = new StringBuilder();
 		ST st = group.getInstanceOf("returnStatement");
 		ExpressionContext rtx = ctx.expression(); 
 		result.append(visit(rtx));
-		st.add("value", values.get(rtx));
+		Value returnValue = values.get(rtx);
+		st.add("value", returnValue);
 		st.add("register", currentScope.getNextRegister());
 		values.put(ctx, values.get(rtx));
+		methodReturnValue(ctx, returnValue);
 		result.append(st.render());
 		return result.toString();
 	}
+	
 	
 	@Override
 	public String visitFunctionDecl(FunctionDeclContext ctx) {
 	    StringBuilder result = new StringBuilder();
         ST st = group.getInstanceOf("functionDecl");
 	    st.add("id", ctx.IDENTIFIER().getText());
-	    st.add("idList", ctx.idList());
+	    st.add("idList", ctx.idList().IDENTIFIER());
 	    BlockContext block = ctx.block();
 	    st.add("block", visit(block));
+	    Value returnValue = values.get(ctx);
+	    st.add("returnType",  returnValue != null ? returnValue.getType() : "void");
 	    st.add("scope", symbolTable.scopes.get(block));
         result.append(st.render());
-        return result.toString();
+        functions.add(result.toString());
+        return "";
 	}
 	
 	@Override

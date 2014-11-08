@@ -76,6 +76,7 @@ typeMap ::= [
     "string": "i8*",
     "number": "double",
     "boolean": "i1"
+    "void", "void"
 ]
 
 storeResult(value, prefix, register, temp="tmp") ::= <<
