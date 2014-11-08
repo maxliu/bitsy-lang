@@ -480,6 +480,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 	
 	@Override
 	public String visitFunctionDecl(FunctionDeclContext ctx) {
+		currentScope = symbolTable.scopes.get(ctx);
 	    StringBuilder result = new StringBuilder();
         ST st = group.getInstanceOf("functionDecl");
 	    st.add("id", ctx.IDENTIFIER().getText());
@@ -491,6 +492,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 	    st.add("scope", symbolTable.scopes.get(block));
         result.append(st.render());
         functions.add(result.toString());
+        currentScope = currentScope.getEnclosingScope();
         return "";
 	}
 	

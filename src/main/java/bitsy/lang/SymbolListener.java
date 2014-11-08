@@ -67,6 +67,7 @@ public class SymbolListener extends BitsyBaseListener {
 	@Override
 	public void enterFunctionDecl(@NotNull FunctionDeclContext ctx) {
 		currentScope = new FunctionScope(currentScope);
+		symbolTable.scopes.put(ctx, currentScope);
 		if (!ctx.idList().isEmpty()) {
 			for (TerminalNode node: ctx.idList().IDENTIFIER()) {
 				String id = node.getText();
