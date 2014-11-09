@@ -48,10 +48,13 @@ import bitsy.antlr4.BitsyParser.SubtractExpressionContext;
 import bitsy.antlr4.BitsyParser.TernaryExpressionContext;
 import bitsy.antlr4.BitsyParser.UnaryMinusExpressionContext;
 import bitsy.antlr4.BitsyParser.WhileStatementContext;
+import bitsy.lang.symbols.BuiltinType;
+import bitsy.lang.symbols.Function;
 import bitsy.lang.symbols.GlobalScope;
 import bitsy.lang.symbols.Register;
 import bitsy.lang.symbols.Scope;
 import bitsy.lang.symbols.Symbol;
+import bitsy.lang.symbols.SymbolException;
 import bitsy.lang.symbols.SymbolTable;
 import bitsy.lang.symbols.Value;
 
@@ -480,15 +483,32 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 	
 	@Override
 	public String visitFunctionDecl(FunctionDeclContext ctx) {
-		currentScope = symbolTable.scopes.get(ctx);
 	    StringBuilder result = new StringBuilder();
         ST st = group.getInstanceOf("functionDecl");
-	    st.add("id", ctx.IDENTIFIER().getText());
-	    st.add("idList", ctx.idList().IDENTIFIER());
+        String id = ctx.IDENTIFIER().getText();
+        Function function = symbolTable.functions.get(id);
+        List<BuiltinType> idTypes = function.getParams(symbolTable.resultTypes, fileName+".bit");
+        if (idTypes == null) {
+        	System.err.println("Warning: function "+id+" is defined but not called. Skipping");
+        	return "";
+        }
+        currentScope = symbolTable.scopes.get(ctx);
+        List<TerminalNode> idList = ctx.idList().IDENTIFIER();
+        for (int i = 0; i < idList.size(); i++) {
+        	try {
+        		currentScope.define(new Symbol(idList.get(i).getText(), idTypes.get(i)));
+        	} catch (SymbolException se) {
+        		throw new RuntimeException("Duplicate variables in the parameters in "+
+        				fileName+" on line: "+ctx.start.getLine());
+        	}
+        }
+	    st.add("id", id);
+	    st.add("idList", idList);
+	    st.add("idTypes", idTypes);
 	    BlockContext block = ctx.block();
 	    st.add("block", visit(block));
-	    Value returnValue = values.get(ctx);
-	    st.add("returnType",  returnValue != null ? returnValue.getType() : "void");
+	    BuiltinType returnType = symbolTable.resultTypes.get(ctx);
+	    st.add("returnType",  returnType != null ? returnType : "void");
 	    st.add("scope", symbolTable.scopes.get(block));
         result.append(st.render());
         functions.add(result.toString());

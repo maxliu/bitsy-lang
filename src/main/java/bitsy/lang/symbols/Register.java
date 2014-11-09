@@ -17,6 +17,10 @@ public class Register {
 		return register;
 	}
 	
+	public void setType(Type type) {
+		this.type = type;
+	}
+	
 	public boolean isString() {
 		return type == BuiltinType.STRING;
 	}

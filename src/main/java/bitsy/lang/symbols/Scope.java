@@ -43,7 +43,7 @@ public abstract class Scope {
 
 	public void define(Symbol symbol) throws SymbolException {
 		Symbol prevSymbol = resolve(symbol.name); //symbols.get(symbol.name);
-		if (prevSymbol != null && symbol.type != prevSymbol.type) {
+		if (prevSymbol != null && symbol.type != null && symbol.type != prevSymbol.type) {
 			throw new SymbolException();
 		}
 		if (prevSymbol == null) {
@@ -53,6 +53,9 @@ public abstract class Scope {
 			Scope methodScope = getMethodScope();
 			symbol.setLocal(methodScope.localCount);
 			methodScope.localCount += symbol.type == BuiltinType.NUMBER ? 2 : 1; 
+		} else if (prevSymbol.type == null && symbol.type != null) {
+			symbols.put(symbol.name, symbol);
+			symbol.scope = this;
 		}
 	}
 	

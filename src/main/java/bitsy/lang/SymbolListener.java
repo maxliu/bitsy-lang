@@ -5,6 +5,7 @@ import static bitsy.lang.symbols.BuiltinType.NULL;
 import static bitsy.lang.symbols.BuiltinType.NUMBER;
 import static bitsy.lang.symbols.BuiltinType.STRING;
 
+import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -24,6 +25,7 @@ import bitsy.antlr4.BitsyParser.FunctionDeclContext;
 import bitsy.antlr4.BitsyParser.GtEqExpressionContext;
 import bitsy.antlr4.BitsyParser.GtExpressionContext;
 import bitsy.antlr4.BitsyParser.IdentifierExpressionContext;
+import bitsy.antlr4.BitsyParser.IdentifierFunctionCallContext;
 import bitsy.antlr4.BitsyParser.LtEqExpressionContext;
 import bitsy.antlr4.BitsyParser.LtExpressionContext;
 import bitsy.antlr4.BitsyParser.ModulusExpressionContext;
@@ -34,11 +36,13 @@ import bitsy.antlr4.BitsyParser.NullExpressionContext;
 import bitsy.antlr4.BitsyParser.NumberExpressionContext;
 import bitsy.antlr4.BitsyParser.OrExpressionContext;
 import bitsy.antlr4.BitsyParser.PowerExpressionContext;
+import bitsy.antlr4.BitsyParser.ReturnStatementContext;
 import bitsy.antlr4.BitsyParser.StringExpressionContext;
 import bitsy.antlr4.BitsyParser.SubtractExpressionContext;
 import bitsy.antlr4.BitsyParser.TernaryExpressionContext;
 import bitsy.antlr4.BitsyParser.UnaryMinusExpressionContext;
 import bitsy.lang.symbols.BuiltinType;
+import bitsy.lang.symbols.Function;
 import bitsy.lang.symbols.FunctionScope;
 import bitsy.lang.symbols.LocalScope;
 import bitsy.lang.symbols.Scope;
@@ -65,25 +69,49 @@ public class SymbolListener extends BitsyBaseListener {
 	}
 	
 	@Override
+	public void exitReturnStatement(@NotNull ReturnStatementContext ctx) {
+		RuleContext parentCtx = ctx;
+		while (parentCtx != null && !(parentCtx instanceof FunctionDeclContext)) {
+			parentCtx = parentCtx.getParent();
+		}
+		if (parentCtx != null) {
+			resultTypes.put(parentCtx, resultTypes.get(ctx.expression()));
+		}
+	}
+	
+	@Override
 	public void enterFunctionDecl(@NotNull FunctionDeclContext ctx) {
 		currentScope = new FunctionScope(currentScope);
 		symbolTable.scopes.put(ctx, currentScope);
-		if (!ctx.idList().isEmpty()) {
-			for (TerminalNode node: ctx.idList().IDENTIFIER()) {
-				String id = node.getText();
-				try {
-					define(id, NUMBER);
-				} catch (SymbolException e) {
-					throw new RuntimeException("Symbol type redefinition for "+id+
-							"in "+sourceName+" line:"+ctx.start.getLine());
-				}
-			}
+		
+		String id = ctx.IDENTIFIER().getText();
+		if (!symbolTable.functions.containsKey(id)) {
+			symbolTable.functions.put(id, new Function(id));
+		}
+		symbolTable.functions.get(id).setContext(ctx, sourceName);
+		
+		for (TerminalNode node : ctx.idList().IDENTIFIER() ) {
+			try {
+				define(node.getText(), null);
+			} catch (SymbolException se) {
+        		throw new RuntimeException("Duplicate variables in the parameters in "+
+        				sourceName+" on line: "+ctx.start.getLine());
+        	}
 		}
 	}
 	
 	@Override
 	public void exitFunctionDecl(@NotNull FunctionDeclContext ctx) {
 		currentScope = currentScope.getEnclosingScope();
+	}
+	
+	@Override
+	public void enterIdentifierFunctionCall(@NotNull IdentifierFunctionCallContext ctx) {
+		String id = ctx.IDENTIFIER().getText();
+		if (symbolTable.functions.containsKey(id)) {
+			symbolTable.functions.put(id, new Function(id));
+		}
+		symbolTable.functions.get(id).addCall(ctx);
 	}
 	
 	@Override
