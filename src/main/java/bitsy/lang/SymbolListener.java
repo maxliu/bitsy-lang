@@ -13,6 +13,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import bitsy.antlr4.BitsyBaseListener;
 import bitsy.antlr4.BitsyParser.AddExpressionContext;
 import bitsy.antlr4.BitsyParser.AndExpressionContext;
+import bitsy.antlr4.BitsyParser.ArgumentContext;
 import bitsy.antlr4.BitsyParser.AssignmentContext;
 import bitsy.antlr4.BitsyParser.BlockContext;
 import bitsy.antlr4.BitsyParser.BoolExpressionContext;
@@ -75,7 +76,10 @@ public class SymbolListener extends BitsyBaseListener {
 			parentCtx = parentCtx.getParent();
 		}
 		if (parentCtx != null) {
-			resultTypes.put(parentCtx, resultTypes.get(ctx.expression()));
+			BuiltinType returnType = resultTypes.get(ctx.expression());
+			resultTypes.put(parentCtx, returnType);
+			String id = ((FunctionDeclContext) parentCtx).IDENTIFIER().getText();
+			symbolTable.functions.get(id).setReturnType(returnType, ctx);
 		}
 	}
 	
@@ -85,14 +89,24 @@ public class SymbolListener extends BitsyBaseListener {
 		symbolTable.scopes.put(ctx, currentScope);
 		
 		String id = ctx.IDENTIFIER().getText();
-		if (!symbolTable.functions.containsKey(id)) {
-			symbolTable.functions.put(id, new Function(id));
+		if (symbolTable.functions.containsKey(id)) {
+			throw new RuntimeException("Duplicate function name "+id+" in "+sourceName+
+					" on line "+ctx.start.getLine());
 		}
-		symbolTable.functions.get(id).setContext(ctx, sourceName);
+		Function function = new Function(id, ctx, sourceName);
+		symbolTable.functions.put(id, function);
 		
-		for (TerminalNode node : ctx.idList().IDENTIFIER() ) {
+		for (ArgumentContext acx: ctx.argumentList().argument() ) {
 			try {
-				define(node.getText(), null);
+				String argument = acx.IDENTIFIER().getText();
+				BuiltinType argumentType = BuiltinType.fromString(acx.type().getText());
+				if (argumentType == null) {
+					throw new RuntimeException("Invalid type "+ acx.type().getText() +
+							" for function declaration "+ id +" in "+
+	        				sourceName+" on line: "+ctx.start.getLine());
+				}
+				function.addArgument(argument, argumentType);
+				define(argument, argumentType);
 			} catch (SymbolException se) {
         		throw new RuntimeException("Duplicate variables in the parameters in "+
         				sourceName+" on line: "+ctx.start.getLine());
@@ -103,15 +117,6 @@ public class SymbolListener extends BitsyBaseListener {
 	@Override
 	public void exitFunctionDecl(@NotNull FunctionDeclContext ctx) {
 		currentScope = currentScope.getEnclosingScope();
-	}
-	
-	@Override
-	public void enterIdentifierFunctionCall(@NotNull IdentifierFunctionCallContext ctx) {
-		String id = ctx.IDENTIFIER().getText();
-		if (symbolTable.functions.containsKey(id)) {
-			symbolTable.functions.put(id, new Function(id));
-		}
-		symbolTable.functions.get(id).addCall(ctx);
 	}
 	
 	@Override

@@ -116,7 +116,7 @@ elseStat
  ;
 
 functionDecl
- : DEF IDENTIFIER '(' idList? ')' NEWLINE INDENT block DEDENT
+ : DEF IDENTIFIER '(' argumentList? ')' NEWLINE INDENT block DEDENT
  ;
   
 forStatement
@@ -125,6 +125,20 @@ forStatement
  
 whileStatement
  : WHILE expression NEWLINE INDENT block DEDENT
+ ;
+
+argument
+ : IDENTIFIER ':' type
+ ;  
+
+type
+ : 'string'
+ | 'number'
+ | 'boolean'
+ ;
+ 
+argumentList
+ : argument (',' argument)*
  ;
 
 idList
@@ -155,7 +169,8 @@ expression
  | expression '?' expression ':' expression #ternaryExpression
  | NUMBER 						            #numberExpression
  | BOOL   						            #boolExpression
- | NULL   						            #nullExpression
+ | NULL										#nullExpression
+ | functionCall 						    #functionCallExpression
  | IDENTIFIER   				            #identifierExpression
  | STRING 						            #stringExpression
  | '(' expression ')' 			            #expressionExpression

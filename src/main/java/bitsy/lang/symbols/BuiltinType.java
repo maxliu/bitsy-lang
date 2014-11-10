@@ -18,4 +18,13 @@ public enum BuiltinType implements Type {
 	public String toString() {
 		return name;
 	}
+	
+	public static BuiltinType fromString(String type) {
+		for(BuiltinType bt: values()) {
+			if (type.equals(bt.name)) {
+				return bt;
+			}
+		}
+		return null;
+	}
 }

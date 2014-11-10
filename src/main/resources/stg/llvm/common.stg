@@ -94,6 +94,14 @@ store i1 <value>, i1* %<prefix><register>
 <endif>
 >>
 
+typeList(args) ::= <%
+<args:{arg | <typeMap.(arg.type)>}; separator=", ">
+%>
+
+argsList(args) ::= <%
+<args:{arg | <typeMap.(arg.type)> <argRegister(arg, "r", arg.register)>}; separator=", ">
+%>
+
 args(lval, rval, scope) ::= <%
 <typeMap.(lval.type)> <argRegister(lval, "lval", scope.register)>, <typeMap.(rval.type)> <argRegister(rval, "rval", scope.register)>
 %>

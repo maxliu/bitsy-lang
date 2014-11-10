@@ -1,6 +1,7 @@
 package bitsy.lang;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.antlr.v4.runtime.RuleContext;
@@ -23,6 +24,7 @@ import bitsy.antlr4.BitsyParser.EqExpressionContext;
 import bitsy.antlr4.BitsyParser.ExpressionContext;
 import bitsy.antlr4.BitsyParser.ExpressionExpressionContext;
 import bitsy.antlr4.BitsyParser.ForStatementContext;
+import bitsy.antlr4.BitsyParser.FunctionCallExpressionContext;
 import bitsy.antlr4.BitsyParser.FunctionDeclContext;
 import bitsy.antlr4.BitsyParser.GtEqExpressionContext;
 import bitsy.antlr4.BitsyParser.GtExpressionContext;
@@ -36,6 +38,7 @@ import bitsy.antlr4.BitsyParser.ModulusExpressionContext;
 import bitsy.antlr4.BitsyParser.MultiplyExpressionContext;
 import bitsy.antlr4.BitsyParser.NotEqExpressionContext;
 import bitsy.antlr4.BitsyParser.NotExpressionContext;
+import bitsy.antlr4.BitsyParser.NullExpressionContext;
 import bitsy.antlr4.BitsyParser.NumberExpressionContext;
 import bitsy.antlr4.BitsyParser.OrExpressionContext;
 import bitsy.antlr4.BitsyParser.ParseContext;
@@ -54,7 +57,6 @@ import bitsy.lang.symbols.GlobalScope;
 import bitsy.lang.symbols.Register;
 import bitsy.lang.symbols.Scope;
 import bitsy.lang.symbols.Symbol;
-import bitsy.lang.symbols.SymbolException;
 import bitsy.lang.symbols.SymbolTable;
 import bitsy.lang.symbols.Value;
 
@@ -141,7 +143,48 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     
     @Override
     public String visitIdentifierFunctionCall(IdentifierFunctionCallContext ctx) {
-        return super.visitIdentifierFunctionCall(ctx);
+    	StringBuilder result = new StringBuilder();
+    	ST st = group.getInstanceOf("identifierFunctionCall");
+    	
+    	String id = ctx.IDENTIFIER().getText();
+    	Function function = symbolTable.functions.get(id);
+    	if (function == null) {
+    		throw new RuntimeException("Attempt to call undefined function "+id+
+    				"in "+fileName+ " on line: "+ctx.start.getLine());
+    	}
+		List<ExpressionContext> exprList;
+		List<Value> arguments = new ArrayList<Value>();
+		int argCount = 0;
+		if (ctx.exprList() != null) {
+			Iterator<BuiltinType> argIterator = function.getArguments().values().iterator();
+			exprList = ctx.exprList().expression();
+			for (ExpressionContext ectx: exprList) {
+				result.append(visit(ectx));
+				Value val = values.get(ectx);
+				if (!argIterator.hasNext() || val.type() != argIterator.next()) {
+					throw new RuntimeException("Invalid type or number of arguments"+
+							" for function call "+id+
+							" in "+fileName+".bit on line: "+ctx.start.getLine());
+				}
+				arguments.add(val);
+				argCount++;
+			}
+		}
+		if (argCount != function.getArguments().size()) {
+			throw new RuntimeException("Attempt to call function "+id+
+    				"with incorrect number of arguments. Expected "+
+					function.getArguments().size()+
+					"but got "+argCount+"in "+fileName+ ".bit on line: "+
+					ctx.start.getLine());
+		}
+		st.add("returnType", function.getReturnType());
+		st.add("id", id);
+		st.add("arguments", arguments);
+		st.add("register", currentScope.getNextRegister());
+    	result.append(st.render());
+    	Register ref = new Register(currentScope.getRegister(), function.getReturnType());
+    	values.put(ctx, new Value(ref));
+    	return result.toString();
     }
     
     @Override
@@ -386,6 +429,19 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     }
     
     @Override
+    public String visitNullExpression(NullExpressionContext ctx) {
+    	values.put(ctx, new Value(null));
+    	return "";
+    }
+    
+    @Override
+    public String visitFunctionCallExpression(FunctionCallExpressionContext ctx) {
+    	String result = visit(ctx.functionCall());
+    	values.put(ctx, values.get(ctx.functionCall()));
+    	return result;
+    }
+    
+    @Override
     public String visitIdentifierExpression(IdentifierExpressionContext ctx) {
     	String id = ctx.IDENTIFIER().getText();
     	Symbol s = currentScope.resolve(id);
@@ -487,28 +543,12 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         ST st = group.getInstanceOf("functionDecl");
         String id = ctx.IDENTIFIER().getText();
         Function function = symbolTable.functions.get(id);
-        List<BuiltinType> idTypes = function.getParams(symbolTable.resultTypes, fileName+".bit");
-        if (idTypes == null) {
-        	System.err.println("Warning: function "+id+" is defined but not called. Skipping");
-        	return "";
-        }
         currentScope = symbolTable.scopes.get(ctx);
-        List<TerminalNode> idList = ctx.idList().IDENTIFIER();
-        for (int i = 0; i < idList.size(); i++) {
-        	try {
-        		currentScope.define(new Symbol(idList.get(i).getText(), idTypes.get(i)));
-        	} catch (SymbolException se) {
-        		throw new RuntimeException("Duplicate variables in the parameters in "+
-        				fileName+" on line: "+ctx.start.getLine());
-        	}
-        }
 	    st.add("id", id);
-	    st.add("idList", idList);
-	    st.add("idTypes", idTypes);
+	    st.add("arguments", function.getArguments());
 	    BlockContext block = ctx.block();
 	    st.add("block", visit(block));
-	    BuiltinType returnType = symbolTable.resultTypes.get(ctx);
-	    st.add("returnType",  returnType != null ? returnType : "void");
+	    st.add("returnType",  function.getReturnType());
 	    st.add("scope", symbolTable.scopes.get(block));
         result.append(st.render());
         functions.add(result.toString());

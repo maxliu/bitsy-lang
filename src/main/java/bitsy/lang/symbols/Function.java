@@ -1,49 +1,46 @@
 package bitsy.lang.symbols;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-import org.antlr.v4.runtime.tree.ParseTreeProperty;
-
-import bitsy.antlr4.BitsyParser.ExpressionContext;
 import bitsy.antlr4.BitsyParser.FunctionDeclContext;
-import bitsy.antlr4.BitsyParser.IdentifierFunctionCallContext;
+import bitsy.antlr4.BitsyParser.ReturnStatementContext;
 
 public class Function {
 	FunctionDeclContext ctx;
+	BuiltinType returnType;
 	String id;
-	List<BuiltinType> params;
-	List<IdentifierFunctionCallContext> calls  = new ArrayList<IdentifierFunctionCallContext>();
+	String sourceName;
+	Map<String, BuiltinType> arguments = new LinkedHashMap<String, BuiltinType>();
 	
-	public Function(String id) {
+	public Function(String id, FunctionDeclContext ctx, String sourceName) {
 		this.id = id;
-	}
-	
-	public void setContext(FunctionDeclContext ctx, String sourceName) {
-		if (this.ctx != null) {
-			throw new RuntimeException("Function "+id+" redefined in "+sourceName+
-					" line: "+ctx.start.getLine());
-		}
 		this.ctx = ctx;
+		this.sourceName = sourceName;
 	}
-
-	public void addCall(IdentifierFunctionCallContext callCtx) {
-		calls.add(callCtx);
+	public void addArgument(String argument, BuiltinType argumentType) {
+		arguments.put(argument, argumentType);
 	}
 	
-	public List<BuiltinType> getParams(ParseTreeProperty<BuiltinType> resultTypes, String sourceName) {
-		for (IdentifierFunctionCallContext call: calls) {
-			List<BuiltinType> callParams = new ArrayList<BuiltinType>();
-			for (ExpressionContext ctx: call.exprList().expression()) {
-				callParams.add(resultTypes.get(ctx));
-			}
-			if (params == null) {
-				params = callParams;
-			} else if (!params.equals(callParams)) {
-				throw new RuntimeException("Inconsistent function calls to "+id+" for noticed in "+
-						sourceName+" on line: "+call.start.getLine());
-			}
+	public Map<String, BuiltinType> getArguments() {
+		return arguments;
+	}
+	
+	public BuiltinType getReturnType() {
+		if (returnType == null) {
+			return BuiltinType.NULL;
 		}
-		return params;
+		return returnType;
+	}
+	
+	public void setReturnType(BuiltinType returnType, ReturnStatementContext ctx) {
+		if ( (returnType == null && this.returnType != null) ||
+			 (this.returnType != null && !returnType.equals(this.returnType)) ) 
+		{
+			throw new RuntimeException("Inconsistent return type for function "+
+					id+ " expected "+getReturnType()+" but got "+returnType+
+					" in "+sourceName+" on line: "+ctx.start.getLine());
+		}
+		this.returnType = returnType;
 	}
 }

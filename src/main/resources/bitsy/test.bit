@@ -220,7 +220,8 @@ while i < 10
 	i = i + 1
 */
 
-def add(a,b)
+def add(a:number,b:number)
 	return a + b
  	
+println add(1, 2)
 println "All Passed"
