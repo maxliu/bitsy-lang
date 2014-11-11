@@ -1,4 +1,4 @@
-file(fileName, strings, functions, block) ::= <<
+file(fileName, strings, functions, block, localCount) ::= <<
 <strings:{s | @.str<i> = internal constant <llvmConstant(s)>}; separator="\n">
 
 <functions:{f | <f>}; separator="\n">

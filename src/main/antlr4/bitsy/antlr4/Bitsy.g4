@@ -116,7 +116,7 @@ elseStat
  ;
 
 functionDecl
- : DEF IDENTIFIER '(' argumentList? ')' ':' type NEWLINE INDENT block DEDENT
+ : DEF IDENTIFIER '(' argumentList? ')' (':' type)? NEWLINE INDENT block DEDENT
  ;
   
 forStatement
@@ -135,6 +135,8 @@ type
  : 'string'
  | 'number'
  | 'boolean'
+ | 'null'
+ | 'void'
  ;
  
 argumentList

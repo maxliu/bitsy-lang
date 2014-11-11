@@ -36,6 +36,7 @@ import bitsy.antlr4.BitsyParser.NotExpressionContext;
 import bitsy.antlr4.BitsyParser.NullExpressionContext;
 import bitsy.antlr4.BitsyParser.NumberExpressionContext;
 import bitsy.antlr4.BitsyParser.OrExpressionContext;
+import bitsy.antlr4.BitsyParser.ParseContext;
 import bitsy.antlr4.BitsyParser.PowerExpressionContext;
 import bitsy.antlr4.BitsyParser.ReturnStatementContext;
 import bitsy.antlr4.BitsyParser.StringExpressionContext;
@@ -70,6 +71,14 @@ public class SymbolListener extends BitsyBaseListener {
 	}
 	
 	@Override
+	public void enterParse(@NotNull ParseContext ctx) {
+		try {
+			define("args", BuiltinType.STRING);
+		} catch (SymbolException e) {
+		}
+	}
+	
+	@Override
 	public void exitReturnStatement(@NotNull ReturnStatementContext ctx) {
 		RuleContext parentCtx = ctx;
 		while (parentCtx != null && !(parentCtx instanceof FunctionDeclContext)) {
@@ -87,12 +96,15 @@ public class SymbolListener extends BitsyBaseListener {
 	public void enterFunctionDecl(@NotNull FunctionDeclContext ctx) {
 		currentScope = new FunctionScope(currentScope);
 		symbolTable.scopes.put(ctx, currentScope);
-		BuiltinType returnType = BuiltinType.fromString(ctx.type().getText());
+		BuiltinType returnType = BuiltinType.VOID;
 		String id = ctx.IDENTIFIER().getText();
-		if (returnType == null) {
-			throw new RuntimeException("Invalid return type "+ctx.type().getText()+
-					" for function name "+id+" in "+sourceName+
-					" on line "+ctx.start.getLine());
+		if ( ctx.type() != null) {
+			returnType = BuiltinType.fromString(ctx.type().getText());
+			if (returnType == null) {
+				throw new RuntimeException("Invalid return type "+ctx.type().getText()+
+						" for function name "+id+" in "+sourceName+
+						" on line "+ctx.start.getLine());
+			}
 		}
 		if (symbolTable.functions.containsKey(id)) {
 			throw new RuntimeException("Duplicate function name "+id+" in "+sourceName+

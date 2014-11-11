@@ -1,10 +1,10 @@
 whileStatement(valBlock, value, block, label, register) ::= <<
 whileStatement<label>:
 	<valBlock>
-	<ifFalseGoto(value, "endWhileLoop", label)>
+	<ifFalseGoto(value, "endWhileStatement", label)>
 	<block>
 	goto whileStatement<label>
-endWhileLoop<label>:
+endWhileStatement<label>:
 
 
 >>

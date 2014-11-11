@@ -4,7 +4,8 @@ public enum BuiltinType implements Type {
 	STRING("string"),
 	NUMBER("number"),
 	BOOLEAN("boolean"),
-	NULL("null");
+	NULL("null"),
+	VOID("void");
 	
 	String name;
 	private BuiltinType(String name) {

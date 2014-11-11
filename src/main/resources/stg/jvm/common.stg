@@ -179,5 +179,28 @@ load(value) ::= <%
 typeMap ::= [
 	"string": "Ljava/lang/String;",
 	"number": "D",
-    "boolean": "Z"
+    "boolean": "Z",
+    "void": "V",
+    "null": "V"
+]
+
+doreturn(type) ::= <<
+<returnValueMap.(type)>
+<returnTypeMap.(type)>
+>>
+
+returnValueMap ::= [
+	"string": "aconst_null",
+	"number": "ldc2_w 0.0",
+    "boolean": "iconst_0",
+    "void": "return",
+    "null": "return"
+]
+
+returnTypeMap ::= [
+	"string": "areturn",
+	"number": "dreturn",
+    "boolean": "ireturn",
+    "void": "return",
+    "null": "return"
 ]

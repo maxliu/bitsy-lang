@@ -1,4 +1,4 @@
-file(fileName, strings, scope, block) ::= <<
+file(fileName, strings, functions, block, localCount) ::= <<
 .class public <fileName>
 .super java/lang/Object
 
@@ -8,9 +8,11 @@ file(fileName, strings, scope, block) ::= <<
     return
 .end method
 
+<functions:{f | <f>}; separator="\n">
+
 .method public static main([Ljava/lang/String;)V
     .limit stack 10  
-    .limit locals <scope.localCount>
+    .limit locals <localCount>
     <block>
     return
 .end method

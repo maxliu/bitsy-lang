@@ -96,6 +96,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         st.add("functions", functions);
         Scope blockScope = symbolTable.scopes.get(ctx.block());
         st.add("block", visit(ctx.block()));
+        st.add("localCount", currentScope.getLocalCount() + 1);
     	return st.render();
     }
     
@@ -176,6 +177,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 					"but got "+argCount+"in "+fileName+ ".bit on line: "+
 					ctx.start.getLine());
 		}
+		st.add("className", function.getClassName());
 		st.add("returnType", function.getReturnType());
 		st.add("id", id);
 		st.add("arguments", arguments);
@@ -543,12 +545,13 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         String id = ctx.IDENTIFIER().getText();
         Function function = symbolTable.functions.get(id);
         currentScope = symbolTable.scopes.get(ctx);
+	    st.add("className", fileName);
 	    st.add("id", id);
 	    st.add("arguments", function.getArguments());
 	    BlockContext block = ctx.block();
 	    st.add("block", visit(block));
 	    st.add("returnType",  function.getReturnType());
-	    st.add("scope", symbolTable.scopes.get(block));
+	    st.add("localCount", currentScope.getLocalCount());
         result.append(st.render());
         functions.add(result.toString());
         currentScope = currentScope.getEnclosingScope();

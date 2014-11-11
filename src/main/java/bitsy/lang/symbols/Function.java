@@ -5,12 +5,14 @@ import java.util.Map;
 
 import bitsy.antlr4.BitsyParser.FunctionDeclContext;
 import bitsy.antlr4.BitsyParser.ReturnStatementContext;
+import bitsy.lang.FilenameUtil;
 
 public class Function {
 	FunctionDeclContext ctx;
 	BuiltinType returnType;
 	String id;
 	String sourceName;
+	String className;
 	Map<String, BuiltinType> arguments = new LinkedHashMap<String, BuiltinType>();
 	
 	public Function(String id, FunctionDeclContext ctx, BuiltinType returnType, String sourceName) {
@@ -18,6 +20,7 @@ public class Function {
 		this.ctx = ctx;
 		this.returnType = returnType;
 		this.sourceName = sourceName;
+		this.className = FilenameUtil.getFilenameAndExtenion(sourceName)[0];
 	}
 	public void addArgument(String argument, BuiltinType argumentType) {
 		arguments.put(argument, argumentType);
@@ -32,6 +35,10 @@ public class Function {
 			return BuiltinType.NULL;
 		}
 		return returnType;
+	}
+	
+	public String getClassName() {
+		return className;
 	}
 	
 	public void checkReturnType(BuiltinType returnType, ReturnStatementContext ctx) {

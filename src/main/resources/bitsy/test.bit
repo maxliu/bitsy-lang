@@ -1,4 +1,4 @@
-/*
+/**/
 a = "test"
 b = "3.3"
 c = 3.3
@@ -217,7 +217,7 @@ i = 1
 while i < 10
 	i = i + 1
 assert i == 10
-*/
+
 def factorial(f:number):number
 	if f < 2
 		return 1
@@ -225,4 +225,5 @@ def factorial(f:number):number
 		return f * factorial(f - 1)
 	
 assert factorial(4) == 24
+
 println "All Passed"
