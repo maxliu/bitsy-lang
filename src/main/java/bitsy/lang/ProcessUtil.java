@@ -22,6 +22,7 @@ public class ProcessUtil {
 				String line = null;
 				while ((line = br.readLine()) != null) {
 					System.out.println(type + ">" + line);
+					System.out.flush();
 				}
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
@@ -31,6 +32,7 @@ public class ProcessUtil {
 	
 	public static int run(String cmd) {
     	System.out.println(cmd);
+    	System.out.flush();
     	int result;
     	try {
         	Runtime rt = Runtime.getRuntime();
@@ -41,6 +43,7 @@ public class ProcessUtil {
     		outputGobbler.start();
             result = proc.waitFor();
             System.out.println("Returned: "+result);
+            System.out.flush();
     	} catch (IOException | InterruptedException e) {
     	    e.printStackTrace();
     	    result = -1;

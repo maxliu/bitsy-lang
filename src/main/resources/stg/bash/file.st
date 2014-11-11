@@ -1,6 +1,7 @@
-file(fileName, strings, scope, block) ::= <<
+file(fileName, strings, functions, block) ::= <<
 #!/bin/bash
 
+<functions:{f | <f>}; separator="\n">
 main() {
 	<block>
 }

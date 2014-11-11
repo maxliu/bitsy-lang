@@ -1,4 +1,4 @@
-whileStatement(valBlock, value, register, block, label, scope) ::= <<
+whileStatement(valBlock, value, block, label, register) ::= <<
 <valBlock>
 while [[ $r<register> == true ]]
 do

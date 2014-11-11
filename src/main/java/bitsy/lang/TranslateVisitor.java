@@ -96,7 +96,6 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
         st.add("functions", functions);
         Scope blockScope = symbolTable.scopes.get(ctx.block());
         st.add("block", visit(ctx.block()));
-        st.add("scope", blockScope);
     	return st.render();
     }
     
@@ -572,7 +571,6 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 		st.add("fromVal", from);
 		st.add("toVal", to);
 		st.add("register", currentScope.getRegister());
-		st.add("scope", currentScope);
 		st.add("label", currentScope.getNextLabel());
 		st.add("block", visit(ctx.block()));
 		result.append(st.render());
@@ -588,7 +586,6 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
 		st.add("value", values.get(ctx.expression()));
 		st.add("block", visit(ctx.block()));
 		st.add("label", currentScope.getNextLabel());
-		st.add("scope", currentScope);
 		return st.render();
 	}
 	

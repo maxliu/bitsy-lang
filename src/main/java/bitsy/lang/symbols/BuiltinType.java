@@ -27,4 +27,8 @@ public enum BuiltinType implements Type {
 		}
 		return null;
 	}
+	
+	public boolean isNull() {
+		return this == NULL;
+	}
 }

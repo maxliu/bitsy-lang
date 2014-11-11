@@ -1,4 +1,5 @@
 identifierFunctionCall(returnType, id, arguments, register) ::= <<
-%r<register> = call <typeMap.(returnType)> (<typeList(arguments)>)* @<id>(<argsList(arguments)>)
+<loadList(arguments, register)>
+<if(!returnType.null)>%r<register> = <endif>call <typeMap.(returnType)> (<typeList(arguments)>)* @<id>(<argsList(arguments, register)>)
 
 >>

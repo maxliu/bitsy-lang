@@ -13,9 +13,10 @@ public class Function {
 	String sourceName;
 	Map<String, BuiltinType> arguments = new LinkedHashMap<String, BuiltinType>();
 	
-	public Function(String id, FunctionDeclContext ctx, String sourceName) {
+	public Function(String id, FunctionDeclContext ctx, BuiltinType returnType, String sourceName) {
 		this.id = id;
 		this.ctx = ctx;
+		this.returnType = returnType;
 		this.sourceName = sourceName;
 	}
 	public void addArgument(String argument, BuiltinType argumentType) {
@@ -33,7 +34,7 @@ public class Function {
 		return returnType;
 	}
 	
-	public void setReturnType(BuiltinType returnType, ReturnStatementContext ctx) {
+	public void checkReturnType(BuiltinType returnType, ReturnStatementContext ctx) {
 		if ( (returnType == null && this.returnType != null) ||
 			 (this.returnType != null && !returnType.equals(this.returnType)) ) 
 		{
@@ -41,6 +42,5 @@ public class Function {
 					id+ " expected "+getReturnType()+" but got "+returnType+
 					" in "+sourceName+" on line: "+ctx.start.getLine());
 		}
-		this.returnType = returnType;
 	}
 }

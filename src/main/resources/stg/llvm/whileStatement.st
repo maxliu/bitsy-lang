@@ -1,9 +1,9 @@
-whileStatement(valBlock, value, block, label, scope) ::= <<
+whileStatement(valBlock, value, block, label, register) ::= <<
 br label %whileStatement<label>
 whileStatement<label>:
 	<valBlock>
-	<compareValToZero(value, scope)>
-	br i1 %c<scope.register>, label %whileLoop<label>, label %endWhileLoop<label>
+	<compareValToZero(value, register)>
+	br i1 %c<register>, label %whileLoop<label>, label %endWhileLoop<label>
 	whileLoop<label>:
 	<block>
 	br label %whileStatement<label>

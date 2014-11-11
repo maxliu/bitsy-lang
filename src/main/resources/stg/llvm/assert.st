@@ -1,6 +1,6 @@
 assert(value, scope, label, message, line) ::= <<
  ; assert line <line>
-<compareValToZero(value, scope)>
+<compareValToZero(value, scope.register)>
 br i1 %c<scope.register>, label %endif<label>, label %true<label>
 true<label>:
 	<println(message, scope)>

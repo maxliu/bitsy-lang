@@ -1,4 +1,4 @@
-forStatement(id, symbol, fromVal, toVal, block, scope, label, register) ::= <<
+forStatement(id, symbol, fromVal, toVal, block, label, register) ::= <<
 ; forStatement <id> <fromVal> <toVal>
 <load(fromVal)>
 dstore <symbol.local>

@@ -3,6 +3,7 @@ define <typeMap.(returnType)> @<id>(<arguments.keys:{param | <typeMap.(arguments
 	<arguments:{param | %<bitsyVariable(param)> = alloca <typeMap.(arguments.(param))>}; separator="\n">
 	<arguments:{param | store <typeMap.(arguments.(param))> %<param>, <typeMap.(arguments.(param))>* %<bitsyVariable(param)>}; separator="\n">
 	<block>
+	ret <typeMap.(returnType)> <returnMap.(returnType)>
 }
 
 >> 

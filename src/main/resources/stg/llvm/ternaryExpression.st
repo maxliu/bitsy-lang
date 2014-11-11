@@ -1,6 +1,6 @@
 ternaryExpression(value, trueBlock, trueVal, falseBlock, falseVal, scope, label) ::= <<
 ; ternaryExpression 
-<compareValToZero(value, scope)>
+<compareValToZero(value, scope.register)>
 %t<scope.register> = alloca <typeMap.(trueVal.type)>
 br i1 %c<scope.register>, label %true<label>, label %false<label>
 true<label>: 

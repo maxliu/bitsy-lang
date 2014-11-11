@@ -8,7 +8,6 @@ import static bitsy.lang.symbols.BuiltinType.STRING;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
-import org.antlr.v4.runtime.tree.TerminalNode;
 
 import bitsy.antlr4.BitsyBaseListener;
 import bitsy.antlr4.BitsyParser.AddExpressionContext;
@@ -22,6 +21,7 @@ import bitsy.antlr4.BitsyParser.EqExpressionContext;
 import bitsy.antlr4.BitsyParser.ExpressionContext;
 import bitsy.antlr4.BitsyParser.ExpressionExpressionContext;
 import bitsy.antlr4.BitsyParser.ForStatementContext;
+import bitsy.antlr4.BitsyParser.FunctionCallExpressionContext;
 import bitsy.antlr4.BitsyParser.FunctionDeclContext;
 import bitsy.antlr4.BitsyParser.GtEqExpressionContext;
 import bitsy.antlr4.BitsyParser.GtExpressionContext;
@@ -75,11 +75,11 @@ public class SymbolListener extends BitsyBaseListener {
 		while (parentCtx != null && !(parentCtx instanceof FunctionDeclContext)) {
 			parentCtx = parentCtx.getParent();
 		}
-		if (parentCtx != null) {
+		if (parentCtx != null && !(ctx.expression() instanceof FunctionCallExpressionContext)) {
 			BuiltinType returnType = resultTypes.get(ctx.expression());
 			resultTypes.put(parentCtx, returnType);
 			String id = ((FunctionDeclContext) parentCtx).IDENTIFIER().getText();
-			symbolTable.functions.get(id).setReturnType(returnType, ctx);
+			symbolTable.functions.get(id).checkReturnType(returnType, ctx);
 		}
 	}
 	
@@ -87,31 +87,54 @@ public class SymbolListener extends BitsyBaseListener {
 	public void enterFunctionDecl(@NotNull FunctionDeclContext ctx) {
 		currentScope = new FunctionScope(currentScope);
 		symbolTable.scopes.put(ctx, currentScope);
-		
+		BuiltinType returnType = BuiltinType.fromString(ctx.type().getText());
 		String id = ctx.IDENTIFIER().getText();
+		if (returnType == null) {
+			throw new RuntimeException("Invalid return type "+ctx.type().getText()+
+					" for function name "+id+" in "+sourceName+
+					" on line "+ctx.start.getLine());
+		}
 		if (symbolTable.functions.containsKey(id)) {
 			throw new RuntimeException("Duplicate function name "+id+" in "+sourceName+
 					" on line "+ctx.start.getLine());
 		}
-		Function function = new Function(id, ctx, sourceName);
+		Function function = new Function(id, ctx, returnType, sourceName);
+		resultTypes.put(ctx, returnType);
 		symbolTable.functions.put(id, function);
-		
-		for (ArgumentContext acx: ctx.argumentList().argument() ) {
-			try {
-				String argument = acx.IDENTIFIER().getText();
-				BuiltinType argumentType = BuiltinType.fromString(acx.type().getText());
-				if (argumentType == null) {
-					throw new RuntimeException("Invalid type "+ acx.type().getText() +
-							" for function declaration "+ id +" in "+
+		if (ctx.argumentList() != null) {
+			for (ArgumentContext acx: ctx.argumentList().argument() ) {
+				try {
+					String argument = acx.IDENTIFIER().getText();
+					BuiltinType argumentType = BuiltinType.fromString(acx.type().getText());
+					if (argumentType == null) {
+						throw new RuntimeException("Invalid type "+ acx.type().getText() +
+								" for function declaration "+ id +" in "+
+		        				sourceName+" on line: "+ctx.start.getLine());
+					}
+					function.addArgument(argument, argumentType);
+					define(argument, argumentType);
+				} catch (SymbolException se) {
+	        		throw new RuntimeException("Duplicate variables in the parameters in "+
 	        				sourceName+" on line: "+ctx.start.getLine());
-				}
-				function.addArgument(argument, argumentType);
-				define(argument, argumentType);
-			} catch (SymbolException se) {
-        		throw new RuntimeException("Duplicate variables in the parameters in "+
-        				sourceName+" on line: "+ctx.start.getLine());
-        	}
+	        	}
+			}
 		}
+	}
+	
+	@Override
+	public void exitFunctionCallExpression(@NotNull FunctionCallExpressionContext ctx) {
+		resultTypes.put(ctx, resultTypes.get(ctx.functionCall()));
+	}
+	
+	@Override
+	public void exitIdentifierFunctionCall(@NotNull IdentifierFunctionCallContext ctx) {
+		String id = ctx.IDENTIFIER().getText();
+		Function function = symbolTable.functions.get(id);
+		if (function == null) {
+			throw new RuntimeException("Undefined function call to "+id+" in "+
+    				sourceName+" on line: "+ctx.start.getLine());
+		}
+		resultTypes.put(ctx, function.getReturnType());
 	}
 	
 	@Override

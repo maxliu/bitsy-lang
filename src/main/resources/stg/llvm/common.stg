@@ -43,25 +43,25 @@ compareRegToZero(prefix, value, register, lastRegister, op="eq") ::= <<
 <endif>
 >>
 
-compareValToZero(value, scope) ::= <<
+compareValToZero(value, register) ::= <<
 <if(value.symbol)>
 <if(value.boolean)>
-%r<scope.nextRegister> = load i1* %<bitsyVariable(value)>
-%c<scope.register> = icmp ne i1 %r<scope.register>, 0<elseif(value.number)>
-%r<scope.nextRegister> = load double* %<bitsyVariable(value)>
-%c<scope.register> = fcmp une double %r<scope.register>, 0.0<else>
-%r<scope.nextRegister> = load i8** %<bitsyVariable(value)>
-%r<scope.nextRegister> = load i8* %r<scope.lastRegister>
-%c<scope.register> = icmp ne i8 %r<scope.register>, 0<endif>
+%r<register> = load i1* %<bitsyVariable(value)>
+%c<register> = icmp ne i1 %r<register>, 0<elseif(value.number)>
+%r<register> = load double* %<bitsyVariable(value)>
+%c<register> = fcmp une double %r<register>, 0.0<else>
+%r<register> = load i8** %<bitsyVariable(value)>
+%s<register> = load i8* %r<register>
+%c<register> = icmp ne i8 %s<register>, 0<endif>
 <elseif(value.reference)>
 <if(value.boolean)>
-%c<scope.nextRegister> = icmp ne i1 %r<value>, 0<elseif(value.number)>
-%c<scope.nextRegister> = fcmp une double %r<value>, 0.0<else>
-%r<scope.nextRegister> = load i8* %r<value>
-%c<scope.register> = icmp ne i8 %r<scope.register>, 0<endif>
+%c<register> = icmp ne i1 %r<value>, 0<elseif(value.number)>
+%c<register> = fcmp une double %r<value>, 0.0<else>
+%s<register> = load i8* %r<value>
+%c<register> = icmp ne i8 %s<register>, 0<endif>
 <else>
-%r<scope.nextRegister> = add i1 0, <value.toBoolean>
-%c<scope.register> = icmp ne i1 %r<scope.register>, 0<endif>
+%r<register> = add i1 0, <value.toBoolean>
+%c<register> = icmp ne i1 %r<register>, 0<endif>
 >>
 
 opMap ::= [
@@ -76,7 +76,14 @@ typeMap ::= [
     "string": "i8*",
     "number": "double",
     "boolean": "i1",
-    "void": "void"
+    "null": "void"
+]
+
+returnMap ::= [
+	"string": "0",
+	"number": "0.0",
+	"boolean": "0",
+	"null": ""
 ]
 
 storeResult(value, prefix, register, temp="tmp") ::= <<
@@ -94,12 +101,20 @@ store i1 <value>, i1* %<prefix><register>
 <endif>
 >>
 
+prefixIndex(prefix, index) ::= <%
+<prefix><index>_
+%>
+
+loadList(args, register) ::= <%
+<args:{arg | <loadOperand(arg, register, prefixIndex("args",i))>}; separator="\n">
+%>
+
 typeList(args) ::= <%
 <args:{arg | <typeMap.(arg.type)>}; separator=", ">
 %>
 
-argsList(args) ::= <%
-<args:{arg | <typeMap.(arg.type)> <argRegister(arg, "r", arg.register)>}; separator=", ">
+argsList(args, register) ::= <%
+<args:{arg | <typeMap.(arg.type)> <argRegister(arg, prefixIndex("args", i), register)>}; separator=", ">
 %>
 
 args(lval, rval, scope) ::= <%
