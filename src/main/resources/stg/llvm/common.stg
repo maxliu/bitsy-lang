@@ -15,6 +15,12 @@ store double <argRegister(value, prefixIndex("item", i), register)>, double* %it
 store i32 0, i32* %item<register>_type_<i>
 %item<register>_value_union_<i> = bitcast %union.Value* %item<register>_value_<i> to i8**
 store i8* <argRegister(value, prefixIndex("item", i), register)>, i8** %item<register>_value_union_<i>
+<elseif(value.list)>
+store i32 5, i32* %item<register>_type_<i>
+%item<register>_value_union_<i> = bitcast %union.Value* %item<register>_value_<i> to %struct.List**
+store %struct.List* <argRegister(value, prefixIndex("item", i), register)>, %struct.List** %item<register>_value_union_<i>
+<else>
+store i32 3, i32* %item<register>_type_<i>
 <endif>
 >>
 
