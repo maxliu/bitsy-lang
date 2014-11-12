@@ -4,7 +4,10 @@ import static bitsy.lang.symbols.BuiltinType.BOOLEAN;
 import static bitsy.lang.symbols.BuiltinType.NULL;
 import static bitsy.lang.symbols.BuiltinType.NUMBER;
 import static bitsy.lang.symbols.BuiltinType.STRING;
+import static bitsy.lang.symbols.BuiltinType.LIST;
+import static bitsy.lang.symbols.BuiltinType.MAP;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
@@ -27,6 +30,8 @@ import bitsy.antlr4.BitsyParser.GtEqExpressionContext;
 import bitsy.antlr4.BitsyParser.GtExpressionContext;
 import bitsy.antlr4.BitsyParser.IdentifierExpressionContext;
 import bitsy.antlr4.BitsyParser.IdentifierFunctionCallContext;
+import bitsy.antlr4.BitsyParser.ListContext;
+import bitsy.antlr4.BitsyParser.ListExpressionContext;
 import bitsy.antlr4.BitsyParser.LtEqExpressionContext;
 import bitsy.antlr4.BitsyParser.LtExpressionContext;
 import bitsy.antlr4.BitsyParser.ModulusExpressionContext;
@@ -49,9 +54,7 @@ import bitsy.lang.symbols.FunctionScope;
 import bitsy.lang.symbols.LocalScope;
 import bitsy.lang.symbols.Scope;
 import bitsy.lang.symbols.Symbol;
-import bitsy.lang.symbols.SymbolException;
 import bitsy.lang.symbols.SymbolTable;
-import bitsy.lang.symbols.Type;
 
 public class SymbolListener extends BitsyBaseListener {
 	SymbolTable symbolTable;
@@ -66,16 +69,13 @@ public class SymbolListener extends BitsyBaseListener {
 		this.resultTypes = symbolTable.resultTypes;
 	}
 	
-	private void define(String id, Type type) throws SymbolException {
-		currentScope.define(new Symbol(id, type));
+	private void define(String id, BuiltinType type, ParserRuleContext ctx) {
+		currentScope.define(new Symbol(id, type, sourceName, ctx.start.getLine()));
 	}
 	
 	@Override
 	public void enterParse(@NotNull ParseContext ctx) {
-		try {
-			define("args", BuiltinType.STRING);
-		} catch (SymbolException e) {
-		}
+		define("args", BuiltinType.STRING, ctx);
 	}
 	
 	@Override
@@ -115,20 +115,15 @@ public class SymbolListener extends BitsyBaseListener {
 		symbolTable.functions.put(id, function);
 		if (ctx.argumentList() != null) {
 			for (ArgumentContext acx: ctx.argumentList().argument() ) {
-				try {
-					String argument = acx.IDENTIFIER().getText();
-					BuiltinType argumentType = BuiltinType.fromString(acx.type().getText());
-					if (argumentType == null) {
-						throw new RuntimeException("Invalid type "+ acx.type().getText() +
-								" for function declaration "+ id +" in "+
-		        				sourceName+" on line: "+ctx.start.getLine());
-					}
-					function.addArgument(argument, argumentType);
-					define(argument, argumentType);
-				} catch (SymbolException se) {
-	        		throw new RuntimeException("Duplicate variables in the parameters in "+
+				String argument = acx.IDENTIFIER().getText();
+				BuiltinType argumentType = BuiltinType.fromString(acx.type().getText());
+				if (argumentType == null) {
+					throw new RuntimeException("Invalid type "+ acx.type().getText() +
+							" for function declaration "+ id +" in "+
 	        				sourceName+" on line: "+ctx.start.getLine());
-	        	}
+				}
+				function.addArgument(argument, argumentType);
+				define(argument, argumentType, ctx);
 			}
 		}
 	}
@@ -322,6 +317,8 @@ public class SymbolListener extends BitsyBaseListener {
 		resultTypes.put(ctx, NULL);
 	}
 	
+	
+	
 	@Override
 	public void exitIdentifierExpression(@NotNull IdentifierExpressionContext ctx) {
 		String id = ctx.IDENTIFIER().getText();
@@ -339,6 +336,11 @@ public class SymbolListener extends BitsyBaseListener {
 	}
 	
 	@Override
+	public void exitListExpression(@NotNull ListExpressionContext ctx) {
+		resultTypes.put(ctx, LIST);
+	}
+	
+	@Override
 	public void exitExpressionExpression(
 			@NotNull ExpressionExpressionContext ctx) {
 		resultTypes.put(ctx, resultTypes.get(ctx.expression()));
@@ -348,21 +350,12 @@ public class SymbolListener extends BitsyBaseListener {
 	public void exitAssignment(@NotNull AssignmentContext ctx) {
 		String id = ctx.IDENTIFIER().getText();
 		ExpressionContext ex = ctx.expression();
-		try {
-			define(id, resultTypes.get(ex));
-		} catch (SymbolException se) {
-			throw new RuntimeException("Symbol type redefinition for "+id+
-				"in "+sourceName+" line:"+ctx.start.getLine());
-		}
+		define(id, resultTypes.get(ex), ctx);
 	}
 	
 	@Override
 	public void enterForStatement(@NotNull ForStatementContext ctx) {
 		String id = ctx.IDENTIFIER().getText();
-		try {
-			define(id, BuiltinType.NUMBER);
-		} catch (SymbolException se) {
-			throw new RuntimeException("Symbol type redefinition for "+id+" line:"+ctx.start.getLine());
-		}
+		define(id, BuiltinType.NUMBER, ctx);
 	}
 }

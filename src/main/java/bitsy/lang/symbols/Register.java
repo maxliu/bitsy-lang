@@ -1,12 +1,22 @@
 package bitsy.lang.symbols;
 
 public class Register {
-	public Type type;
+	public BuiltinType type;
 	private int register;
+	private int size;
 	
-	public Register(int register, Type type) {
+	public Register(int register, BuiltinType type) {
+		this(register, type, 0);
+	}
+	
+	public Register(int register, BuiltinType type, int size) {
 		this.register = register;
 		this.type = type;
+		this.size = size;
+	}
+	
+	public int getSize() {
+		return size;
 	}
 	
 	public void setRegister(int register) {
@@ -17,7 +27,7 @@ public class Register {
 		return register;
 	}
 	
-	public void setType(Type type) {
+	public void setType(BuiltinType type) {
 		this.type = type;
 	}
 	
@@ -31,5 +41,13 @@ public class Register {
 	
 	public boolean isBoolean() {
 		return type == BuiltinType.BOOLEAN;
+	}
+	
+	public boolean isList() {
+		return type == BuiltinType.LIST;
+	}
+	
+	public boolean isMap() {
+		return type == BuiltinType.MAP;
 	}
 }

@@ -1,11 +1,13 @@
 package bitsy.lang.symbols;
 
-public enum BuiltinType implements Type {
+public enum BuiltinType {
 	STRING("string"),
 	NUMBER("number"),
 	BOOLEAN("boolean"),
 	NULL("null"),
-	VOID("void");
+	VOID("void"),
+	LIST("list"),
+	MAP("map");
 	
 	String name;
 	private BuiltinType(String name) {

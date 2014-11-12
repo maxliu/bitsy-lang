@@ -3,16 +3,16 @@ package bitsy.lang.symbols;
 public class Symbol extends Register {
 	public String name;      // All symbols at least have a name
     public Scope scope;      // All symbols know what scope contains them.
+    public String sourceName;
+    public int line;
     int local;
     
-    public Symbol(String name) { 
-    	this(name, null); 
-    }
-    
-	public Symbol(String name, Type type) {
+	public Symbol(String name, BuiltinType type, String sourceName, int line) {
 		super(0, type);
 		this.name = name;
 		this.type = type;
+		this.sourceName = sourceName;
+		this.line = line;
 	}
 
 	public String getName() {

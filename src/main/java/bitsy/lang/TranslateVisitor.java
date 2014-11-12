@@ -32,6 +32,8 @@ import bitsy.antlr4.BitsyParser.IdentifierExpressionContext;
 import bitsy.antlr4.BitsyParser.IdentifierFunctionCallContext;
 import bitsy.antlr4.BitsyParser.IfStatContext;
 import bitsy.antlr4.BitsyParser.IfStatementContext;
+import bitsy.antlr4.BitsyParser.ListContext;
+import bitsy.antlr4.BitsyParser.ListExpressionContext;
 import bitsy.antlr4.BitsyParser.LtEqExpressionContext;
 import bitsy.antlr4.BitsyParser.LtExpressionContext;
 import bitsy.antlr4.BitsyParser.ModulusExpressionContext;
@@ -440,6 +442,25 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	String result = visit(ctx.functionCall());
     	values.put(ctx, values.get(ctx.functionCall()));
     	return result;
+    }
+    
+    @Override
+    public String visitListExpression(ListExpressionContext ctx) {
+    	StringBuilder result = new StringBuilder();
+    	ST st = group.getInstanceOf("listExpression");
+    	List<Value> list = new ArrayList<Value>();
+    	if (ctx.list().exprList() != null) {
+    		for (ExpressionContext ectx: ctx.list().exprList().expression()) {
+    			result.append(visit(ectx));
+    			list.add(values.get(ectx));
+    		}
+    	}
+    	st.add("register", currentScope.getNextRegister());
+    	st.add("list", list);
+    	result.append(st.render());
+    	Register ref = new Register(currentScope.getRegister(), BuiltinType.LIST, list.size());
+    	values.put(ctx, new Value(ref));
+    	return result.toString();
     }
     
     @Override

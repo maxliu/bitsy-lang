@@ -1,3 +1,24 @@
+addToList(register, i, length, value) ::= <<
+%item<register>_<i> = getelementptr inbounds [<length> x %struct.Object]* %r<register>, i32 0, i64 <i>
+%item<register>_type_<i> = getelementptr inbounds %struct.Object* %item<register>_<i>, i32 0, i32 0
+%item<register>_value_<i> = getelementptr inbounds %struct.Object* %item<register>_<i>, i32 0, i32 1
+<loadOperand(value, register, prefixIndex("item", i))>
+<if(value.boolean)> 
+store i32 2, i32* %item<register>_type_<i>
+%item<register>_value_union_<i> = bitcast %union.Value* %item<register>_value_<i> to i32*
+store i32 <argRegister(value, prefixIndex("item", i), register)>, i32* %item<register>_value_union_<i>
+<elseif(value.number)>
+store i32 1, i32* %item<register>_type_<i>
+%item<register>_value_union_<i> = bitcast %union.Value* %item<register>_value_<i> to double*
+store double <argRegister(value, prefixIndex("item", i), register)>, double* %item<register>_value_union_<i>
+<elseif(value.string)>
+store i32 0, i32* %item<register>_type_<i>
+%item<register>_value_union_<i> = bitcast %union.Value* %item<register>_value_<i> to i8*
+store i8* <argRegister(value, prefixIndex("item", i), register)>, i8** %item<register>_value_union_<i>
+<endif>
+>>
+
+
 bopExpression(lval, rval, scope, op) ::= <<
 <loadOperands(lval, rval, scope)>
 <if(lval.string&&rval.string)>
@@ -76,7 +97,8 @@ typeMap ::= [
     "string": "i8*",
     "number": "double",
     "boolean": "i1",
-    "null": "void"
+    "null": "void",
+    "list": "%struct.Object*"
 ]
 
 returnMap ::= [
@@ -142,6 +164,6 @@ loadBoolean(val, side, register) ::= "%<side><register> = load i1* %<bitsyVariab
 bitsyVariable(name) ::= "$<name>"
 symbolType(type) ::= "<typeMap.(type.name)>"
 llvmConstant(s) ::= <<[<(s.LLVMLength)> x i8] c"<s.LLVMString>">>
-llvmType(v) ::= "<if(v.number)><typeMap.number><elseif(v.boolean)><typeMap.boolean><else><typeMap.string><endif>"
+llvmType(v) ::= "<typeMap.(v.type)>"
 llvmValue(v) ::= "<if(v.reference)>%<v><elseif(v.string)><getString(v)><else><v><endif>"
 getString(s) ::= "getelementptr ([<s.LLVMLength> x i8]* @.str<s.register>, i32 0, i32 0)"

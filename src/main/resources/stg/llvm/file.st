@@ -1,4 +1,7 @@
 file(fileName, strings, functions, block, localCount) ::= <<
+%union.Value = type { double }
+%struct.Object = type { i32, %union.Value }
+
 <strings:{s | @.str<i> = internal constant <llvmConstant(s)>}; separator="\n">
 
 <functions:{f | <f>}; separator="\n">

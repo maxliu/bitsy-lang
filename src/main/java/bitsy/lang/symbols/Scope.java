@@ -41,7 +41,7 @@ public abstract class Scope {
 		return null;
 	}
 
-	public void define(Symbol symbol) throws SymbolException {
+	public void define(Symbol symbol)  {
 		Symbol existingSymbol = resolve(symbol.name);
 		Scope methodScope = getMethodScope();
 		
@@ -52,7 +52,9 @@ public abstract class Scope {
 		
 		// Attempting to change type of symbol in same scope
 		if (existingSymbol != null && symbol.type != null && symbol.type != existingSymbol.type) {
-			throw new SymbolException();
+			throw new RuntimeException("Attempt to define or redfine the type" +
+					"of a variable in "+
+    				symbol.sourceName+" on line: "+symbol.line);
 		}
 		
 		// New symbol

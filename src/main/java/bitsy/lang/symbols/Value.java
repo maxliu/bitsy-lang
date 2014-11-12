@@ -1,5 +1,8 @@
 package bitsy.lang.symbols;
 
+import java.util.List;
+import java.util.Map;
+
 public class Value {
 	public static final Value NULL = new Value();
 	public static final Value VOID = new Value();
@@ -45,6 +48,14 @@ public class Value {
     
     public boolean isBoolean() {
     	return value instanceof Boolean || (isReference() && asReference().isBoolean());
+    }
+    
+    public boolean isList() {
+    	return value instanceof List || (isReference() && asReference().isList());
+    }
+    
+    public boolean isMap() {
+    	return value instanceof Map || (isReference() && asReference().isMap());
     }
     
     public boolean isOnTrue() {
@@ -131,6 +142,17 @@ public class Value {
     	this.register = register;
     }
     
+    public int getSize() {
+    	if (isList()) {
+    		if (isReference()) {
+    			return asReference().getSize();
+    		} else {
+    			return ((List) value).size();
+    		}
+    	}
+    	return 0;
+    }
+    
     public String getToBoolean() {
     	if (isReference()) {
     		throw new RuntimeException("Not to be used for references");
@@ -149,8 +171,14 @@ public class Value {
     		return "number";
     	} else if (isBoolean()) {
     		return "boolean";
-    	} else {
+    	} else if (isString()){
     		return "string";
+    	} else if (isList()) {
+    		return "list";
+    	} else if (isMap()) {
+    		return "map";
+    	} else {
+    		return "null";
     	}
     }
     
@@ -159,8 +187,14 @@ public class Value {
     		return BuiltinType.NUMBER;
     	} else if (isBoolean()) {
     		return BuiltinType.BOOLEAN;
-    	} else {
+    	} else if (isString()){
     		return BuiltinType.STRING;
+    	} else if (isList()) {
+    		return BuiltinType.LIST;
+    	} else if (isMap()) {
+    		return BuiltinType.MAP;
+    	} else {
+    		return BuiltinType.NULL;
     	}
     }
 }

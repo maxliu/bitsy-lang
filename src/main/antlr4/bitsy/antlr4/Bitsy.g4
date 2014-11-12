@@ -137,6 +137,8 @@ type
  | 'boolean'
  | 'null'
  | 'void'
+ | 'list'
+ | 'map'
  ;
  
 argumentList
@@ -173,10 +175,16 @@ expression
  | BOOL   						            #boolExpression
  | NULL										#nullExpression
  | functionCall 						    #functionCallExpression
+ | list										#listExpression
  | IDENTIFIER   				            #identifierExpression
  | STRING 						            #stringExpression
  | '(' expression ')' 			            #expressionExpression
  ;
+ 
+list
+ : '[' exprList? ']'
+ | '{' exprList? '}'
+ ; 
 
 IF       : 'if';
 ELSE     : 'else'; 
