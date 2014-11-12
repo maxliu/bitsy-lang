@@ -1,5 +1,5 @@
 addToList(register, i, length, value) ::= <<
-%item<register>_<i> = getelementptr inbounds [<length> x %struct.Object]* %r<register>, i32 0, i64 <i>
+%item<register>_<i> = getelementptr inbounds [<length> x %struct.Object]* %item_array<register>, i32 0, i64 <i>
 %item<register>_type_<i> = getelementptr inbounds %struct.Object* %item<register>_<i>, i32 0, i32 0
 %item<register>_value_<i> = getelementptr inbounds %struct.Object* %item<register>_<i>, i32 0, i32 1
 <loadOperand(value, register, prefixIndex("item", i))>
@@ -13,7 +13,7 @@ store i32 1, i32* %item<register>_type_<i>
 store double <argRegister(value, prefixIndex("item", i), register)>, double* %item<register>_value_union_<i>
 <elseif(value.string)>
 store i32 0, i32* %item<register>_type_<i>
-%item<register>_value_union_<i> = bitcast %union.Value* %item<register>_value_<i> to i8*
+%item<register>_value_union_<i> = bitcast %union.Value* %item<register>_value_<i> to i8**
 store i8* <argRegister(value, prefixIndex("item", i), register)>, i8** %item<register>_value_union_<i>
 <endif>
 >>
@@ -42,6 +42,7 @@ loadOperand(val, register, prefix="r") ::= <%
 <if(val.symbol&&val.string)><loadString(val, prefix, register)>
 <elseif(val.symbol&&val.number)><loadNumber(val, prefix, register)>
 <elseif(val.symbol&&val.boolean)><loadBoolean(val, prefix, register)>
+<elseif(val.symbol&&val.list)>%<prefix><register> = load %struct.List** %<bitsyVariable(val)>
 <endif>
 %>
 
@@ -98,7 +99,7 @@ typeMap ::= [
     "number": "double",
     "boolean": "i1",
     "null": "void",
-    "list": "%struct.Object*"
+    "list": "%struct.List*"
 ]
 
 returnMap ::= [
@@ -159,7 +160,6 @@ loadNumber(val, side, register) ::= <%
 <endif>
 %>
 loadBoolean(val, side, register) ::= "%<side><register> = load i1* %<bitsyVariable(val)>"
-
 
 bitsyVariable(name) ::= "$<name>"
 symbolType(type) ::= "<typeMap.(type.name)>"

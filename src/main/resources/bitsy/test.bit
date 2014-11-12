@@ -227,7 +227,7 @@ def factorial(f:number):number
 assert factorial(4) == 24
 */
 
-a = [ true, true ]
+a = [ true, true, 1.2, "hello", false ]
 println a
 
 println "All Passed"

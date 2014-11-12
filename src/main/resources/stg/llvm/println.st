@@ -14,6 +14,8 @@ false<scope.register>:
     call i32 (i8 *, ...)* @printf(i8* getelementptr ([6 x i8]* @.false, i32 0, i32 0))
     br label %endif<scope.register>
 endif<scope.register>:
+<elseif(value.list)>
+call void @printList(%struct.List* <argRegister(value, "r", scope.register)>)
 <endif>
 call i32 (i8 *, ...)* @printf(i8* getelementptr ([2 x i8]* @.newline, i32 0, i32 0))
 >>
