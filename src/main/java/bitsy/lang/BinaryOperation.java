@@ -43,10 +43,10 @@ public enum BinaryOperation {
 	}), 
 	ADD(new BuiltinType[] {
 		//       S, 	 N, 		B,		L,		M
-		/* S */  STRING, STRING,	NULL,   NULL,	NULL,	
-		/* N */  STRING, NUMBER,	NULL,   NULL,	NULL,	
-		/* B */	 NULL,	 NULL,		NULL,   NULL,	NULL,
-		/* L */	 NULL,	 NULL,		NULL,	LIST,	NULL,
+		/* S */  STRING, STRING,	NULL,   LIST,	NULL,	
+		/* N */  STRING, NUMBER,	NULL,   LIST,	NULL,	
+		/* B */	 NULL,	 NULL,		NULL,   LIST,	NULL,
+		/* L */	 LIST,	 LIST,		LIST,	LIST,	NULL,
 		/* M */	 NULL,	 NULL,		NULL,	NULL,	MAP
 	}),
 	SUBTRACT(new BuiltinType[] {

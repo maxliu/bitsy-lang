@@ -364,4 +364,45 @@ define i1 @listsEqual(%struct.List* %list1, %struct.List* %list2) #0 {
   ret i1 %147
 }
 
+define void @listResize(%struct.List* %list, i32 %newsize) #0 {
+  %1 = alloca %struct.List*, align 8
+  %2 = alloca i32, align 4
+  store %struct.List* %list, %struct.List** %1, align 8
+  store i32 %newsize, i32* %2, align 4
+  %3 = load %struct.List** %1, align 8
+  %4 = getelementptr inbounds %struct.List* %3, i32 0, i32 1
+  %5 = load i32* %4, align 4
+  %6 = load %struct.List** %1, align 8
+  %7 = getelementptr inbounds %struct.List* %6, i32 0, i32 0
+  %8 = load i32* %7, align 4
+  %9 = load i32* %2, align 4
+  %10 = add nsw i32 %8, %9
+  %11 = icmp slt i32 %5, %10
+  br i1 %11, label %12, label %29
+
+; \<label>:12                                      ; preds = %0
+  %13 = load %struct.List** %1, align 8
+  %14 = getelementptr inbounds %struct.List* %13, i32 0, i32 2
+  %15 = load %struct.Object** %14, align 8
+  %16 = bitcast %struct.Object* %15 to i8*
+  %17 = load i32* %2, align 4
+  %18 = add nsw i32 %17, 10
+  %19 = sext i32 %18 to i64
+  %20 = mul i64 16, %19
+  %21 = call i8* @GC_realloc(i8* %16, i64 %20)
+  %22 = bitcast i8* %21 to %struct.Object*
+  %23 = load %struct.List** %1, align 8
+  %24 = getelementptr inbounds %struct.List* %23, i32 0, i32 2
+  store %struct.Object* %22, %struct.Object** %24, align 8
+  %25 = load i32* %2, align 4
+  %26 = add nsw i32 %25, 10
+  %27 = load %struct.List** %1, align 8
+  %28 = getelementptr inbounds %struct.List* %27, i32 0, i32 1
+  store i32 %26, i32* %28, align 4
+  br label %29
+
+; \<label>:29                                      ; preds = %12, %0
+  ret void
+}
+
 >>
