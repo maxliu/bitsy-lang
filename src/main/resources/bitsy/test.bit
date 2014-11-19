@@ -238,4 +238,5 @@ ld = [ true, 1.2, "hello", false, null,  [ true ] ]
 assert lc == ld
 assert la != lb
 
+le = lc + "hello"
 println "All Passed"

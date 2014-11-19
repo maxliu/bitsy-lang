@@ -405,4 +405,39 @@ define void @listResize(%struct.List* %list, i32 %newsize) #0 {
   ret void
 }
 
+define void @addStringToList(%struct.List* %list, i8* %string) #0 {
+  %1 = alloca %struct.List*, align 8
+  %2 = alloca i8*, align 8
+  %size = alloca i32, align 4
+  store %struct.List* %list, %struct.List** %1, align 8
+  store i8* %string, i8** %2, align 8
+  %3 = load %struct.List** %1, align 8
+  %4 = getelementptr inbounds %struct.List* %3, i32 0, i32 0
+  %5 = load i32* %4, align 4
+  store i32 %5, i32* %size, align 4
+  %6 = load %struct.List** %1, align 8
+  %7 = load i32* %size, align 4
+  %8 = add nsw i32 %7, 1
+  call void @listResize(%struct.List* %6, i32 %8)
+  %9 = load i32* %size, align 4
+  %10 = sext i32 %9 to i64
+  %11 = load %struct.List** %1, align 8
+  %12 = getelementptr inbounds %struct.List* %11, i32 0, i32 2
+  %13 = load %struct.Object** %12, align 8
+  %14 = getelementptr inbounds %struct.Object* %13, i64 %10
+  %15 = getelementptr inbounds %struct.Object* %14, i32 0, i32 0
+  store i32 0, i32* %15, align 4
+  %16 = load i8** %2, align 8
+  %17 = load i32* %size, align 4
+  %18 = sext i32 %17 to i64
+  %19 = load %struct.List** %1, align 8
+  %20 = getelementptr inbounds %struct.List* %19, i32 0, i32 2
+  %21 = load %struct.Object** %20, align 8
+  %22 = getelementptr inbounds %struct.Object* %21, i64 %18
+  %23 = getelementptr inbounds %struct.Object* %22, i32 0, i32 1
+  %24 = bitcast %union.Value* %23 to i8**
+  store i8* %16, i8** %24, align 8
+  ret void
+}
+
 >>
