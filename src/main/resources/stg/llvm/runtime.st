@@ -21,6 +21,9 @@ declare double @atof(i8*)
 declare void @exit(i32)
 declare double @fmod(double, double)
 declare double @pow(double, double)
+declare void @GC_init(...)
+declare i8* @GC_malloc(i64)
+declare i8* @GC_realloc(i8*, i64)
 
 define void @printList(%struct.List* %list) #0 {
   %1 = alloca %struct.List*, align 8

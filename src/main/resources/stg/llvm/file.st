@@ -7,6 +7,7 @@ file(fileName, strings, functions, block, localCount) ::= <<
 
 <functions:{f | <f>}; separator="\n">
 define i32 @main() {
+	call void (...)* @GC_init()
     <block>
     ret i32 0;
 }

@@ -84,7 +84,8 @@ public class Bitsy {
         if (run("llc "+bcFile) != 0) return;
         bcFile.delete();
         String exeFile = FilenameUtil.getFilenameAndExtenion(sourceName)[0];
-        if (run("clang -o "+exeFile+" "+sFile) != 0) return;
+        String gcDir = System.getenv("GC_DIR"); //eg. /usr/local/Cellar/bdw-gc/7.4.2
+        if (run("clang -o "+exeFile+" "+gcDir+"/lib/libgc.a "+sFile) != 0) return;
         sFile.delete();
         System.out.println(">>> Created native file "+exeFile);
         run("./"+exeFile);

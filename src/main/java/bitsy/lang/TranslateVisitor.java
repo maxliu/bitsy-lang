@@ -457,6 +457,7 @@ public class TranslateVisitor extends BitsyBaseVisitor<String> {
     	}
     	st.add("register", currentScope.getNextRegister());
     	st.add("list", list);
+    	st.add("listBytes", (list.size()+1) * 16);
     	result.append(st.render());
     	Register ref = new Register(currentScope.getRegister(), BuiltinType.LIST, list.size());
     	values.put(ctx, new Value(ref));
