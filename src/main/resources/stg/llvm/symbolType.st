@@ -1,0 +1,1 @@
+symbolType(type) ::= "<typeMap.(type.name)>"

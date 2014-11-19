@@ -1,0 +1,1 @@
+prefixIndex(prefix, index) ::= "<prefix><index>_"

@@ -4,10 +4,10 @@ public enum BuiltinType {
 	STRING("string"),
 	NUMBER("number"),
 	BOOLEAN("boolean"),
-	NULL("null"),
-	VOID("void"),
 	LIST("list"),
-	MAP("map");
+	MAP("map"),
+	NULL("null"),
+	VOID("void");
 	
 	String name;
 	private BuiltinType(String name) {

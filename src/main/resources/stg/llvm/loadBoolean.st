@@ -1,0 +1,1 @@
+loadBoolean(val, side, register) ::= "%<side><register> = load i1* %<bitsyVariable(val)>"

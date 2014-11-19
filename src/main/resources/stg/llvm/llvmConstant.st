@@ -1,0 +1,1 @@
+llvmConstant(s) ::= <<[<(s.LLVMLength)> x i8] c"<s.LLVMString>">>

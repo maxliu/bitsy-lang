@@ -29,6 +29,15 @@ eqExpression(lval, rval, scope) ::= << ; EQ EXPR [<lval.type> <rval.type>]
 %l<scope.register> = icmp ne i64 %r<scope.register>, 0
 %r<scope.nextRegister> = icmp eq i1 %l<scope.lastRegister>, <argRegister(lval,"lval",scope.lastRegister)>
 <elseif(lval.boolean&&rval.boolean)>
-%r<scope.nextRegister> = icmp eq i1 <argRegister(lval,"lval",scope.lastRegister)>, <argRegister(rval,"rval",scope.lastRegister)> 
+%r<scope.nextRegister> = icmp eq i1 <argRegister(lval,"lval",scope.lastRegister)>, <argRegister(rval,"rval",scope.lastRegister)>
+<elseif(lval.list&&rval.boolean)>
+%sizeptr<scope.register> = getelementptr inbounds %struct.List* %lval<scope.register>, i32 0, i32 0
+%size<scope.register> = load i32* %sizeptr<scope.register>
+%c<scope.register> = icmp sgt i32 %size<scope.register>, 0
+%r<scope.nextRegister> = icmp eq i1 %c<scope.lastRegister>, <argRegister(rval,"rval",scope.lastRegister)>
+<elseif(lval.boolean&&rval.list)>
+%size<scope.register> = getelementptr inbounds %struct.List* %rval<scope.register>, i32 0, i32 0
+%c<scope.register> = icmp sgt i32 %size<scope.register>, 0
+%r<scope.nextRegister> = icmp eq i1 %c<scope.lastRegister>, <argRegister(lval,"lval",scope.lastRegister)>
 <endif>
 >>

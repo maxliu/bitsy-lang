@@ -1,0 +1,1 @@
+llvmValue(v) ::= "<if(v.reference)>%<v><elseif(v.string)><getString(v)><else><v><endif>"

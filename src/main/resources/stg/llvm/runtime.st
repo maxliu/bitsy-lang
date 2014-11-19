@@ -60,8 +60,8 @@ define void @printList(%struct.List* %list) #0 {
     i32 0, label %23
     i32 1, label %34
     i32 2, label %45
-    i32 3, label %58
-    i32 5, label %60
+    i32 5, label %58
+    i32 3, label %60
   ]
 
 ; \<label>:23                                      ; preds = %14

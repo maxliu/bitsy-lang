@@ -1,0 +1,1 @@
+loadString(val, side, register) ::= "%<side><register> = load i8** %<bitsyVariable(val)>"

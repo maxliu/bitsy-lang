@@ -1,0 +1,1 @@
+getString(s) ::= "getelementptr ([<s.LLVMLength> x i8]* @.str<s.register>, i32 0, i32 0)"
