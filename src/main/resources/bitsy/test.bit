@@ -239,4 +239,5 @@ assert lc == ld
 assert la != lb
 
 le = lc + "hello"
+println le
 println "All Passed"

@@ -21,16 +21,15 @@ call i32 (i8*, i64, i8*, ...)* @snprintf(i8* %r<scope.register>, i64 %size<scope
 call i32 (i8*, i64, i8*, ...)* @snprintf(i8* %r<scope.register>, i64 %size<scope.register>, i8* getelementptr inbounds ([5 x i8]* @.stringstring, i32 0, i32 0), i8* <argRegister(lval, "lval", scope.register)>, i8* <argRegister(rval, "rval", scope.register)>)
 <elseif(lval.list)>
 	<if(rval.string)>
-call void @addStringToList(%struct.List* <argRegister(lval, "lval", scope.register)>, i8* <argRegister(rval, "rval", scope.register)>)
-%r<scope.register> = <argRegister(lval, "lval", scope.register)>
+%r<scope.register> = alloca %struct.List* 
+%listPtr<scope.register> = call %struct.List* @addStringToList(%struct.List* <argRegister(lval, "lval", scope.register)>, i8* <argRegister(rval, "rval", scope.register)>)
+store %struct.List* %listPtr<scope.register>, %struct.List** %r<scope.register>
 	<elseif(rval.number)>
 	<elseif(rval.boolean)>
 	<elseif(rval.list)>
 	<endif>
 <elseif(rval.list)>
 	<if(rval.string)>
-call void @addStringToList(%struct.List* <argRegister(rval, "rval", scope.register)>, i8* <argRegister(lval, "lval", scope.register)>)
-%r<scope.register> = <argRegister(rval, "rval", scope.register)>
 	<elseif(rval.number)>
 	<elseif(rval.boolean)>
 	<elseif(rval.list)>
