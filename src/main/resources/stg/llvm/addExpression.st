@@ -29,10 +29,13 @@ store %struct.List* %listPtr<scope.register>, %struct.List** %r<scope.register>
 	<elseif(rval.list)>
 	<endif>
 <elseif(rval.list)>
-	<if(rval.string)>
-	<elseif(rval.number)>
-	<elseif(rval.boolean)>
-	<elseif(rval.list)>
+	<if(lval.string)>
+%r<scope.register> = alloca %struct.List* 
+%listPtr<scope.register> = call %struct.List* @addStringToList(%struct.List* <argRegister(rval, "rval", scope.register)>, i8* <argRegister(lval, "lval", scope.register)>)
+store %struct.List* %listPtr<scope.register>, %struct.List** %r<scope.register>
+	<elseif(lval.number)>
+	<elseif(lval.boolean)>
+	<elseif(lval.list)>
 	<endif>
 
 <endif>
