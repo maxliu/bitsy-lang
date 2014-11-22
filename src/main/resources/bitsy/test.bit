@@ -1,4 +1,4 @@
-/**/
+/*
 a = "test"
 b = "3.3"
 c = 3.3
@@ -225,14 +225,15 @@ def factorial(f:number):number
 		return f * factorial(f - 1)
 	
 assert factorial(4) == 24
-
+*/
 // lists
 la = [ true, 1.2, "hello", false, null,  [ true ] ]
 lb = []
-println la
-println lb
+assert la == [ true, 1.2, "hello", false, null,  [ true ] ]
 assert la == true
+assert lb == []
 assert lb == false
+
 lc = [ true, 1.2, "hello", false, null,  [ true ] ]
 ld = [ true, 1.2, "hello", false, null,  [ true ] ]
 assert lc == ld
@@ -241,6 +242,21 @@ assert la != lb
 le = lc + "hello"
 lf = "hello" + lc
 println le
-println lf
-println lc
+assert le == [ true, 1.2, "hello", false, null,  [ true ], "hello" ]
+assert lf == [ true, 1.2, "hello", false, null,  [ true ], "hello" ]
+
+lg = lc + 3.3
+println lg
+assert lg == [ true, 1.2, "hello", false, null,  [ true ], 3.3 ]
+// assert lh == [ true, 1.2, "hello", false, null,  [ true ], 3.3 ]
+// li = lc + false
+// lj = false + lc
+// assert li == [ true, 1.2, "hello", false, null,  [ true ], false ]
+// assert lj == [ true, 1.2, "hello", false, null,  [ true ], false ]
+// lk = lc + null
+// lm = null + lc
+// assert lk == [ true, 1.2, "hello", false, null,  [ true ], null ]
+// assert lm == [ true, 1.2, "hello", false, null,  [ true ], null ]
+
+
 println "All Passed"

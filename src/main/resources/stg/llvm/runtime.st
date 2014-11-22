@@ -378,7 +378,7 @@ define void @listResize(%struct.List* %list, i32 %newsize) #0 {
   %9 = load i32* %2, align 4
   %10 = add nsw i32 %8, %9
   %11 = icmp slt i32 %5, %10
-  br i1 %11, label %12, label %32
+  br i1 %11, label %12, label %29
 
 ; \<label>:12                                      ; preds = %0
   %13 = load %struct.List** %1, align 8
@@ -399,16 +399,231 @@ define void @listResize(%struct.List* %list, i32 %newsize) #0 {
   %27 = load %struct.List** %1, align 8
   %28 = getelementptr inbounds %struct.List* %27, i32 0, i32 1
   store i32 %26, i32* %28, align 4
-  %29 = load i32* %2, align 4
-  %30 = load %struct.List** %1, align 8
-  %31 = getelementptr inbounds %struct.List* %30, i32 0, i32 0
-  store i32 %29, i32* %31, align 4
-  br label %32
+  br label %29
 
-; \<label>:32                                      ; preds = %12, %0
+; \<label>:29                                      ; preds = %12, %0
+  %30 = load i32* %2, align 4
+  %31 = load %struct.List** %1, align 8
+  %32 = getelementptr inbounds %struct.List* %31, i32 0, i32 0
+  store i32 %30, i32* %32, align 4
   ret void
 }
 
+; Function Attrs: nounwind ssp uwtable
+define %struct.List* @listCopy(%struct.List* %from) #0 {
+  %1 = alloca %struct.List*, align 8
+  %to = alloca %struct.List*, align 8
+  store %struct.List* %from, %struct.List** %1, align 8
+  %2 = call i8* @GC_malloc(i64 16)
+  %3 = bitcast i8* %2 to %struct.List*
+  store %struct.List* %3, %struct.List** %to, align 8
+  %4 = load %struct.List** %1, align 8
+  %5 = getelementptr inbounds %struct.List* %4, i32 0, i32 0
+  %6 = load i32* %5, align 4
+  %7 = add nsw i32 %6, 10
+  %8 = sext i32 %7 to i64
+  %9 = mul i64 16, %8
+  %10 = call i8* @GC_malloc(i64 %9)
+  %11 = bitcast i8* %10 to %struct.Object*
+  %12 = load %struct.List** %to, align 8
+  %13 = getelementptr inbounds %struct.List* %12, i32 0, i32 2
+  store %struct.Object* %11, %struct.Object** %13, align 8
+  %14 = load %struct.List** %to, align 8
+  %15 = load %struct.List** %1, align 8
+  %16 = call %struct.List* @addListToList(%struct.List* %14, %struct.List* %15)
+  %17 = load %struct.List** %to, align 8
+  ret %struct.List* %17
+}
+
+
+; Function Attrs: nounwind ssp uwtable
+define %struct.List* @addListToList(%struct.List* %list, %struct.List* %add) #0 {
+  %1 = alloca %struct.List*, align 8
+  %2 = alloca %struct.List*, align 8
+  %size = alloca i32, align 4
+  %i = alloca i32, align 4
+  %j = alloca i32, align 4
+  store %struct.List* %list, %struct.List** %1, align 8
+  store %struct.List* %add, %struct.List** %2, align 8
+  %3 = load %struct.List** %1, align 8
+  %4 = getelementptr inbounds %struct.List* %3, i32 0, i32 0
+  %5 = load i32* %4, align 4
+  store i32 %5, i32* %size, align 4
+  %6 = load %struct.List** %1, align 8
+  %7 = load i32* %size, align 4
+  %8 = load %struct.List** %2, align 8
+  %9 = getelementptr inbounds %struct.List* %8, i32 0, i32 0
+  %10 = load i32* %9, align 4
+  %11 = add nsw i32 %7, %10
+  call void @listResize(%struct.List* %6, i32 %11)
+  %12 = load i32* %size, align 4
+  store i32 %12, i32* %i, align 4
+  store i32 0, i32* %j, align 4
+  br label %13
+
+; \<label>:13                                      ; preds = %134, %0
+  %14 = load i32* %i, align 4
+  %15 = load i32* %size, align 4
+  %16 = load %struct.List** %2, align 8
+  %17 = getelementptr inbounds %struct.List* %16, i32 0, i32 0
+  %18 = load i32* %17, align 4
+  %19 = add nsw i32 %15, %18
+  %20 = icmp slt i32 %14, %19
+  br i1 %20, label %21, label %139
+
+; \<label>:21                                      ; preds = %13
+  %22 = load i32* %j, align 4
+  %23 = sext i32 %22 to i64
+  %24 = load %struct.List** %2, align 8
+  %25 = getelementptr inbounds %struct.List* %24, i32 0, i32 2
+  %26 = load %struct.Object** %25, align 8
+  %27 = getelementptr inbounds %struct.Object* %26, i64 %23
+  %28 = getelementptr inbounds %struct.Object* %27, i32 0, i32 0
+  %29 = load i32* %28, align 4
+  switch i32 %29, label %129 [
+    i32 0, label %30
+    i32 1, label %42
+    i32 2, label %54
+    i32 3, label %67
+    i32 5, label %130
+  ]
+
+; \<label>:30                                      ; preds = %21
+  %31 = load %struct.List** %1, align 8
+  %32 = load i32* %j, align 4
+  %33 = sext i32 %32 to i64
+  %34 = load %struct.List** %2, align 8
+  %35 = getelementptr inbounds %struct.List* %34, i32 0, i32 2
+  %36 = load %struct.Object** %35, align 8
+  %37 = getelementptr inbounds %struct.Object* %36, i64 %33
+  %38 = getelementptr inbounds %struct.Object* %37, i32 0, i32 1
+  %39 = bitcast %union.Value* %38 to i8**
+  %40 = load i8** %39, align 8
+  %41 = call %struct.List* @addStringToList(%struct.List* %31, i8* %40)
+  br label %133
+
+; \<label>:42                                      ; preds = %21
+  %43 = load %struct.List** %1, align 8
+  %44 = load i32* %j, align 4
+  %45 = sext i32 %44 to i64
+  %46 = load %struct.List** %2, align 8
+  %47 = getelementptr inbounds %struct.List* %46, i32 0, i32 2
+  %48 = load %struct.Object** %47, align 8
+  %49 = getelementptr inbounds %struct.Object* %48, i64 %45
+  %50 = getelementptr inbounds %struct.Object* %49, i32 0, i32 1
+  %51 = bitcast %union.Value* %50 to double*
+  %52 = load double* %51, align 8
+  %53 = call %struct.List* @addNumberToList(%struct.List* %43, double %52)
+  br label %133
+
+; \<label>:54                                      ; preds = %21
+  %55 = load %struct.List** %1, align 8
+  %56 = load i32* %j, align 4
+  %57 = sext i32 %56 to i64
+  %58 = load %struct.List** %2, align 8
+  %59 = getelementptr inbounds %struct.List* %58, i32 0, i32 2
+  %60 = load %struct.Object** %59, align 8
+  %61 = getelementptr inbounds %struct.Object* %60, i64 %57
+  %62 = getelementptr inbounds %struct.Object* %61, i32 0, i32 1
+  %63 = bitcast %union.Value* %62 to i8*
+  %64 = load i8* %63, align 1
+  %65 = trunc i8 %64 to i1
+  %66 = call %struct.List* @addBooleanToList(%struct.List* %55, i1 zeroext %65)
+  br label %133
+
+; \<label>:67                                      ; preds = %21
+  %68 = load i32* %i, align 4
+  %69 = sext i32 %68 to i64
+  %70 = load %struct.List** %1, align 8
+  %71 = getelementptr inbounds %struct.List* %70, i32 0, i32 2
+  %72 = load %struct.Object** %71, align 8
+  %73 = getelementptr inbounds %struct.Object* %72, i64 %69
+  %74 = getelementptr inbounds %struct.Object* %73, i32 0, i32 0
+  store i32 3, i32* %74, align 4
+  %75 = call i8* @GC_malloc(i64 16)
+  %76 = bitcast i8* %75 to %struct.List*
+  %77 = load i32* %i, align 4
+  %78 = sext i32 %77 to i64
+  %79 = load %struct.List** %1, align 8
+  %80 = getelementptr inbounds %struct.List* %79, i32 0, i32 2
+  %81 = load %struct.Object** %80, align 8
+  %82 = getelementptr inbounds %struct.Object* %81, i64 %78
+  %83 = getelementptr inbounds %struct.Object* %82, i32 0, i32 1
+  %84 = bitcast %union.Value* %83 to %struct.List**
+  store %struct.List* %76, %struct.List** %84, align 8
+  %85 = load i32* %j, align 4
+  %86 = sext i32 %85 to i64
+  %87 = load %struct.List** %2, align 8
+  %88 = getelementptr inbounds %struct.List* %87, i32 0, i32 2
+  %89 = load %struct.Object** %88, align 8
+  %90 = getelementptr inbounds %struct.Object* %89, i64 %86
+  %91 = getelementptr inbounds %struct.Object* %90, i32 0, i32 1
+  %92 = bitcast %union.Value* %91 to %struct.List**
+  %93 = load %struct.List** %92, align 8
+  %94 = getelementptr inbounds %struct.List* %93, i32 0, i32 0
+  %95 = load i32* %94, align 4
+  %96 = sext i32 %95 to i64
+  %97 = mul i64 16, %96
+  %98 = call i8* @GC_malloc(i64 %97)
+  %99 = bitcast i8* %98 to %struct.Object*
+  %100 = load i32* %i, align 4
+  %101 = sext i32 %100 to i64
+  %102 = load %struct.List** %1, align 8
+  %103 = getelementptr inbounds %struct.List* %102, i32 0, i32 2
+  %104 = load %struct.Object** %103, align 8
+  %105 = getelementptr inbounds %struct.Object* %104, i64 %101
+  %106 = getelementptr inbounds %struct.Object* %105, i32 0, i32 1
+  %107 = bitcast %union.Value* %106 to %struct.List**
+  %108 = load %struct.List** %107, align 8
+  %109 = getelementptr inbounds %struct.List* %108, i32 0, i32 2
+  store %struct.Object* %99, %struct.Object** %109, align 8
+  %110 = load i32* %i, align 4
+  %111 = sext i32 %110 to i64
+  %112 = load %struct.List** %1, align 8
+  %113 = getelementptr inbounds %struct.List* %112, i32 0, i32 2
+  %114 = load %struct.Object** %113, align 8
+  %115 = getelementptr inbounds %struct.Object* %114, i64 %111
+  %116 = getelementptr inbounds %struct.Object* %115, i32 0, i32 1
+  %117 = bitcast %union.Value* %116 to %struct.List**
+  %118 = load %struct.List** %117, align 8
+  %119 = load i32* %j, align 4
+  %120 = sext i32 %119 to i64
+  %121 = load %struct.List** %2, align 8
+  %122 = getelementptr inbounds %struct.List* %121, i32 0, i32 2
+  %123 = load %struct.Object** %122, align 8
+  %124 = getelementptr inbounds %struct.Object* %123, i64 %120
+  %125 = getelementptr inbounds %struct.Object* %124, i32 0, i32 1
+  %126 = bitcast %union.Value* %125 to %struct.List**
+  %127 = load %struct.List** %126, align 8
+  %128 = call %struct.List* @addListToList(%struct.List* %118, %struct.List* %127)
+  br label %133
+
+; \<label>:129                                     ; preds = %21
+  br label %130
+
+; \<label>:130                                     ; preds = %21, %129
+  %131 = load %struct.List** %1, align 8
+  %132 = call %struct.List* @addNullToList(%struct.List* %131)
+  br label %133
+
+; \<label>:133                                     ; preds = %130, %67, %54, %42, %30
+  br label %134
+
+; \<label>:134                                     ; preds = %133
+  %135 = load i32* %i, align 4
+  %136 = add nsw i32 %135, 1
+  store i32 %136, i32* %i, align 4
+  %137 = load i32* %j, align 4
+  %138 = add nsw i32 %137, 1
+  store i32 %138, i32* %j, align 4
+  br label %13
+
+; \<label>:139                                     ; preds = %13
+  %140 = load %struct.List** %1, align 8
+  ret %struct.List* %140
+}
+
+; Function Attrs: nounwind ssp uwtable
 define %struct.List* @addStringToList(%struct.List* %list, i8* %string) #0 {
   %1 = alloca %struct.List*, align 8
   %2 = alloca i8*, align 8
@@ -443,6 +658,108 @@ define %struct.List* @addStringToList(%struct.List* %list, i8* %string) #0 {
   store i8* %16, i8** %24, align 8
   %25 = load %struct.List** %1, align 8
   ret %struct.List* %25
+}
+
+; Function Attrs: nounwind ssp uwtable
+define %struct.List* @addNumberToList(%struct.List* %list, double %number) #0 {
+  %1 = alloca %struct.List*, align 8
+  %2 = alloca double, align 8
+  %size = alloca i32, align 4
+  store %struct.List* %list, %struct.List** %1, align 8
+  store double %number, double* %2, align 8
+  %3 = load %struct.List** %1, align 8
+  %4 = getelementptr inbounds %struct.List* %3, i32 0, i32 0
+  %5 = load i32* %4, align 4
+  store i32 %5, i32* %size, align 4
+  %6 = load %struct.List** %1, align 8
+  %7 = load i32* %size, align 4
+  %8 = add nsw i32 %7, 1
+  call void @listResize(%struct.List* %6, i32 %8)
+  %9 = load i32* %size, align 4
+  %10 = sext i32 %9 to i64
+  %11 = load %struct.List** %1, align 8
+  %12 = getelementptr inbounds %struct.List* %11, i32 0, i32 2
+  %13 = load %struct.Object** %12, align 8
+  %14 = getelementptr inbounds %struct.Object* %13, i64 %10
+  %15 = getelementptr inbounds %struct.Object* %14, i32 0, i32 0
+  store i32 1, i32* %15, align 4
+  %16 = load double* %2, align 8
+  %17 = load i32* %size, align 4
+  %18 = sext i32 %17 to i64
+  %19 = load %struct.List** %1, align 8
+  %20 = getelementptr inbounds %struct.List* %19, i32 0, i32 2
+  %21 = load %struct.Object** %20, align 8
+  %22 = getelementptr inbounds %struct.Object* %21, i64 %18
+  %23 = getelementptr inbounds %struct.Object* %22, i32 0, i32 1
+  %24 = bitcast %union.Value* %23 to double*
+  store double %16, double* %24, align 8
+  %25 = load %struct.List** %1, align 8
+  ret %struct.List* %25
+}
+
+; Function Attrs: nounwind ssp uwtable
+define %struct.List* @addBooleanToList(%struct.List* %list, i1 zeroext %boolean) #0 {
+  %1 = alloca %struct.List*, align 8
+  %2 = alloca i8, align 1
+  %size = alloca i32, align 4
+  store %struct.List* %list, %struct.List** %1, align 8
+  %3 = zext i1 %boolean to i8
+  store i8 %3, i8* %2, align 1
+  %4 = load %struct.List** %1, align 8
+  %5 = getelementptr inbounds %struct.List* %4, i32 0, i32 0
+  %6 = load i32* %5, align 4
+  store i32 %6, i32* %size, align 4
+  %7 = load %struct.List** %1, align 8
+  %8 = load i32* %size, align 4
+  %9 = add nsw i32 %8, 1
+  call void @listResize(%struct.List* %7, i32 %9)
+  %10 = load i32* %size, align 4
+  %11 = sext i32 %10 to i64
+  %12 = load %struct.List** %1, align 8
+  %13 = getelementptr inbounds %struct.List* %12, i32 0, i32 2
+  %14 = load %struct.Object** %13, align 8
+  %15 = getelementptr inbounds %struct.Object* %14, i64 %11
+  %16 = getelementptr inbounds %struct.Object* %15, i32 0, i32 0
+  store i32 1, i32* %16, align 4
+  %17 = load i8* %2, align 1
+  %18 = trunc i8 %17 to i1
+  %19 = load i32* %size, align 4
+  %20 = sext i32 %19 to i64
+  %21 = load %struct.List** %1, align 8
+  %22 = getelementptr inbounds %struct.List* %21, i32 0, i32 2
+  %23 = load %struct.Object** %22, align 8
+  %24 = getelementptr inbounds %struct.Object* %23, i64 %20
+  %25 = getelementptr inbounds %struct.Object* %24, i32 0, i32 1
+  %26 = bitcast %union.Value* %25 to i8*
+  %27 = zext i1 %18 to i8
+  store i8 %27, i8* %26, align 1
+  %28 = load %struct.List** %1, align 8
+  ret %struct.List* %28
+}
+
+; Function Attrs: nounwind ssp uwtable
+define %struct.List* @addNullToList(%struct.List* %list) #0 {
+  %1 = alloca %struct.List*, align 8
+  %size = alloca i32, align 4
+  store %struct.List* %list, %struct.List** %1, align 8
+  %2 = load %struct.List** %1, align 8
+  %3 = getelementptr inbounds %struct.List* %2, i32 0, i32 0
+  %4 = load i32* %3, align 4
+  store i32 %4, i32* %size, align 4
+  %5 = load %struct.List** %1, align 8
+  %6 = load i32* %size, align 4
+  %7 = add nsw i32 %6, 1
+  call void @listResize(%struct.List* %5, i32 %7)
+  %8 = load i32* %size, align 4
+  %9 = sext i32 %8 to i64
+  %10 = load %struct.List** %1, align 8
+  %11 = getelementptr inbounds %struct.List* %10, i32 0, i32 2
+  %12 = load %struct.Object** %11, align 8
+  %13 = getelementptr inbounds %struct.Object* %12, i64 %9
+  %14 = getelementptr inbounds %struct.Object* %13, i32 0, i32 0
+  store i32 5, i32* %14, align 4
+  %15 = load %struct.List** %1, align 8
+  ret %struct.List* %15
 }
 
 >>

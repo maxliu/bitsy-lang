@@ -20,23 +20,30 @@ call i32 (i8*, i64, i8*, ...)* @snprintf(i8* %r<scope.register>, i64 %size<scope
 %r<scope.register> = call i8* @malloc(i64 %size<scope.register>)
 call i32 (i8*, i64, i8*, ...)* @snprintf(i8* %r<scope.register>, i64 %size<scope.register>, i8* getelementptr inbounds ([5 x i8]* @.stringstring, i32 0, i32 0), i8* <argRegister(lval, "lval", scope.register)>, i8* <argRegister(rval, "rval", scope.register)>)
 <elseif(lval.list)>
+	%listCopy<scope.register> = call %struct.List* @listCopy(%struct.List* <argRegister(lval, "lval", scope.register)>)
 	<if(rval.string)>
-%r<scope.register> = alloca %struct.List* 
-%listPtr<scope.register> = call %struct.List* @addStringToList(%struct.List* <argRegister(lval, "lval", scope.register)>, i8* <argRegister(rval, "rval", scope.register)>)
-store %struct.List* %listPtr<scope.register>, %struct.List** %r<scope.register>
+	%r<scope.register> = call %struct.List* @addStringToList(%struct.List* %listCopy<scope.register>, i8* <argRegister(rval, "rval", scope.register)>)
 	<elseif(rval.number)>
+	%r<scope.register> = call %struct.List* @addNumberToList(%struct.List* %listCopy<scope.register>, double <argRegister(rval, "rval", scope.register)>)
 	<elseif(rval.boolean)>
+	%r<scope.register> = call %struct.List* @addBooleanToList(%struct.List* %listCopy<scope.register>, i1 <argRegister(rval, "rval", scope.register)>)
+	<elseif(rval.null)>
+	%r<scope.register> = call %struct.List* @addNullToList(%struct.List* %listCopy<scope.register>)
 	<elseif(rval.list)>
+	%r<scope.register> = call %struct.List* @addListToList(%struct.List* %listCopy<scope.register>, %struct.List* <argRegister(rval, "rval", scope.register)>)
 	<endif>
 <elseif(rval.list)>
+	%listCopy<scope.register> = call %struct.List* @listCopy(%struct.List* <argRegister(rval, "rval", scope.register)>)
 	<if(lval.string)>
-%r<scope.register> = alloca %struct.List* 
-%listPtr<scope.register> = call %struct.List* @addStringToList(%struct.List* <argRegister(rval, "rval", scope.register)>, i8* <argRegister(lval, "lval", scope.register)>)
-store %struct.List* %listPtr<scope.register>, %struct.List** %r<scope.register>
+	%r<scope.register> = call %struct.List* @addStringToList(%struct.List* %listCopy<scope.register>, i8* <argRegister(lval, "lval", scope.register)>)
 	<elseif(lval.number)>
+	%r<scope.register> = call %struct.List* @addNumberToList(%struct.List* %listCopy<scope.register>, double <argRegister(lval, "lval", scope.register)>)
 	<elseif(lval.boolean)>
+	%r<scope.register> = call %struct.List* @addBooleanToList(%struct.List* %listCopy<scope.register>, i1 <argRegister(lval, "lval", scope.register)>)
+	<elseif(lval.null)>
+	%r<scope.register> = call %struct.List* @addNullToList(%struct.List* %listCopy<scope.register>)
 	<elseif(lval.list)>
+	%r<scope.register> = call %struct.List* @addListToList(%struct.List* %listCopy<scope.register>, %struct.List* <argRegister(lval, "lval", scope.register)>)
 	<endif>
-
 <endif>
 >>
