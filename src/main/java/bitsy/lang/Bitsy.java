@@ -79,13 +79,14 @@ public class Bitsy {
         Files.write(irFile.toPath(), irString.getBytes());
         File bcFile = new File(sourceName+".bc");
         File sFile = new File(sourceName+".s");
+        File runtimeSFile = new File("src/main/resources/c/bitsy.s");
         if (run("llvm-as -f "+irFile) != 0) return;
         //irFile.delete();
         if (run("llc "+bcFile) != 0) return;
         bcFile.delete();
         String exeFile = FilenameUtil.getFilenameAndExtenion(sourceName)[0];
         String gcDir = System.getenv("GC_DIR"); //eg. /usr/local/Cellar/bdw-gc/7.4.2
-        if (run("clang -o "+exeFile+" "+gcDir+"/lib/libgc.a "+sFile) != 0) return;
+        if (run("clang -o "+exeFile+" "+gcDir+"/lib/libgc.a "+runtimeSFile+" "+sFile) != 0) return;
         sFile.delete();
         System.out.println(">>> Created native file "+exeFile);
         run("./"+exeFile);

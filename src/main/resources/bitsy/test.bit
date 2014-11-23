@@ -241,22 +241,26 @@ assert la != lb
 
 le = lc + "hello"
 lf = "hello" + lc
-println le
 assert le == [ true, 1.2, "hello", false, null,  [ true ], "hello" ]
 assert lf == [ true, 1.2, "hello", false, null,  [ true ], "hello" ]
 
 lg = lc + 3.3
-println lg
+lh = 3.3 + lc
 assert lg == [ true, 1.2, "hello", false, null,  [ true ], 3.3 ]
-// assert lh == [ true, 1.2, "hello", false, null,  [ true ], 3.3 ]
-// li = lc + false
-// lj = false + lc
-// assert li == [ true, 1.2, "hello", false, null,  [ true ], false ]
-// assert lj == [ true, 1.2, "hello", false, null,  [ true ], false ]
-// lk = lc + null
-// lm = null + lc
-// assert lk == [ true, 1.2, "hello", false, null,  [ true ], null ]
-// assert lm == [ true, 1.2, "hello", false, null,  [ true ], null ]
+assert lh == [ true, 1.2, "hello", false, null,  [ true ], 3.3 ]
+
+li = lc + false
+lj = false + lc
+assert li == [ true, 1.2, "hello", false, null,  [ true ], false ]
+assert lj == [ true, 1.2, "hello", false, null,  [ true ], false ]
+
+lk = lc + null
+lm = null + lc
+assert lk == [ true, 1.2, "hello", false, null,  [ true ], null ]
+assert lm == [ true, 1.2, "hello", false, null,  [ true ], null ]
+
+ln = lc + lc
+assert ln == [ true, 1.2, "hello", false, null,  [ true ], true, 1.2, "hello", false, null,  [ true ] ]
 
 
 println "All Passed"

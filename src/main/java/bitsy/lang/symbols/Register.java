@@ -50,4 +50,8 @@ public class Register {
 	public boolean isMap() {
 		return type == BuiltinType.MAP;
 	}
+
+	public boolean isNull() {
+		return type == BuiltinType.NULL;
+	}
 }

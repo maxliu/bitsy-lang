@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 public class Value {
-	public static final Value NULL = new Value();
-	public static final Value VOID = new Value();
 	private int register;
 	Object value;
     
@@ -56,6 +54,10 @@ public class Value {
     
     public boolean isMap() {
     	return value instanceof Map || (isReference() && asReference().isMap());
+    }
+    
+    public boolean isNull() {
+    	return value == null || (isReference() && asReference().isNull());
     }
     
     public boolean isOnTrue() {
